@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,12 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import type { PublicListing } from "@/lib/types";
 import { CATEGORIES, CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
+import { formatListingMeta } from "@/lib/listing-meta";
 import { VENEZUELA_STATES } from "@/lib/venezuela";
 import { fetchJson } from "@/lib/fetch-json";
+import { sortByDistance } from "@/lib/geo";
 import { cn } from "@/lib/utils";
+import type { MapUserLocation } from "@/components/map/listings-map";
 
 const ListingsMap = dynamic(() => import("@/components/map/listings-map"), {
   ssr: false,
@@ -37,6 +40,17 @@ export function MapExplorer() {
   const [stateFilter, setStateFilter] = useState(ALL);
   const [focusId, setFocusId] = useState<string | null>(null);
   const [listOpen, setListOpen] = useState(false);
+  const [userLocation, setUserLocation] = useState<MapUserLocation | null>(null);
+
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) =>
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {},
+      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 }
+    );
+  }, []);
 
   const query = useMemo(() => {
     const params = new URLSearchParams();
@@ -50,7 +64,11 @@ export function MapExplorer() {
   const { data, isLoading } = useSWR<{ listings: PublicListing[] }>(query, fetchJson, {
     refreshInterval: 60_000,
   });
-  const listings = data?.listings ?? [];
+  const listings = useMemo(() => {
+    const raw = data?.listings ?? [];
+    if (!userLocation) return raw;
+    return sortByDistance(raw, userLocation);
+  }, [data?.listings, userLocation]);
 
   return (
     <div className="flex flex-1 flex-col" data-testid="map-explorer">
@@ -113,7 +131,7 @@ export function MapExplorer() {
         </aside>
 
         <div className="relative h-[calc(100dvh-8.5rem)] flex-1 md:h-auto">
-          <ListingsMap listings={listings} focusId={focusId} />
+          <ListingsMap listings={listings} focusId={focusId} userLocation={userLocation} />
 
           <div className="absolute inset-x-0 bottom-0 z-[1000] md:hidden">
             <button
@@ -206,6 +224,9 @@ function ListingList({
             <span className="text-xs text-muted-foreground">
               {listing.municipality}, {listing.state} · por {listing.authorName}
             </span>
+            <Badge variant="outline" className="w-fit text-[10px]">
+              {formatListingMeta(listing.quantity, listing.quantityUnit, listing.modality)}
+            </Badge>
             <Link
               href={`/ayuda/${listing.id}`}
               className="text-xs font-medium text-primary underline"

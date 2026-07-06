@@ -1,18 +1,27 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
 import Link from "next/link";
 import { useEffect } from "react";
 import type { PublicListing } from "@/lib/types";
 import { CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
+import { formatListingMeta } from "@/lib/listing-meta";
 import { VENEZUELA_CENTER } from "@/lib/venezuela";
+import { ZONE_COLORS, zoneRadiusMeters } from "@/lib/geo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { MapLegend } from "@/components/map/map-legend";
 import "leaflet/dist/leaflet.css";
 
+export interface MapUserLocation {
+  lat: number;
+  lng: number;
+}
+
 function markerIcon(listing: PublicListing) {
-  const borderColor = listing.type === "OFREZCO" ? "#059669" : "#e11d48";
+  const borderColor =
+    listing.type === "OFREZCO" ? ZONE_COLORS.OFREZCO.stroke : ZONE_COLORS.NECESITO.stroke;
   const safeUrl = listing.authorAvatarUrl.replace(/"/g, "&quot;");
   return L.divIcon({
     className: "",
@@ -23,78 +32,139 @@ function markerIcon(listing: PublicListing) {
   });
 }
 
-function FitToListings({ listings, focusId }: { listings: PublicListing[]; focusId?: string | null }) {
+function userLocationIcon() {
+  return L.divIcon({
+    className: "",
+    html: `<div style="width:16px;height:16px;border-radius:50%;background:#0ea5e9;border:3px solid #fff;box-shadow:0 0 0 2px #0ea5e9"></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  });
+}
+
+function zoneStyle(listing: PublicListing) {
+  const colors =
+    listing.type === "OFREZCO" ? ZONE_COLORS.OFREZCO : ZONE_COLORS.NECESITO;
+  return {
+    color: colors.stroke,
+    fillColor: colors.fill,
+    fillOpacity: listing.modality === "ONLINE" ? 0.12 : 0.22,
+    weight: 2,
+    opacity: 0.85,
+    dashArray: listing.modality === "ONLINE" ? "8 6" : undefined,
+  };
+}
+
+function FitToListings({
+  listings,
+  focusId,
+  userLocation,
+}: {
+  listings: PublicListing[];
+  focusId?: string | null;
+  userLocation?: MapUserLocation | null;
+}) {
   const map = useMap();
   useEffect(() => {
     if (focusId) {
       const focused = listings.find((l) => l.id === focusId);
       if (focused) {
-        map.setView([focused.lat, focused.lng], 14, { animate: true });
+        map.setView([focused.lat, focused.lng], 13, { animate: true });
         return;
       }
     }
-    if (listings.length > 0) {
-      const bounds = L.latLngBounds(listings.map((l) => [l.lat, l.lng] as [number, number]));
-      map.fitBounds(bounds.pad(0.2), { maxZoom: 12 });
+    const points: [number, number][] = listings.map((l) => [l.lat, l.lng]);
+    if (userLocation) points.push([userLocation.lat, userLocation.lng]);
+    if (points.length > 0) {
+      const bounds = L.latLngBounds(points);
+      map.fitBounds(bounds.pad(0.15), { maxZoom: userLocation ? 11 : 12 });
     }
-  }, [listings, focusId, map]);
+  }, [listings, focusId, userLocation, map]);
   return null;
 }
 
 interface ListingsMapProps {
   listings: PublicListing[];
   focusId?: string | null;
+  userLocation?: MapUserLocation | null;
 }
 
-/** Mapa con marcadores de avatar y popups con ficha resumida. */
-export default function ListingsMap({ listings, focusId }: ListingsMapProps) {
+/** Mapa con zonas azul/rojo, marcadores y solapamiento visible por transparencia. */
+export default function ListingsMap({ listings, focusId, userLocation }: ListingsMapProps) {
   return (
-    <MapContainer
-      center={[VENEZUELA_CENTER.lat, VENEZUELA_CENTER.lng]}
-      zoom={6}
-      className="h-full w-full"
-      scrollWheelZoom
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-      />
-      <FitToListings listings={listings} focusId={focusId} />
-      {listings.map((listing) => (
-        <Marker key={listing.id} position={[listing.lat, listing.lng]} icon={markerIcon(listing)}>
-          <Popup minWidth={260} maxWidth={300}>
-            <div className="grid gap-2">
-              <div className="flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element -- Leaflet popup no monta next/image de forma fiable */}
-                <img
-                  src={listing.authorAvatarUrl}
-                  alt={`Foto de ${listing.authorName}`}
-                  width={48}
-                  height={48}
-                  className="h-12 w-12 rounded-full border-2 border-primary object-cover"
-                />
-                <div className="grid gap-0.5">
-                  <strong className="text-sm">{listing.authorName}</strong>
-                  <span className="text-xs text-muted-foreground">
-                    {listing.municipality}, {listing.state}
-                  </span>
+    <div className="relative h-full w-full">
+      <MapContainer
+        center={[VENEZUELA_CENTER.lat, VENEZUELA_CENTER.lng]}
+        zoom={6}
+        className="h-full w-full"
+        scrollWheelZoom
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+        />
+        <FitToListings listings={listings} focusId={focusId} userLocation={userLocation} />
+
+        {listings.map((listing) => (
+          <Circle
+            key={`zone-${listing.id}`}
+            center={[listing.lat, listing.lng]}
+            radius={zoneRadiusMeters(listing.radiusKm)}
+            pathOptions={zoneStyle(listing)}
+          />
+        ))}
+
+        {userLocation && (
+          <Marker position={[userLocation.lat, userLocation.lng]} icon={userLocationIcon()}>
+            <Popup>Tu ubicación aproximada</Popup>
+          </Marker>
+        )}
+
+        {listings.map((listing) => (
+          <Marker key={listing.id} position={[listing.lat, listing.lng]} icon={markerIcon(listing)}>
+            <Popup minWidth={260} maxWidth={300}>
+              <div className="grid gap-2">
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- Leaflet popup no monta next/image de forma fiable */}
+                  <img
+                    src={listing.authorAvatarUrl}
+                    alt={`Foto de ${listing.authorName}`}
+                    width={48}
+                    height={48}
+                    className="h-12 w-12 rounded-full border-2 border-primary object-cover"
+                  />
+                  <div className="grid gap-0.5">
+                    <strong className="text-sm">{listing.authorName}</strong>
+                    <span className="text-xs text-muted-foreground">
+                      {listing.municipality}, {listing.state}
+                    </span>
+                  </div>
                 </div>
+                <Badge
+                  variant={listing.type === "OFREZCO" ? "default" : "destructive"}
+                  className="w-fit"
+                >
+                  {LISTING_TYPE_LABELS[listing.type]}
+                </Badge>
+                <strong>{listing.title}</strong>
+                <span className="text-xs text-muted-foreground">
+                  Zona de acción: ~{listing.radiusKm} km
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {CATEGORY_ICONS[listing.category]} {CATEGORY_LABELS[listing.category]}
+                </span>
+                <Badge variant="outline" className="w-fit text-[10px]">
+                  {formatListingMeta(listing.quantity, listing.quantityUnit, listing.modality)}
+                </Badge>
+                <p className="m-0 text-sm">{listing.description}</p>
+                <Button asChild size="sm" className="w-fit">
+                  <Link href={`/ayuda/${listing.id}`}>Ver ficha</Link>
+                </Button>
               </div>
-              <Badge variant={listing.type === "OFREZCO" ? "default" : "destructive"} className="w-fit">
-                {LISTING_TYPE_LABELS[listing.type]}
-              </Badge>
-              <strong>{listing.title}</strong>
-              <span className="text-xs text-muted-foreground">
-                {CATEGORY_ICONS[listing.category]} {CATEGORY_LABELS[listing.category]}
-              </span>
-              <p className="m-0 text-sm">{listing.description}</p>
-              <Button asChild size="sm" className="w-fit">
-                <Link href={`/ayuda/${listing.id}`}>Ver ficha</Link>
-              </Button>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+      <MapLegend />
+    </div>
   );
 }

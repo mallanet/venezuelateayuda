@@ -42,6 +42,20 @@ enum Category {
   OTRO
 }
 
+enum HelpModality {
+  PRESENCIAL
+  ONLINE
+}
+
+enum QuantityUnit {
+  KIT
+  UNIDAD
+  PERSONA
+  FAMILIA
+  HORA
+  SESION
+}
+
 enum ReportStatus {
   ABIERTA
   RESUELTA
@@ -110,6 +124,9 @@ model HelpListing {
   municipality String
   lat          Float
   lng          Float
+  quantity     Int           @default(1)
+  quantityUnit QuantityUnit  @default(UNIDAD)
+  modality     HelpModality  @default(PRESENCIAL)
   status       ListingStatus @default(PENDIENTE)
   rejectReason String?
   createdAt    DateTime      @default(now())

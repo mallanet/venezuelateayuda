@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -38,7 +39,15 @@ export function Navbar() {
     <header className="sticky top-0 z-[1100] border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
         <Link href="/" className="flex items-center gap-2 font-semibold text-primary">
-          <span aria-hidden>🤝</span>
+          <Image
+            src="/logo.png"
+            alt=""
+            width={56}
+            height={56}
+            className="h-14 w-14 shrink-0 object-contain"
+            aria-hidden
+            priority
+          />
           <span className="whitespace-nowrap">Venezuela Te Ayuda</span>
         </Link>
 

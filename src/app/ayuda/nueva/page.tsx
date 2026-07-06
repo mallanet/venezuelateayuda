@@ -26,6 +26,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { StateMunicipalitySelect } from "@/components/state-municipality-select";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
+import { MODALITY_LABELS, QUANTITY_UNITS, QUANTITY_UNIT_LABELS } from "@/lib/listing-meta";
 import { VENEZUELA_CENTER, getState } from "@/lib/venezuela";
 import { cn } from "@/lib/utils";
 
@@ -44,6 +45,8 @@ export default function NuevaFichaPage() {
   const [state, setState] = useState("");
   const [municipality, setMunicipality] = useState("");
   const [position, setPosition] = useState(VENEZUELA_CENTER);
+  const [quantityUnit, setQuantityUnit] = useState("UNIDAD");
+  const [modality, setModality] = useState<"PRESENCIAL" | "ONLINE">("PRESENCIAL");
   const [loading, setLoading] = useState(false);
 
   function handleStateChange(newState: string) {
@@ -69,6 +72,9 @@ export default function NuevaFichaPage() {
           municipality,
           lat: position.lat,
           lng: position.lng,
+          quantity: Number(form.get("quantity")),
+          quantityUnit,
+          modality,
         }),
       });
       const data = await res.json();
@@ -173,6 +179,68 @@ export default function NuevaFichaPage() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="grid gap-2">
+                <Label htmlFor="quantity">Cantidad</Label>
+                <Input
+                  id="quantity"
+                  name="quantity"
+                  type="number"
+                  min={1}
+                  max={9999}
+                  defaultValue={1}
+                  required
+                  data-testid="input-quantity"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="quantityUnit">Unidad</Label>
+                <Select value={quantityUnit} onValueChange={setQuantityUnit}>
+                  <SelectTrigger id="quantityUnit" data-testid="select-quantity-unit">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="z-[1300]">
+                    {QUANTITY_UNITS.map((u) => (
+                      <SelectItem key={u} value={u}>
+                        {QUANTITY_UNIT_LABELS[u]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label>Modalidad</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    data-testid="modality-presencial"
+                    onClick={() => setModality("PRESENCIAL")}
+                    className={cn(
+                      "rounded-lg border p-3 text-left text-sm transition-colors",
+                      modality === "PRESENCIAL"
+                        ? "border-primary bg-primary/10 ring-1 ring-primary"
+                        : "hover:bg-muted"
+                    )}
+                  >
+                    {MODALITY_LABELS.PRESENCIAL}
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="modality-online"
+                    onClick={() => setModality("ONLINE")}
+                    className={cn(
+                      "rounded-lg border p-3 text-left text-sm transition-colors",
+                      modality === "ONLINE"
+                        ? "border-primary bg-primary/10 ring-1 ring-primary"
+                        : "hover:bg-muted"
+                    )}
+                  >
+                    {MODALITY_LABELS.ONLINE}
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="grid gap-2">

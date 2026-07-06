@@ -1,4 +1,4 @@
-import type { Category, ListingType } from "@prisma/client";
+import type { Category, HelpModality, ListingType, QuantityUnit } from "@prisma/client";
 
 /** Ficha de ayuda tal como se expone públicamente (datos minimizados). */
 export interface PublicListing {
@@ -13,7 +13,12 @@ export interface PublicListing {
   lng: number;
   createdAt: string;
   authorName: string;
+  authorDisplayName: string;
   authorAvatarUrl: string;
+  radiusKm: number;
+  quantity: number;
+  quantityUnit: QuantityUnit;
+  modality: HelpModality;
 }
 
 /** Ayudante verificado expuesto en el directorio de profesionales. */

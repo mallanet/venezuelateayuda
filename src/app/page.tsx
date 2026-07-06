@@ -75,20 +75,6 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
-
-      <footer className="border-t px-4 py-8">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
-          <span>© {new Date().getFullYear()} Venezuela Te Ayuda</span>
-          <nav className="flex gap-4" aria-label="Legal">
-            <Link href="/legal/terminos" className="hover:underline">
-              Términos de uso
-            </Link>
-            <Link href="/legal/privacidad" className="hover:underline">
-              Privacidad
-            </Link>
-          </nav>
-        </div>
-      </footer>
     </div>
   );
 }

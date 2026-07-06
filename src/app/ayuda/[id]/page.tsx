@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
+import { formatListingMeta } from "@/lib/listing-meta";
 import { ContactButton } from "@/components/contact-button";
 import { ReportDialog } from "@/components/report-dialog";
 import { CloseListingButton } from "@/components/close-listing-button";
@@ -55,6 +56,9 @@ export default async function FichaDetallePage({
             </Badge>
             <Badge variant="secondary">
               {CATEGORY_ICONS[listing.category]} {CATEGORY_LABELS[listing.category]}
+            </Badge>
+            <Badge variant="outline">
+              {formatListingMeta(listing.quantity, listing.quantityUnit, listing.modality)}
             </Badge>
             {listing.status !== "APROBADA" && (
               <Badge variant="outline">Estado: {listing.status.toLowerCase()}</Badge>

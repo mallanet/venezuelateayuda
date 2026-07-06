@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { PublicListing } from "@/lib/types";
 import { CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
+import { formatListingMeta } from "@/lib/listing-meta";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -12,10 +13,11 @@ interface ListingCardProps {
   selected?: boolean;
   onSelect?: () => void;
   compact?: boolean;
+  distanceKm?: number;
 }
 
 /** Tarjeta estilo directorio con foto de perfil, nombre y categoría. */
-export function ListingCard({ listing, selected, onSelect, compact }: ListingCardProps) {
+export function ListingCard({ listing, selected, onSelect, compact, distanceKm }: ListingCardProps) {
   const Wrapper = onSelect ? "button" : "div";
 
   return (
@@ -51,9 +53,13 @@ export function ListingCard({ listing, selected, onSelect, compact }: ListingCar
         <span className="font-semibold leading-tight">{listing.title}</span>
         <span className="text-xs text-muted-foreground">
           {listing.authorName} · {listing.municipality}, {listing.state}
+          {distanceKm !== undefined && ` · ~${distanceKm} km`}
         </span>
         <Badge variant="secondary" className="mt-1 w-fit text-[10px] uppercase tracking-wide">
           {CATEGORY_ICONS[listing.category]} {CATEGORY_LABELS[listing.category]}
+        </Badge>
+        <Badge variant="outline" className="w-fit text-[10px]">
+          {formatListingMeta(listing.quantity, listing.quantityUnit, listing.modality)}
         </Badge>
         {!onSelect && (
           <Link

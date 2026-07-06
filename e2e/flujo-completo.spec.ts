@@ -50,6 +50,9 @@ test.describe("Flujo completo: publicar, moderar, contactar", () => {
       await helperPage.getByLabel("Título").fill(listingTitle);
       await helperPage.getByTestId("select-categoria").click();
       await helperPage.getByRole("option", { name: "Alimentos" }).click();
+      await helperPage.getByTestId("select-quantity-unit").click();
+      await helperPage.getByRole("option", { name: "Kit" }).click();
+      await helperPage.getByTestId("modality-presencial").click();
       await helperPage
         .getByLabel("Descripción")
         .fill("Puedo compartir un mercado solidario mensual con una familia de la zona.");
@@ -96,6 +99,8 @@ test.describe("Flujo completo: publicar, moderar, contactar", () => {
         .locator("li", { hasText: listingTitle })
         .first();
       await expect(listingCard).toBeVisible();
+      await expect(listingCard).toContainText("1 kit");
+      await expect(listingCard).toContainText("Presencial");
       await listingCard.getByRole("link", { name: "Ver ficha completa" }).click();
 
       await seekerPage.waitForURL("**/ayuda/**");
@@ -191,7 +196,10 @@ test.describe("Flujo completo: publicar, moderar, contactar", () => {
 
     const publicListing = data.listings.find((l: { id: string }) => l.id === approved.id);
     expect(publicListing.authorName).toBe("Marta");
-    expect(publicListing.authorAvatarUrl).toContain("ui-avatars.com");
+    expect(publicListing.authorAvatarUrl).toContain("pravatar.cc");
+    expect(publicListing.quantity).toBe(1);
+    expect(publicListing.quantityUnit).toBe("UNIDAD");
+    expect(publicListing.modality).toBe("PRESENCIAL");
     expect(JSON.stringify(publicListing)).not.toContain(email);
 
     await prisma.helpListing.deleteMany({ where: { id: { in: [approved.id, pending.id] } } });

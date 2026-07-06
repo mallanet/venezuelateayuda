@@ -25,6 +25,9 @@ export const listingSchema = z.object({
   municipality: z.string().min(1),
   lat: z.number().min(0.5).max(13),
   lng: z.number().min(-74).max(-59),
+  quantity: z.number().int().min(1, "La cantidad debe ser al menos 1").max(9999),
+  quantityUnit: z.enum(["KIT", "UNIDAD", "PERSONA", "FAMILIA", "HORA", "SESION"]),
+  modality: z.enum(["PRESENCIAL", "ONLINE"]),
 });
 
 export const profileSchema = z.object({

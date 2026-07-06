@@ -41,10 +41,14 @@ export async function GET(req: Request) {
       municipality: true,
       lat: true,
       lng: true,
+      quantity: true,
+      quantityUnit: true,
+      modality: true,
       createdAt: true,
       user: {
         select: {
-          profile: { select: { displayName: true, avatarUrl: true } },
+          id: true,
+          profile: { select: { displayName: true, avatarUrl: true, radiusKm: true } },
         },
       },
     },
@@ -57,7 +61,7 @@ export async function GET(req: Request) {
         id: l.id,
         type: l.type,
         title: l.title,
-        description: l.description.slice(0, 200),
+        description: l.description,
         category: l.category,
         state: l.state,
         municipality: l.municipality,
@@ -65,7 +69,12 @@ export async function GET(req: Request) {
         lng: l.lng,
         createdAt: l.createdAt,
         authorName: displayName.split(" ")[0],
-        authorAvatarUrl: getAvatarUrl(displayName, l.user.profile?.avatarUrl),
+        authorDisplayName: displayName,
+        authorAvatarUrl: getAvatarUrl(displayName, l.user.profile?.avatarUrl, l.user.id),
+        radiusKm: l.user.profile?.radiusKm ?? 10,
+        quantity: l.quantity,
+        quantityUnit: l.quantityUnit,
+        modality: l.modality,
       };
     }),
   });

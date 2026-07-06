@@ -63,7 +63,7 @@ export async function GET(req: Request) {
         return {
           id: u.id,
           displayName: profile.displayName,
-          avatarUrl: getAvatarUrl(profile.displayName, profile.avatarUrl),
+          avatarUrl: getAvatarUrl(profile.displayName, profile.avatarUrl, u.id),
           state: profile.state,
           municipality: profile.municipality,
           bio: profile.bio,
