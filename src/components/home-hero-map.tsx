@@ -82,18 +82,22 @@ export function HomeHeroMap() {
   }
 
   return (
-    <section
-      className="bg-gradient-to-b from-primary/10 to-background px-4 py-10 md:py-14"
-      data-testid="home-hero-map"
-    >
-      <div className="mx-auto grid max-w-7xl gap-8">
-        <div className="mx-auto grid max-w-3xl gap-4 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">
-            Conectamos ayuda con quien la necesita
-          </h1>
-          <p className="text-base text-muted-foreground md:text-lg">
-            Venezuela Te Ayuda es un mapa de ayuda mutua: publica lo que puedes ofrecer o lo
-            que necesitas, y encuentra personas verificadas cerca de ti.
+    <section className="relative overflow-hidden px-4 py-10 md:py-14" data-testid="home-hero-map">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[min(480px,55vh)] bg-[url('/hero-bg.png')] bg-cover bg-center bg-no-repeat"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[min(480px,55vh)] bg-gradient-to-b from-background/10 via-background/70 to-background"
+        aria-hidden
+      />
+
+      <div className="relative z-10 mx-auto grid max-w-7xl gap-8">
+        <div className="mx-auto grid max-w-3xl gap-4 pt-[min(13rem,30vh)] text-center sm:pt-[min(15rem,34vh)]">
+          <h1 className="sr-only">Conectamos ayuda con quien la necesita</h1>
+          <p className="sr-only">
+            Venezuela Te Ayuda es un mapa de ayuda mutua: publica lo que puedes ofrecer o lo que
+            necesitas, y encuentra personas verificadas cerca de ti.
           </p>
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg">
