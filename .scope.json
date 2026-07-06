@@ -1,0 +1,75 @@
+{
+  "prompt": "Agregar mapa embebido en home con fichas con foto de perfil, filtros tipo directorio, pestaña profesionales y registro rápido.",
+  "intent": "Integrar mapa interactivo con filtros estilo directorio en el hero del home, fichas con avatar de perfil, página /profesionales y marcadores con foto en el mapa.",
+  "decomposition": [
+    {
+      "step": 1,
+      "subtask": "avatarUrl en Profile + migración + helper + asignación en registro/perfil",
+      "expected_files": [
+        "prisma/schema.prisma",
+        "src/lib/avatar.ts",
+        "src/app/api/register/route.ts",
+        "src/lib/validation.ts",
+        "src/app/api/profile/route.ts"
+      ]
+    },
+    {
+      "step": 2,
+      "subtask": "API listings/professionals con búsqueda y avatar; tipos PublicListing/PublicProfessional",
+      "expected_files": [
+        "src/app/api/listings/route.ts",
+        "src/app/api/professionals/route.ts",
+        "src/lib/types.ts",
+        "e2e/flujo-completo.spec.ts"
+      ]
+    },
+    {
+      "step": 3,
+      "subtask": "Componentes UI: cards, filtros, hero-map, directorio, mapa con fotos",
+      "expected_files": [
+        "src/components/listing-card.tsx",
+        "src/components/professional-card.tsx",
+        "src/components/map-filter-sidebar.tsx",
+        "src/components/home-hero-map.tsx",
+        "src/components/professionals-directory.tsx",
+        "src/components/map/listings-map.tsx"
+      ]
+    },
+    {
+      "step": 4,
+      "subtask": "Home con mapa embebido, página /profesionales y enlace en navbar",
+      "expected_files": [
+        "src/app/page.tsx",
+        "src/app/profesionales/page.tsx",
+        "src/components/navbar.tsx"
+      ]
+    }
+  ],
+  "verifications": [
+    { "step": 1, "verdict": "ACCEPT", "note": "avatarUrl migrado; registro y perfil persisten avatar generado" },
+    { "step": 2, "verdict": "ACCEPT", "note": "APIs públicas devuelven authorAvatarUrl; E2E assert avatar" },
+    { "step": 3, "verdict": "ACCEPT", "note": "HomeHeroMap, directorio y marcadores con foto cableados" },
+    { "step": 4, "verdict": "ACCEPT", "note": "page.tsx monta HomeHeroMap; /profesionales y nav enlazados" }
+  ],
+  "files": [
+    "prisma/schema.prisma",
+    "src/lib/avatar.ts",
+    "src/lib/types.ts",
+    "src/app/api/listings/route.ts",
+    "src/app/api/professionals/route.ts",
+    "src/components/listing-card.tsx",
+    "src/components/professional-card.tsx",
+    "src/components/map-filter-sidebar.tsx",
+    "src/components/home-hero-map.tsx",
+    "src/components/professionals-directory.tsx",
+    "src/components/map/listings-map.tsx",
+    "src/app/profesionales/page.tsx",
+    "src/app/page.tsx",
+    "src/components/navbar.tsx",
+    "src/app/api/register/route.ts",
+    "src/lib/validation.ts",
+    "src/app/api/profile/route.ts",
+    "e2e/flujo-completo.spec.ts"
+  ],
+  "acceptance": "npm run build compila; home muestra mapa con filtros y fichas con avatar; /profesionales lista ayudantes verificados estilo directorio."
+}

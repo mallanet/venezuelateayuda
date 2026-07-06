@@ -1,0 +1,63 @@
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import type { PublicProfessional } from "@/lib/types";
+import { CATEGORY_ICONS, CATEGORY_LABELS } from "@/lib/categories";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+
+interface ProfessionalCardProps {
+  professional: PublicProfessional;
+  selected?: boolean;
+}
+
+/** Tarjeta de ayudante verificado para el directorio de profesionales. */
+export function ProfessionalCard({ professional, selected }: ProfessionalCardProps) {
+  const category = professional.primaryCategory;
+
+  return (
+    <article
+      className={cn(
+        "grid overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:shadow-md",
+        selected && "border-primary ring-2 ring-primary/30"
+      )}
+      data-testid={`professional-card-${professional.id}`}
+    >
+      <div className="relative aspect-[3/4] w-full bg-muted">
+        <Image
+          src={professional.avatarUrl}
+          alt={`Foto de ${professional.displayName}`}
+          fill
+          className="object-cover"
+          sizes="(max-width:768px) 50vw, 25vw"
+          unoptimized
+        />
+      </div>
+      <div className="grid gap-2 p-4 text-center">
+        <h3 className="font-semibold leading-tight">{professional.displayName}</h3>
+        <p className="text-xs text-muted-foreground">
+          {professional.municipality}, {professional.state}
+        </p>
+        {category && (
+          <Badge className="mx-auto w-fit text-[10px] uppercase tracking-wide">
+            {CATEGORY_ICONS[category]} {CATEGORY_LABELS[category]}
+          </Badge>
+        )}
+        {professional.bio && (
+          <p className="line-clamp-2 text-xs text-muted-foreground">{professional.bio}</p>
+        )}
+        <span className="text-xs text-muted-foreground">
+          {professional.listingsCount}{" "}
+          {professional.listingsCount === 1 ? "ficha activa" : "fichas activas"}
+        </span>
+        <Link
+          href={`/mapa?state=${encodeURIComponent(professional.state)}`}
+          className="text-xs font-medium text-primary underline"
+        >
+          Ver en el mapa
+        </Link>
+      </div>
+    </article>
+  );
+}

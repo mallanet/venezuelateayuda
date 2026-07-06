@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  AYUDANTE
+  SOLICITANTE
+  ADMIN
+}
+
+enum UserStatus {
+  PENDIENTE
+  APROBADO
+  RECHAZADO
+  SUSPENDIDO
+}
+
+enum ListingType {
+  OFREZCO
+  NECESITO
+}
+
+enum ListingStatus {
+  PENDIENTE
+  APROBADA
+  RECHAZADA
+  CERRADA
+}
+
+enum Category {
+  ALIMENTOS
+  MEDICINAS
+  TRANSPORTE
+  ALOJAMIENTO
+  EDUCACION
+  EMPLEO
+  OTRO
+}
+
+enum ReportStatus {
+  ABIERTA
+  RESUELTA
+  DESCARTADA
+}
+
+model User {
+  id              String     @id @default(cuid())
+  email           String     @unique
+  passwordHash    String
+  role            Role       @default(SOLICITANTE)
+  status          UserStatus @default(PENDIENTE)
+  emailVerified   DateTime?
+  termsAcceptedAt DateTime
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  profile            Profile?
+  listings           HelpListing[]
+  sentMessages       Message[]           @relation("SentMessages")
+  conversationsA     Conversation[]      @relation("ParticipantA")
+  conversationsB     Conversation[]      @relation("ParticipantB")
+  reportsMade        Report[]            @relation("Reporter")
+  reportsReceived    Report[]            @relation("ReportedUser")
+  auditLogs          AuditLog[]          @relation("AdminActions")
+  verificationTokens VerificationToken[]
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Profile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  displayName  String
+  avatarUrl    String?
+  phone        String?
+  bio          String?
+  state        String
+  municipality String
+  lat          Float?
+  lng          Float?
+  radiusKm     Int      @default(10)
+  categories   Category[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model HelpListing {
+  id           String        @id @default(cuid())
+  userId       String
+  type         ListingType
+  title        String
+  description  String
+  category     Category
+  state        String
+  municipality String
+  lat          Float
+  lng          Float
+  status       ListingStatus @default(PENDIENTE)
+  rejectReason String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversations Conversation[]
+  reports       Report[]       @relation("ReportedListing")
+
+  @@index([status, category, type])
+}
+
+model Conversation {
+  id             String   @id @default(cuid())
+  listingId      String
+  participantAId String
+  participantBId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  listing      HelpListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  participantA User        @relation("ParticipantA", fields: [participantAId], references: [id], onDelete: Cascade)
+  participantB User        @relation("ParticipantB", fields: [participantBId], references: [id], onDelete: Cascade)
+  messages     Message[]
+
+  @@unique([listingId, participantAId, participantBId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  senderId       String
+  body           String
+  readAt         DateTime?
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+}
+
+model Report {
+  id                String       @id @default(cuid())
+  reporterId        String
+  reportedUserId    String?
+  reportedListingId String?
+  reason            String
+  status            ReportStatus @default(ABIERTA)
+  resolution        String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  reporter        User         @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser    User?        @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: SetNull)
+  reportedListing HelpListing? @relation("ReportedListing", fields: [reportedListingId], references: [id], onDelete: SetNull)
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  adminId    String
+  action     String
+  targetType String
+  targetId   String
+  detail     String?
+  createdAt  DateTime @default(now())
+
+  admin User @relation("AdminActions", fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([targetType, targetId])
+}
