@@ -1,3 +1,5 @@
+import { ABROAD_MAP_LAT, ABROAD_MAP_LNG, ABROAD_STATE } from "@/lib/abroad";
+
 /**
  * Estados de Venezuela con su capital, coordenadas aproximadas del centro
  * y municipios principales. Se usa para el selector de zona y como
@@ -40,5 +42,8 @@ export const VENEZUELA_STATES: VenezuelaState[] = [
 ];
 
 export function getState(name: string): VenezuelaState | undefined {
+  if (name === ABROAD_STATE) {
+    return { name: ABROAD_STATE, lat: ABROAD_MAP_LAT, lng: ABROAD_MAP_LNG, municipalities: [] };
+  }
   return VENEZUELA_STATES.find((s) => s.name === name);
 }

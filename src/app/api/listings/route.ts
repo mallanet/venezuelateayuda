@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/api-helpers";
 import { listingSchema } from "@/lib/validation";
 import { CATEGORIES } from "@/lib/categories";
+import { abroadMapPosition, isAbroadState } from "@/lib/abroad";
 import { getAvatarUrl } from "@/lib/avatar";
 
 /** Lista pública de fichas aprobadas, con filtros por tipo, categoría, estado y búsqueda. */
@@ -75,6 +76,7 @@ export async function GET(req: Request) {
         quantity: l.quantity,
         quantityUnit: l.quantityUnit,
         modality: l.modality,
+        isAbroad: isAbroadState(l.state),
       };
     }),
   });
@@ -93,8 +95,19 @@ export async function POST(req: Request) {
     );
   }
 
+  const data = parsed.data;
+  const abroad = isAbroadState(data.state);
+  const coords = abroad ? abroadMapPosition(user.id) : { lat: data.lat, lng: data.lng };
+
   const listing = await prisma.helpListing.create({
-    data: { ...parsed.data, userId: user.id },
+    data: {
+      ...data,
+      lat: coords.lat,
+      lng: coords.lng,
+      modality: abroad ? "ONLINE" : data.modality,
+      type: abroad ? "OFREZCO" : data.type,
+      userId: user.id,
+    },
   });
 
   return NextResponse.json({ listing }, { status: 201 });

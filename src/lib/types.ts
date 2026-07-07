@@ -19,6 +19,7 @@ export interface PublicListing {
   quantity: number;
   quantityUnit: QuantityUnit;
   modality: HelpModality;
+  isAbroad: boolean;
 }
 
 /** Ayudante verificado expuesto en el directorio de profesionales. */

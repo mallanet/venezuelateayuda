@@ -22,6 +22,13 @@ export function MapLegend() {
           />
           <span>Necesito ayuda (rojo)</span>
         </li>
+        <li className="flex items-center gap-2">
+          <span
+            className="h-3 w-3 rounded-full border-2 border-emerald-600 bg-emerald-500/40"
+            aria-hidden
+          />
+          <span>Ayuda online desde el exterior</span>
+        </li>
         <li className="flex items-center gap-2 text-muted-foreground">
           <span
             className="h-3 w-3 rounded-full border-2 border-violet-600 bg-violet-500/40"

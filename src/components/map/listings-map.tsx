@@ -3,10 +3,11 @@
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import type { PublicListing } from "@/lib/types";
 import { CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
 import { formatListingMeta } from "@/lib/listing-meta";
+import { abroadLocationLabel, isAbroadState } from "@/lib/abroad";
 import { VENEZUELA_CENTER } from "@/lib/venezuela";
 import { ZONE_COLORS, zoneRadiusMeters } from "@/lib/geo";
 import { Badge } from "@/components/ui/badge";
@@ -20,8 +21,12 @@ export interface MapUserLocation {
 }
 
 function markerIcon(listing: PublicListing) {
-  const borderColor =
-    listing.type === "OFREZCO" ? ZONE_COLORS.OFREZCO.stroke : ZONE_COLORS.NECESITO.stroke;
+  const abroad = isAbroadState(listing.state);
+  const borderColor = abroad
+    ? "#059669"
+    : listing.type === "OFREZCO"
+      ? ZONE_COLORS.OFREZCO.stroke
+      : ZONE_COLORS.NECESITO.stroke;
   const safeUrl = listing.authorAvatarUrl.replace(/"/g, "&quot;");
   return L.divIcon({
     className: "",
@@ -42,15 +47,19 @@ function userLocationIcon() {
 }
 
 function zoneStyle(listing: PublicListing) {
-  const colors =
-    listing.type === "OFREZCO" ? ZONE_COLORS.OFREZCO : ZONE_COLORS.NECESITO;
+  const abroad = isAbroadState(listing.state);
+  const colors = abroad
+    ? { stroke: "#059669", fill: "#10b981" }
+    : listing.type === "OFREZCO"
+      ? ZONE_COLORS.OFREZCO
+      : ZONE_COLORS.NECESITO;
   return {
     color: colors.stroke,
     fillColor: colors.fill,
-    fillOpacity: listing.modality === "ONLINE" ? 0.12 : 0.22,
-    weight: 2,
+    fillOpacity: listing.modality === "ONLINE" || abroad ? 0.12 : 0.22,
+    weight: abroad ? 3 : 2,
     opacity: 0.85,
-    dashArray: listing.modality === "ONLINE" ? "8 6" : undefined,
+    dashArray: listing.modality === "ONLINE" || abroad ? "8 6" : undefined,
   };
 }
 
@@ -88,8 +97,24 @@ interface ListingsMapProps {
   userLocation?: MapUserLocation | null;
 }
 
+const subscribeNoop = () => () => {};
+
+function useClientMounted() {
+  return useSyncExternalStore(subscribeNoop, () => true, () => false);
+}
+
 /** Mapa con zonas azul/rojo, marcadores y solapamiento visible por transparencia. */
-export default function ListingsMap({ listings, focusId, userLocation }: ListingsMapProps) {
+export default function ListingsMap(props: ListingsMapProps) {
+  const mounted = useClientMounted();
+
+  if (!mounted) {
+    return <div className="relative h-full min-h-[200px] w-full bg-muted/30" aria-hidden />;
+  }
+
+  return <ListingsMapContent {...props} />;
+}
+
+function ListingsMapContent({ listings, focusId, userLocation }: ListingsMapProps) {
   return (
     <div className="relative h-full w-full">
       <MapContainer
@@ -135,7 +160,9 @@ export default function ListingsMap({ listings, focusId, userLocation }: Listing
                   <div className="grid gap-0.5">
                     <strong className="text-sm">{listing.authorName}</strong>
                     <span className="text-xs text-muted-foreground">
-                      {listing.municipality}, {listing.state}
+                      {isAbroadState(listing.state)
+                        ? abroadLocationLabel(listing.municipality)
+                        : `${listing.municipality}, ${listing.state}`}
                     </span>
                   </div>
                 </div>
@@ -147,7 +174,9 @@ export default function ListingsMap({ listings, focusId, userLocation }: Listing
                 </Badge>
                 <strong>{listing.title}</strong>
                 <span className="text-xs text-muted-foreground">
-                  Zona de acción: ~{listing.radiusKm} km
+                  {isAbroadState(listing.state)
+                    ? "Ayuda online desde el exterior"
+                    : `Zona de acción: ~${listing.radiusKm} km`}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {CATEGORY_ICONS[listing.category]} {CATEGORY_LABELS[listing.category]}

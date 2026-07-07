@@ -10,7 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { StateMunicipalitySelect } from "@/components/state-municipality-select";
+import { AbroadHelperFields } from "@/components/abroad-helper-fields";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
+import { ABROAD_STATE, isAbroadState } from "@/lib/abroad";
 
 interface ProfileFormValues {
   displayName: string;
@@ -22,10 +24,19 @@ interface ProfileFormValues {
   categories: Category[];
 }
 
-export function ProfileForm({ initial }: { initial: ProfileFormValues }) {
+export function ProfileForm({
+  initial,
+  role,
+}: {
+  initial: ProfileFormValues;
+  role: string;
+}) {
   const router = useRouter();
   const [values, setValues] = useState(initial);
+  const [isAbroad, setIsAbroad] = useState(isAbroadState(initial.state));
+  const [country, setCountry] = useState(isAbroadState(initial.state) ? initial.municipality : "");
   const [loading, setLoading] = useState(false);
+  const canBeAbroad = role === "AYUDANTE";
 
   function toggleCategory(category: Category) {
     setValues((v) => ({
@@ -40,10 +51,15 @@ export function ProfileForm({ initial }: { initial: ProfileFormValues }) {
     e.preventDefault();
     setLoading(true);
     try {
+      const payload = {
+        ...values,
+        state: isAbroad ? ABROAD_STATE : values.state,
+        municipality: isAbroad ? country.trim() : values.municipality,
+      };
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -56,6 +72,8 @@ export function ProfileForm({ initial }: { initial: ProfileFormValues }) {
       setLoading(false);
     }
   }
+
+  const locationReady = isAbroad ? country.trim().length >= 2 : Boolean(values.state && values.municipality);
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-5">
@@ -95,24 +113,45 @@ export function ProfileForm({ initial }: { initial: ProfileFormValues }) {
         />
       </div>
 
-      <StateMunicipalitySelect
-        state={values.state}
-        municipality={values.municipality}
-        onStateChange={(state) => setValues((v) => ({ ...v, state, municipality: "" }))}
-        onMunicipalityChange={(municipality) => setValues((v) => ({ ...v, municipality }))}
-      />
-
-      <div className="grid gap-2">
-        <Label htmlFor="radiusKm">Radio de acción: {values.radiusKm} km</Label>
-        <Input
-          id="radiusKm"
-          type="range"
-          min={1}
-          max={100}
-          value={values.radiusKm}
-          onChange={(e) => setValues((v) => ({ ...v, radiusKm: Number(e.target.value) }))}
+      {canBeAbroad && (
+        <AbroadHelperFields
+          isAbroad={isAbroad}
+          country={country}
+          onIsAbroadChange={(value) => {
+            setIsAbroad(value);
+            if (!value) {
+              setCountry("");
+              setValues((v) => ({ ...v, state: "", municipality: "" }));
+            } else {
+              setValues((v) => ({ ...v, state: ABROAD_STATE, municipality: "" }));
+            }
+          }}
+          onCountryChange={setCountry}
         />
-      </div>
+      )}
+
+      {!isAbroad && (
+        <StateMunicipalitySelect
+          state={values.state}
+          municipality={values.municipality}
+          onStateChange={(state) => setValues((v) => ({ ...v, state, municipality: "" }))}
+          onMunicipalityChange={(municipality) => setValues((v) => ({ ...v, municipality }))}
+        />
+      )}
+
+      {!isAbroad && (
+        <div className="grid gap-2">
+          <Label htmlFor="radiusKm">Radio de acción: {values.radiusKm} km</Label>
+          <Input
+            id="radiusKm"
+            type="range"
+            min={1}
+            max={100}
+            value={values.radiusKm}
+            onChange={(e) => setValues((v) => ({ ...v, radiusKm: Number(e.target.value) }))}
+          />
+        </div>
+      )}
 
       <div className="grid gap-2">
         <Label>Categorías en las que participo</Label>
@@ -132,7 +171,7 @@ export function ProfileForm({ initial }: { initial: ProfileFormValues }) {
         </div>
       </div>
 
-      <Button type="submit" disabled={loading || !values.state || !values.municipality} className="justify-self-start">
+      <Button type="submit" disabled={loading || !locationReady} className="justify-self-start">
         {loading ? "Guardando..." : "Guardar cambios"}
       </Button>
     </form>

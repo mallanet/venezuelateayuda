@@ -16,6 +16,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StateMunicipalitySelect } from "@/components/state-municipality-select";
+import { AbroadHelperFields } from "@/components/abroad-helper-fields";
+import { ABROAD_STATE } from "@/lib/abroad";
 import { cn } from "@/lib/utils";
 
 type RoleOption = "AYUDANTE" | "SOLICITANTE";
@@ -25,6 +27,8 @@ export default function RegistroPage() {
   const [role, setRole] = useState<RoleOption>("AYUDANTE");
   const [state, setState] = useState("");
   const [municipality, setMunicipality] = useState("");
+  const [isAbroad, setIsAbroad] = useState(false);
+  const [country, setCountry] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -42,8 +46,8 @@ export default function RegistroPage() {
           displayName: form.get("displayName"),
           phone: form.get("phone") || "",
           role,
-          state,
-          municipality,
+          state: isAbroad ? ABROAD_STATE : state,
+          municipality: isAbroad ? country.trim() : municipality,
           acceptTerms,
         }),
       });
@@ -77,7 +81,9 @@ export default function RegistroPage() {
                 <button
                   type="button"
                   data-testid="role-ayudante"
-                  onClick={() => setRole("AYUDANTE")}
+                  onClick={() => {
+                    setRole("AYUDANTE");
+                  }}
                   className={cn(
                     "rounded-lg border p-4 text-left transition-colors",
                     role === "AYUDANTE"
@@ -93,7 +99,11 @@ export default function RegistroPage() {
                 <button
                   type="button"
                   data-testid="role-solicitante"
-                  onClick={() => setRole("SOLICITANTE")}
+                  onClick={() => {
+                    setRole("SOLICITANTE");
+                    setIsAbroad(false);
+                    setCountry("");
+                  }}
                   className={cn(
                     "rounded-lg border p-4 text-left transition-colors",
                     role === "SOLICITANTE"
@@ -143,12 +153,31 @@ export default function RegistroPage() {
               <Input id="phone" name="phone" type="tel" placeholder="+58 412 0000000" maxLength={20} />
             </div>
 
-            <StateMunicipalitySelect
-              state={state}
-              municipality={municipality}
-              onStateChange={setState}
-              onMunicipalityChange={setMunicipality}
-            />
+            {role === "AYUDANTE" && (
+              <AbroadHelperFields
+                isAbroad={isAbroad}
+                country={country}
+                onIsAbroadChange={(value) => {
+                  setIsAbroad(value);
+                  if (!value) {
+                    setCountry("");
+                  } else {
+                    setState("");
+                    setMunicipality("");
+                  }
+                }}
+                onCountryChange={setCountry}
+              />
+            )}
+
+            {!isAbroad && (
+              <StateMunicipalitySelect
+                state={state}
+                municipality={municipality}
+                onStateChange={setState}
+                onMunicipalityChange={setMunicipality}
+              />
+            )}
 
             <div className="flex items-start gap-2">
               <Checkbox
@@ -170,7 +199,14 @@ export default function RegistroPage() {
               </Label>
             </div>
 
-            <Button type="submit" disabled={loading || !acceptTerms || !state || !municipality}>
+            <Button
+              type="submit"
+              disabled={
+                loading ||
+                !acceptTerms ||
+                (isAbroad ? country.trim().length < 2 : !state || !municipality)
+              }
+            >
               {loading ? "Creando cuenta..." : "Crear cuenta"}
             </Button>
 

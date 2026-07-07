@@ -6,6 +6,7 @@ import type { PublicListing } from "@/lib/types";
 import { CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
 import { formatListingMeta } from "@/lib/listing-meta";
 import { Badge } from "@/components/ui/badge";
+import { abroadLocationLabel, isAbroadState } from "@/lib/abroad";
 import { cn } from "@/lib/utils";
 
 interface ListingCardProps {
@@ -42,23 +43,34 @@ export function ListingCard({ listing, selected, onSelect, compact, distanceKm }
         />
       </div>
       <div className={cn("grid gap-1", compact ? "text-center" : "p-4")}>
+        {!compact && isAbroadState(listing.state) && (
+          <Badge variant="success" className="mb-1 h-6 w-fit px-2.5 text-sm">
+            🌍 Ayuda online
+          </Badge>
+        )}
         {!compact && (
           <Badge
             variant={listing.type === "OFREZCO" ? "default" : "destructive"}
-            className="mb-1 w-fit text-[10px]"
+            className="mb-1 h-6 w-fit px-2.5 text-sm"
           >
             {LISTING_TYPE_LABELS[listing.type]}
           </Badge>
         )}
         <span className="font-semibold leading-tight">{listing.title}</span>
         <span className="text-xs text-muted-foreground">
-          {listing.authorName} · {listing.municipality}, {listing.state}
+          {listing.authorName} ·{" "}
+          {isAbroadState(listing.state)
+            ? abroadLocationLabel(listing.municipality)
+            : `${listing.municipality}, ${listing.state}`}
           {distanceKm !== undefined && ` · ~${distanceKm} km`}
         </span>
         <Badge variant="secondary" className="mt-1 w-fit text-[10px] uppercase tracking-wide">
           {CATEGORY_ICONS[listing.category]} {CATEGORY_LABELS[listing.category]}
         </Badge>
-        <Badge variant="outline" className="w-fit text-[10px]">
+        <Badge
+          variant={listing.modality === "ONLINE" ? "success" : "outline"}
+          className="w-fit text-xs"
+        >
           {formatListingMeta(listing.quantity, listing.quantityUnit, listing.modality)}
         </Badge>
         {!onSelect && (

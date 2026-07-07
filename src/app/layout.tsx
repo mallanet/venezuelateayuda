@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { auth } from "@/lib/auth";
 import { Navbar } from "@/components/navbar";
 import { SiteFooter } from "@/components/site-footer";
+import { OG_IMAGE, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,9 +25,40 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Venezuela Te Ayuda — Mapa de ayuda mutua",
-  description:
-    "Plataforma que conecta a personas que ofrecen ayuda con personas que la necesitan en Venezuela, a través de un mapa de ayuda mutua verificado.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — Mapa de ayuda mutua en Venezuela`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
+  applicationName: SITE_NAME,
+  authors: [{ name: "Mallanet", url: "https://mallanet.org" }],
+  creator: "Mallanet",
+  publisher: "Mallanet",
+  formatDetection: { email: false, address: false, telephone: false },
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "es_VE",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — Buscar y ofrecer ayuda en Venezuela`,
+    description: SITE_DESCRIPTION,
+    images: [{ url: OG_IMAGE, width: 410, height: 364, alt: SITE_NAME }],
+  },
+  twitter: {
+    card: "summary",
+    title: `${SITE_NAME} — Mapa de ayuda mutua`,
+    description: SITE_DESCRIPTION,
+    images: [OG_IMAGE],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
+  category: "humanitarian",
 };
 
 export default async function RootLayout({

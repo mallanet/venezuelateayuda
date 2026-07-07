@@ -5,6 +5,7 @@ import Image from "next/image";
 import type { PublicProfessional } from "@/lib/types";
 import { CATEGORY_ICONS, CATEGORY_LABELS } from "@/lib/categories";
 import { Badge } from "@/components/ui/badge";
+import { abroadLocationLabel, isAbroadState } from "@/lib/abroad";
 import { cn } from "@/lib/utils";
 
 interface ProfessionalCardProps {
@@ -37,8 +38,15 @@ export function ProfessionalCard({ professional, selected }: ProfessionalCardPro
       <div className="grid gap-2 p-4 text-center">
         <h3 className="font-semibold leading-tight">{professional.displayName}</h3>
         <p className="text-xs text-muted-foreground">
-          {professional.municipality}, {professional.state}
+          {isAbroadState(professional.state)
+            ? abroadLocationLabel(professional.municipality)
+            : `${professional.municipality}, ${professional.state}`}
         </p>
+        {isAbroadState(professional.state) && (
+          <Badge variant="success" className="mx-auto w-fit text-[10px]">
+            🌍 Ayuda online
+          </Badge>
+        )}
         {category && (
           <Badge className="mx-auto w-fit text-[10px] uppercase tracking-wide">
             {CATEGORY_ICONS[category]} {CATEGORY_LABELS[category]}

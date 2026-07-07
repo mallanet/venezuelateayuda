@@ -2,6 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -10,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CATEGORIES, CATEGORY_ICONS, CATEGORY_LABELS } from "@/lib/categories";
+import { ABROAD_STATE } from "@/lib/abroad";
 import { VENEZUELA_STATES } from "@/lib/venezuela";
 
 export const FILTER_ALL = "TODOS";
@@ -19,6 +21,7 @@ export interface MapFilters {
   type: string;
   category: string;
   state: string;
+  nearMe: boolean;
 }
 
 interface MapFilterSidebarProps {
@@ -27,6 +30,11 @@ interface MapFilterSidebarProps {
   resultsCount?: number;
   isLoading?: boolean;
   showTypeFilter?: boolean;
+  showNearMeFilter?: boolean;
+  locationReady?: boolean;
+  hasGeolocation?: boolean;
+  searchLabel?: string;
+  searchPlaceholder?: string;
   className?: string;
 }
 
@@ -37,6 +45,11 @@ export function MapFilterSidebar({
   resultsCount,
   isLoading,
   showTypeFilter = true,
+  showNearMeFilter = false,
+  locationReady = false,
+  hasGeolocation = true,
+  searchLabel = "Busca por nombre",
+  searchPlaceholder = "Busca por nombre...",
   className,
 }: MapFilterSidebarProps) {
   return (
@@ -48,15 +61,43 @@ export function MapFilterSidebar({
       <h2 className="mb-4 text-lg font-semibold text-foreground">Filtra tu búsqueda</h2>
       <div className="grid gap-4">
         <div className="grid gap-2">
-          <Label htmlFor="filter-q">Busca por nombre</Label>
+          <Label htmlFor="filter-q">{searchLabel}</Label>
           <Input
             id="filter-q"
-            placeholder="Busca por nombre..."
+            placeholder={searchPlaceholder}
             value={filters.q}
             onChange={(e) => onChange({ q: e.target.value })}
             data-testid="filter-search"
           />
         </div>
+
+        {showNearMeFilter && (
+          <div className="grid gap-1.5">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="filter-near-me"
+                checked={filters.nearMe}
+                onCheckedChange={(checked) => onChange({ nearMe: checked === true })}
+                disabled={!hasGeolocation}
+                data-testid="filter-near-me"
+              />
+              <Label htmlFor="filter-near-me" className="cursor-pointer font-normal">
+                Cerca de mí
+              </Label>
+            </div>
+            {filters.nearMe && !locationReady && hasGeolocation && (
+              <p className="text-xs text-muted-foreground">Obteniendo tu ubicación…</p>
+            )}
+            {!hasGeolocation && (
+              <p className="text-xs text-muted-foreground">
+                Tu navegador no permite usar la ubicación.
+              </p>
+            )}
+            {filters.nearMe && locationReady && (
+              <p className="text-xs text-muted-foreground">Mostrando ayuda a menos de 50 km</p>
+            )}
+          </div>
+        )}
 
         {showTypeFilter && (
           <div className="grid gap-2">
@@ -99,6 +140,7 @@ export function MapFilterSidebar({
             </SelectTrigger>
             <SelectContent className="z-[1300]">
               <SelectItem value={FILTER_ALL}>Todo el país</SelectItem>
+              <SelectItem value={ABROAD_STATE}>En el exterior (online)</SelectItem>
               {VENEZUELA_STATES.map((s) => (
                 <SelectItem key={s.name} value={s.name}>
                   {s.name}

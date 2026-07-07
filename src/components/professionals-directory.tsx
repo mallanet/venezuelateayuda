@@ -28,6 +28,7 @@ export function ProfessionalsDirectory() {
     type: FILTER_ALL,
     category: FILTER_ALL,
     state: FILTER_ALL,
+    nearMe: false,
   });
 
   const query = useMemo(() => buildProfessionalsQuery(filters), [filters]);
@@ -45,6 +46,8 @@ export function ProfessionalsDirectory() {
           resultsCount={professionals.length}
           isLoading={isLoading}
           showTypeFilter={false}
+          searchLabel="Busca por nombre o profesión"
+          searchPlaceholder="Nombre, oficio o especialidad..."
           className="rounded-xl border bg-card p-5 shadow-sm lg:sticky lg:top-20 lg:self-start"
         />
 

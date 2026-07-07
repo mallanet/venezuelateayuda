@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { Category, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { CATEGORIES } from "@/lib/categories";
+import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import { getAvatarUrl } from "@/lib/avatar";
 
 /** Directorio público de ayudantes verificados con al menos una ficha aprobada. */
@@ -18,7 +18,17 @@ export async function GET(req: Request) {
   if (state) listingFilter.state = state;
 
   const profileWhere: Prisma.ProfileWhereInput = {};
-  if (q) profileWhere.displayName = { contains: q, mode: "insensitive" };
+  if (q) {
+    const qLower = q.toLowerCase();
+    const categoryMatches = CATEGORIES.filter((c) =>
+      CATEGORY_LABELS[c].toLowerCase().includes(qLower)
+    );
+    profileWhere.OR = [
+      { displayName: { contains: q, mode: "insensitive" } },
+      { bio: { contains: q, mode: "insensitive" } },
+      ...categoryMatches.map((c) => ({ categories: { has: c } })),
+    ];
+  }
   if (state) profileWhere.state = state;
   if (category && CATEGORIES.includes(category as Category)) {
     profileWhere.categories = { has: category as Category };

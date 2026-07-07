@@ -77,6 +77,7 @@ export default async function PerfilPage() {
             </div>
           )}
           <ProfileForm
+            role={user.role}
             initial={{
               displayName: profile.displayName,
               phone: profile.phone ?? "",

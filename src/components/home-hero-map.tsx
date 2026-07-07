@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,7 +15,7 @@ import {
   type MapFilters,
 } from "@/components/map-filter-sidebar";
 import type { PublicListing } from "@/lib/types";
-import { distanceKm, sortByDistance } from "@/lib/geo";
+import { distanceKm, filterWithinRadius, sortByDistance } from "@/lib/geo";
 import { fetchJson } from "@/lib/fetch-json";
 import type { MapUserLocation } from "@/components/map/listings-map";
 
@@ -31,14 +31,17 @@ export function HomeHeroMap() {
     type: FILTER_ALL,
     category: FILTER_ALL,
     state: FILTER_ALL,
+    nearMe: false,
   });
   const [focusId, setFocusId] = useState<string | null>(null);
   const [modalListing, setModalListing] = useState<PublicListing | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [userLocation, setUserLocation] = useState<MapUserLocation | null>(null);
 
-  useEffect(() => {
-    if (!navigator.geolocation) return;
+  const hasGeolocation = typeof navigator !== "undefined" && !!navigator.geolocation;
+
+  const requestUserLocation = useCallback(() => {
+    if (!hasGeolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) =>
         setUserLocation({
@@ -48,7 +51,15 @@ export function HomeHeroMap() {
       () => {},
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 }
     );
-  }, []);
+  }, [hasGeolocation]);
+
+  useEffect(() => {
+    requestUserLocation();
+  }, [requestUserLocation]);
+
+  useEffect(() => {
+    if (filters.nearMe && !userLocation) requestUserLocation();
+  }, [filters.nearMe, userLocation, requestUserLocation]);
 
   const query = useMemo(() => buildListingsQuery(filters), [filters]);
   const { data, isLoading } = useSWR<{ listings: PublicListing[] }>(query, fetchJson, {
@@ -56,21 +67,25 @@ export function HomeHeroMap() {
   });
   const listings = useMemo(() => data?.listings ?? [], [data?.listings]);
 
-  const sortedListings = useMemo(() => {
-    if (!userLocation) return listings;
-    return sortByDistance(listings, userLocation);
-  }, [listings, userLocation]);
+  const visibleListings = useMemo(() => {
+    let pool = listings;
+    if (filters.nearMe && userLocation) {
+      pool = filterWithinRadius(pool, userLocation);
+    }
+    if (userLocation) return sortByDistance(pool, userLocation);
+    return pool;
+  }, [listings, userLocation, filters.nearMe]);
 
   const preview = useMemo(() => {
-    let pool = sortedListings;
+    let pool = visibleListings;
     if (filters.type === "NECESITO") {
-      pool = sortedListings.filter((l) => l.type === "OFREZCO");
+      pool = visibleListings.filter((l) => l.type === "OFREZCO");
     } else if (filters.type === FILTER_ALL && userLocation) {
-      const helpers = sortedListings.filter((l) => l.type === "OFREZCO");
+      const helpers = visibleListings.filter((l) => l.type === "OFREZCO");
       if (helpers.length > 0) pool = helpers;
     }
     return pool.slice(0, 8);
-  }, [sortedListings, filters.type, userLocation]);
+  }, [visibleListings, filters.type, userLocation]);
 
   function distanceFor(listing: PublicListing): number | undefined {
     if (!userLocation) return undefined;
@@ -115,14 +130,17 @@ export function HomeHeroMap() {
           <MapFilterSidebar
             filters={filters}
             onChange={updateFilters}
-            resultsCount={listings.length}
+            resultsCount={visibleListings.length}
             isLoading={isLoading}
+            showNearMeFilter
+            locationReady={!!userLocation}
+            hasGeolocation={hasGeolocation}
             className="rounded-xl border bg-card p-5 shadow-sm"
           />
 
           <div className="grid gap-4">
             <div className="h-[340px] overflow-hidden rounded-xl border shadow-md sm:h-[420px] md:h-[480px]">
-              <ListingsMap listings={listings} focusId={focusId} userLocation={userLocation} />
+              <ListingsMap listings={visibleListings} focusId={focusId} userLocation={userLocation} />
             </div>
           </div>
         </div>

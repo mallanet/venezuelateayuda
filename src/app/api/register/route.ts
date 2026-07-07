@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validation";
 import { sendVerificationEmail } from "@/lib/email";
+import { abroadMapPosition, isAbroadState } from "@/lib/abroad";
 import { getState } from "@/lib/venezuela";
 import { getAvatarUrl } from "@/lib/avatar";
 
@@ -26,7 +27,10 @@ export async function POST(req: Request) {
   }
 
   const passwordHash = await bcrypt.hash(data.password, 12);
-  const stateInfo = getState(data.state);
+  const abroad = isAbroadState(data.state);
+  const coords = abroad
+    ? abroadMapPosition(email)
+    : { lat: getState(data.state)?.lat ?? null, lng: getState(data.state)?.lng ?? null };
 
   const user = await prisma.user.create({
     data: {
@@ -41,8 +45,8 @@ export async function POST(req: Request) {
           phone: data.phone || null,
           state: data.state,
           municipality: data.municipality,
-          lat: stateInfo?.lat ?? null,
-          lng: stateInfo?.lng ?? null,
+          lat: coords.lat,
+          lng: coords.lng,
         },
       },
     },

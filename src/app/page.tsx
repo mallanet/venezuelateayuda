@@ -1,10 +1,63 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent } from "@/components/ui/card";
 import { HomeHeroMap } from "@/components/home-hero-map";
 import { CATEGORIES, CATEGORY_ICONS, CATEGORY_LABELS } from "@/lib/categories";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: "Buscar ayuda en Venezuela — Mapa de ayuda mutua verificada",
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: SITE_URL },
+  openGraph: {
+    title: "Buscar ayuda en Venezuela — Mapa de ayuda mutua",
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+  },
+};
+
+const homeJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: SITE_NAME,
+      description: SITE_DESCRIPTION,
+      inLanguage: "es-VE",
+      publisher: { "@id": `${SITE_URL}/#organization` },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: { "@type": "EntryPoint", urlTemplate: `${SITE_URL}/mapa?q={search_term_string}` },
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      url: SITE_URL,
+      logo: `${SITE_URL}/logo.png`,
+      sameAs: ["https://mallanet.org", "https://discord.gg/mallanet"],
+    },
+    {
+      "@type": "WebPage",
+      "@id": `${SITE_URL}/#webpage`,
+      url: SITE_URL,
+      name: "Buscar ayuda en Venezuela",
+      description: SITE_DESCRIPTION,
+      isPartOf: { "@id": `${SITE_URL}/#website` },
+      about: {
+        "@type": "Thing",
+        name: "Ayuda humanitaria y mutua en Venezuela",
+      },
+    },
+  ],
+};
 
 export default async function HomePage() {
   const [helpers, requests, resolved] = await Promise.all([
@@ -15,6 +68,10 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
+      />
       <HomeHeroMap />
 
       <section className="mx-auto grid w-full max-w-5xl gap-8 px-4 py-16">

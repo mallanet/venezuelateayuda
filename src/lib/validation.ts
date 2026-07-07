@@ -1,45 +1,108 @@
 import { z } from "zod";
+import { ABROAD_STATE, isAbroadState } from "@/lib/abroad";
 import { VENEZUELA_STATES } from "@/lib/venezuela";
 
-const stateNames = VENEZUELA_STATES.map((s) => s.name) as [string, ...string[]];
+const venezuelaStateNames = VENEZUELA_STATES.map((s) => s.name) as [string, ...string[]];
+const stateNames = [...venezuelaStateNames, ABROAD_STATE] as [string, ...string[]];
 
-export const registerSchema = z.object({
-  email: z.string().email("Email inválido"),
-  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
-  role: z.enum(["AYUDANTE", "SOLICITANTE"]),
-  displayName: z.string().min(2, "Nombre demasiado corto").max(60),
-  phone: z.string().max(20).optional().or(z.literal("")),
-  state: z.enum(stateNames),
-  municipality: z.string().min(1, "Selecciona un municipio"),
-  acceptTerms: z.literal(true, {
-    message: "Debes aceptar los términos y la política de privacidad",
-  }),
-});
+export const registerSchema = z
+  .object({
+    email: z.string().email("Email inválido"),
+    password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+    role: z.enum(["AYUDANTE", "SOLICITANTE"]),
+    displayName: z.string().min(2, "Nombre demasiado corto").max(60),
+    phone: z.string().max(20).optional().or(z.literal("")),
+    state: z.enum(stateNames),
+    municipality: z.string().min(1, "Selecciona un municipio o indica tu país"),
+    acceptTerms: z.literal(true, {
+      message: "Debes aceptar los términos y la política de privacidad",
+    }),
+  })
+  .superRefine((data, ctx) => {
+    if (isAbroadState(data.state)) {
+      if (data.role !== "AYUDANTE") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Solo los ayudantes pueden registrarse desde el exterior",
+          path: ["role"],
+        });
+      }
+      if (data.municipality.length < 2) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Indica tu país de residencia",
+          path: ["municipality"],
+        });
+      }
+    }
+  });
 
-export const listingSchema = z.object({
-  type: z.enum(["OFREZCO", "NECESITO"]),
-  title: z.string().min(5, "Título demasiado corto").max(100),
-  description: z.string().min(20, "Describe con más detalle (mínimo 20 caracteres)").max(2000),
-  category: z.enum(["ALIMENTOS", "MEDICINAS", "TRANSPORTE", "ALOJAMIENTO", "EDUCACION", "EMPLEO", "OTRO"]),
-  state: z.enum(stateNames),
-  municipality: z.string().min(1),
-  lat: z.number().min(0.5).max(13),
-  lng: z.number().min(-74).max(-59),
-  quantity: z.number().int().min(1, "La cantidad debe ser al menos 1").max(9999),
-  quantityUnit: z.enum(["KIT", "UNIDAD", "PERSONA", "FAMILIA", "HORA", "SESION"]),
-  modality: z.enum(["PRESENCIAL", "ONLINE"]),
-});
+export const listingSchema = z
+  .object({
+    type: z.enum(["OFREZCO", "NECESITO"]),
+    title: z.string().min(5, "Título demasiado corto").max(100),
+    description: z
+      .string()
+      .min(20, "Describe con más detalle (mínimo 20 caracteres)")
+      .max(2000),
+    category: z.enum([
+      "ALIMENTOS",
+      "MEDICINAS",
+      "TRANSPORTE",
+      "ALOJAMIENTO",
+      "EDUCACION",
+      "EMPLEO",
+      "OTRO",
+    ]),
+    state: z.enum(stateNames),
+    municipality: z.string().min(1),
+    lat: z.number().min(-90).max(90),
+    lng: z.number().min(-180).max(180),
+    quantity: z.number().int().min(1, "La cantidad debe ser al menos 1").max(9999),
+    quantityUnit: z.enum(["KIT", "UNIDAD", "PERSONA", "FAMILIA", "HORA", "SESION"]),
+    modality: z.enum(["PRESENCIAL", "ONLINE"]),
+  })
+  .superRefine((data, ctx) => {
+    if (isAbroadState(data.state)) {
+      if (data.type !== "OFREZCO") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Las fichas desde el exterior solo pueden ofrecer ayuda",
+          path: ["type"],
+        });
+      }
+      if (data.modality !== "ONLINE") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "La ayuda desde el exterior debe ser online",
+          path: ["modality"],
+        });
+      }
+    }
+  });
 
-export const profileSchema = z.object({
-  displayName: z.string().min(2).max(60),
-  avatarUrl: z.string().url().max(500).optional().or(z.literal("")),
-  phone: z.string().max(20).optional().or(z.literal("")),
-  bio: z.string().max(500).optional().or(z.literal("")),
-  state: z.enum(stateNames),
-  municipality: z.string().min(1),
-  radiusKm: z.number().int().min(1).max(100),
-  categories: z.array(z.enum(["ALIMENTOS", "MEDICINAS", "TRANSPORTE", "ALOJAMIENTO", "EDUCACION", "EMPLEO", "OTRO"])),
-});
+export const profileSchema = z
+  .object({
+    displayName: z.string().min(2).max(60),
+    avatarUrl: z.string().url().max(500).optional().or(z.literal("")),
+    phone: z.string().max(20).optional().or(z.literal("")),
+    bio: z.string().max(500).optional().or(z.literal("")),
+    state: z.enum(stateNames),
+    municipality: z.string().min(1),
+    radiusKm: z.number().int().min(1).max(100),
+    categories: z.array(
+      z.enum(["ALIMENTOS", "MEDICINAS", "TRANSPORTE", "ALOJAMIENTO", "EDUCACION", "EMPLEO", "OTRO"])
+    ),
+  })
+  .superRefine((data, ctx) => {
+    if (isAbroadState(data.state) && data.municipality.length < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Indica tu país de residencia",
+        path: ["municipality"],
+      });
+    }
+  });
 
 export const messageSchema = z.object({
   body: z.string().min(1, "El mensaje no puede estar vacío").max(2000),

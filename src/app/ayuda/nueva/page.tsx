@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { StateMunicipalitySelect } from "@/components/state-municipality-select";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import { MODALITY_LABELS, QUANTITY_UNITS, QUANTITY_UNIT_LABELS } from "@/lib/listing-meta";
+import { ABROAD_STATE, abroadMapPosition, isAbroadState } from "@/lib/abroad";
 import { VENEZUELA_CENTER, getState } from "@/lib/venezuela";
 import { cn } from "@/lib/utils";
 
@@ -47,7 +48,24 @@ export default function NuevaFichaPage() {
   const [position, setPosition] = useState(VENEZUELA_CENTER);
   const [quantityUnit, setQuantityUnit] = useState("UNIDAD");
   const [modality, setModality] = useState<"PRESENCIAL" | "ONLINE">("PRESENCIAL");
+  const [isAbroadProfile, setIsAbroadProfile] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((data: { profile?: { state: string; municipality: string } }) => {
+        if (!data.profile || !isAbroadState(data.profile.state)) return;
+        setIsAbroadProfile(true);
+        setType("OFREZCO");
+        setModality("ONLINE");
+        setState(ABROAD_STATE);
+        setMunicipality(data.profile.municipality);
+        setPosition(abroadMapPosition(session.user.id));
+      })
+      .catch(() => {});
+  }, [session?.user?.id]);
 
   function handleStateChange(newState: string) {
     setState(newState);
@@ -121,6 +139,14 @@ export default function NuevaFichaPage() {
             </div>
           )}
           <form onSubmit={handleSubmit} className="grid gap-5">
+            {isAbroadProfile && (
+              <div className="rounded-lg border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-900">
+                Publicas como ayudante en el exterior ({municipality}). Tu ficha será online y
+                aparecerá en el mapa internacional.
+              </div>
+            )}
+
+            {!isAbroadProfile && (
             <div className="grid gap-2">
               <Label>Tipo de ficha</Label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -152,6 +178,7 @@ export default function NuevaFichaPage() {
                 </button>
               </div>
             </div>
+            )}
 
             <div className="grid gap-2">
               <Label htmlFor="title">Título</Label>
@@ -212,6 +239,11 @@ export default function NuevaFichaPage() {
               </div>
               <div className="grid gap-2">
                 <Label>Modalidad</Label>
+                {isAbroadProfile ? (
+                  <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                    {MODALITY_LABELS.ONLINE} (ayuda desde el exterior)
+                  </p>
+                ) : (
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -240,6 +272,7 @@ export default function NuevaFichaPage() {
                     {MODALITY_LABELS.ONLINE}
                   </button>
                 </div>
+                )}
               </div>
             </div>
 
@@ -256,13 +289,16 @@ export default function NuevaFichaPage() {
               />
             </div>
 
-            <StateMunicipalitySelect
-              state={state}
-              municipality={municipality}
-              onStateChange={handleStateChange}
-              onMunicipalityChange={setMunicipality}
-            />
+            {!isAbroadProfile && (
+              <StateMunicipalitySelect
+                state={state}
+                municipality={municipality}
+                onStateChange={handleStateChange}
+                onMunicipalityChange={setMunicipality}
+              />
+            )}
 
+            {!isAbroadProfile && (
             <div className="grid gap-2">
               <Label>Ubicación aproximada (arrastra el pin o haz clic en el mapa)</Label>
               <div className="h-72 overflow-hidden rounded-lg border" data-testid="map-picker">
@@ -274,10 +310,17 @@ export default function NuevaFichaPage() {
                 />
               </div>
             </div>
+            )}
 
             <Button
               type="submit"
-              disabled={loading || !category || !state || !municipality || session.user.status !== "APROBADO"}
+              disabled={
+                loading ||
+                !category ||
+                (!isAbroadProfile && (!state || !municipality)) ||
+                (isAbroadProfile && !municipality) ||
+                session.user.status !== "APROBADO"
+              }
             >
               {loading ? "Enviando..." : "Enviar para revisión"}
             </Button>
