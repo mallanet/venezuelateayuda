@@ -56,8 +56,9 @@ export function ListingDetailModal({ listing, open, onOpenChange }: ListingDetai
             <Badge variant={listing.type === "OFREZCO" ? "default" : "destructive"}>
               {LISTING_TYPE_LABELS[listing.type]}
             </Badge>
-            <Badge variant="secondary">
-              {CATEGORY_ICONS[listing.category]} {CATEGORY_LABELS[listing.category]}
+            <Badge variant="secondary" className="inline-flex items-center gap-1">
+              <CategoryIcon className="size-3.5" />
+              {CATEGORY_LABELS[listing.category]}
             </Badge>
             <Badge variant="outline">
               {formatListingMeta(listing.quantity, listing.quantityUnit, listing.modality)}

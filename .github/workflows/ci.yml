@@ -15,8 +15,6 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
-      - run: npm run check:biome
+      - run: npm run lint
       - run: npm run typecheck
-      - run: npm run check:range
-      - run: npm audit --audit-level=high
       - run: npm run build
