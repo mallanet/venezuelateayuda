@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getAdminUser } from "@/lib/api-helpers";
+import { getAdminUser } from "@/lib/session-guards";
 
 /** Datos del panel de administración: colas de moderación y métricas. */
 export async function GET() {

@@ -1,33 +1,31 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import type { JWT } from "next-auth/jwt";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import type { Role, UserStatus } from "@prisma/client";
 
-declare module "next-auth" {
-  interface User {
-    role: Role;
-    status: UserStatus;
-    emailVerified: Date | null;
-  }
-  interface Session {
-    user: {
-      id: string;
-      email: string;
-      role: Role;
-      status: UserStatus;
-      name?: string | null;
-      image?: string | null;
-    };
-  }
+interface AuthJwt extends JWT {
+  id?: string;
+  role?: Role;
+  status?: UserStatus;
 }
 
-declare module "@auth/core/jwt" {
-  interface JWT {
-    id?: string;
-    role?: Role;
-    status?: UserStatus;
-  }
+function isRole(value: unknown): value is Role {
+  return value === "AYUDANTE" || value === "SOLICITANTE" || value === "ADMIN";
+}
+
+function isUserStatus(value: unknown): value is UserStatus {
+  return (
+    value === "PENDIENTE" ||
+    value === "APROBADO" ||
+    value === "RECHAZADO" ||
+    value === "SUSPENDIDO"
+  );
+}
+
+function toAuthJwt(token: JWT): AuthJwt {
+  return token as AuthJwt;
 }
 
 export const { handlers, auth } = NextAuth({
@@ -62,36 +60,44 @@ export const { handlers, auth } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user }) {
+      const authToken = toAuthJwt(token);
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.status = user.status;
-      } else if (typeof token.id === "string") {
+        authToken.id = user.id;
+        authToken.role = user.role;
+        authToken.status = user.status;
+        return authToken;
+      }
+      if (typeof authToken.id === "string") {
         try {
           const dbUser = await prisma.user.findUnique({
-            where: { id: token.id },
+            where: { id: authToken.id },
             select: { role: true, status: true },
           });
           if (dbUser) {
-            token.role = dbUser.role;
-            token.status = dbUser.status;
+            authToken.role = dbUser.role;
+            authToken.status = dbUser.status;
           } else {
-            token.id = undefined;
-            token.role = undefined;
-            token.status = undefined;
-            return token;
+            authToken.id = undefined;
+            authToken.role = undefined;
+            authToken.status = undefined;
           }
         } catch {
           // DB unavailable — keep existing token
         }
       }
-      return token;
+      return authToken;
     },
     async session({ session, token }) {
-      if (session.user && typeof token.id === "string" && token.role && token.status) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.user.status = token.status;
+      const authToken = toAuthJwt(token);
+      if (
+        session.user &&
+        typeof authToken.id === "string" &&
+        isRole(authToken.role) &&
+        isUserStatus(authToken.status)
+      ) {
+        session.user.id = authToken.id;
+        session.user.role = authToken.role;
+        session.user.status = authToken.status;
       }
       return session;
     },
