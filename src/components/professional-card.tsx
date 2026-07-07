@@ -16,11 +16,12 @@ interface ProfessionalCardProps {
 /** Tarjeta de ayudante verificado para el directorio de profesionales. */
 export function ProfessionalCard({ professional, selected }: ProfessionalCardProps) {
   const category = professional.primaryCategory;
+  const CategoryIcon = category ? CATEGORY_ICONS[category] : undefined;
 
   return (
     <article
       className={cn(
-        "grid overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:shadow-md",
+        "grid overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:shadow-md focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
         selected && "border-primary ring-2 ring-primary/30"
       )}
       data-testid={`professional-card-${professional.id}`}
@@ -32,7 +33,6 @@ export function ProfessionalCard({ professional, selected }: ProfessionalCardPro
           fill
           className="object-cover"
           sizes="(max-width:768px) 50vw, 25vw"
-          unoptimized
         />
       </div>
       <div className="grid gap-2 p-4 text-center">
@@ -47,9 +47,10 @@ export function ProfessionalCard({ professional, selected }: ProfessionalCardPro
             🌍 Ayuda online
           </Badge>
         )}
-        {category && (
+        {category && CategoryIcon && (
           <Badge className="mx-auto w-fit text-[10px] uppercase tracking-wide">
-            {CATEGORY_ICONS[category]} {CATEGORY_LABELS[category]}
+            <CategoryIcon className="size-3" />
+            {CATEGORY_LABELS[category]}
           </Badge>
         )}
         {professional.bio && (
@@ -61,7 +62,7 @@ export function ProfessionalCard({ professional, selected }: ProfessionalCardPro
         </span>
         <Link
           href={`/mapa?state=${encodeURIComponent(professional.state)}`}
-          className="text-xs font-medium text-primary underline"
+          className="text-xs font-medium text-primary underline hover:underline hover:text-accent"
         >
           Ver en el mapa
         </Link>

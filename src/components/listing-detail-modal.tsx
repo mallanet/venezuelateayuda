@@ -29,6 +29,7 @@ export function ListingDetailModal({ listing, open, onOpenChange }: ListingDetai
 
   const mapsUrl = getMapsDirectionsUrl(listing);
   const whatsAppUrl = getWhatsAppContactUrl(listing);
+  const CategoryIcon = CATEGORY_ICONS[listing.category];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

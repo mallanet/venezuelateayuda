@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { Clock, Inbox } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Logo } from "@/components/logo";
 import { CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
 import { ProfileForm } from "@/components/profile-form";
 
@@ -50,28 +52,40 @@ export default async function PerfilPage() {
   if (!user || !profile) redirect("/login");
 
   return (
-    <div className="mx-auto grid w-full max-w-4xl gap-6 px-4 py-10">
-      <Card>
+    <div className="mx-auto grid w-full max-w-4xl gap-8 px-4 py-10">
+      <div className="flex items-center gap-3 border-b border-accent/20 pb-4">
+        <Logo size={32} />
+        <span className="font-heading text-sm font-semibold tracking-wide text-primary/60 uppercase">
+          Mi cuenta
+        </span>
+      </div>
+
+      <Card className="border-accent/10 shadow-sm">
         <CardHeader>
-          <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <CardTitle className="text-2xl">Mi perfil</CardTitle>
-              <CardDescription>{user.email}</CardDescription>
+              <CardTitle className="font-heading text-2xl">Mi perfil</CardTitle>
+              <CardDescription className="text-sm">{user.email}</CardDescription>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Badge variant="outline">
-                {user.role === "AYUDANTE" ? "Perfil: Ayudante" : user.role === "ADMIN" ? "Perfil: Administración" : "Perfil: Solicitante"}
+              <Badge variant="outline" className="border-primary/20 text-primary">
+                {user.role === "AYUDANTE" ? "Ayudante" : user.role === "ADMIN" ? "Administración" : "Solicitante"}
               </Badge>
               <Badge variant={statusVariant(user.status)} data-testid="account-status">
-                Cuenta: {STATUS_LABELS[user.status]}
+                {STATUS_LABELS[user.status]}
               </Badge>
-              {!user.emailVerified && <Badge variant="destructive">Email sin verificar</Badge>}
+              {!user.emailVerified && (
+                <Badge variant="destructive" className="border-destructive/20">
+                  Email sin verificar
+                </Badge>
+              )}
             </div>
           </div>
         </CardHeader>
         <CardContent>
           {user.status === "PENDIENTE" && (
-            <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+            <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm text-foreground">
+              <Clock className="size-4 shrink-0 text-accent" />
               Tu cuenta está siendo revisada por nuestro equipo. Cuando sea
               aprobada podrás publicar fichas y contactar a otras personas.
             </div>
@@ -91,42 +105,50 @@ export default async function PerfilPage() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border-accent/10 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Mis fichas</CardTitle>
-            <Button asChild size="sm">
+            <CardTitle className="font-heading text-xl">Mis fichas</CardTitle>
+            <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
               <Link href="/ayuda/nueva">Publicar ficha</Link>
             </Button>
           </div>
         </CardHeader>
         <CardContent>
           {listings.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Aún no has publicado ninguna ficha.
-            </p>
+            <div className="flex flex-col items-center gap-2 py-8 text-center">
+              <Inbox className="size-8 text-accent/40" />
+              <p className="text-sm text-muted-foreground">
+                Aún no has publicado ninguna ficha.
+              </p>
+            </div>
           ) : (
             <ul className="grid gap-3" data-testid="my-listings">
-              {listings.map((l) => (
+              {listings.map((listing) => (
                 <li
-                  key={l.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-4"
+                  key={listing.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-accent/10 bg-card p-4 transition-colors hover:border-accent/30"
                 >
-                  <div className="grid gap-1">
-                    <Link href={`/ayuda/${l.id}`} className="font-medium hover:underline">
-                      {l.title}
+                  <div className="grid gap-1.5">
+                    <Link
+                      href={`/ayuda/${listing.id}`}
+                      className="font-heading font-medium text-primary hover:text-primary/80 hover:underline"
+                    >
+                      {listing.title}
                     </Link>
                     <span className="text-xs text-muted-foreground">
-                      {LISTING_TYPE_LABELS[l.type]} · {CATEGORY_LABELS[l.category]} ·{" "}
-                      {l.municipality}, {l.state}
+                      {LISTING_TYPE_LABELS[listing.type]} · {CATEGORY_LABELS[listing.category]} ·{" "}
+                      {listing.municipality}, {listing.state}
                     </span>
-                    {l.status === "RECHAZADA" && l.rejectReason && (
+                    {listing.status === "RECHAZADA" && listing.rejectReason && (
                       <span className="text-xs text-destructive">
-                        Motivo del rechazo: {l.rejectReason}
+                        Motivo del rechazo: {listing.rejectReason}
                       </span>
                     )}
                   </div>
-                  <Badge variant={statusVariant(l.status)}>{STATUS_LABELS[l.status]}</Badge>
+                  <Badge variant={statusVariant(listing.status)} className="shrink-0">
+                    {STATUS_LABELS[listing.status]}
+                  </Badge>
                 </li>
               ))}
             </ul>

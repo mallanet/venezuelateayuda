@@ -58,7 +58,7 @@ export function MapFilterSidebar({
       data-testid="map-filter-sidebar"
       aria-label="Filtra tu búsqueda"
     >
-      <h2 className="mb-4 text-lg font-semibold text-foreground">Filtra tu búsqueda</h2>
+      <h2 className="font-heading mb-4 text-lg font-semibold text-foreground">Filtra tu búsqueda</h2>
       <div className="grid gap-4">
         <div className="grid gap-2">
           <Label htmlFor="filter-q">{searchLabel}</Label>
@@ -123,11 +123,17 @@ export function MapFilterSidebar({
             </SelectTrigger>
             <SelectContent className="z-[1300]">
               <SelectItem value={FILTER_ALL}>Todas las categorías</SelectItem>
-              {CATEGORIES.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {CATEGORY_ICONS[c]} {CATEGORY_LABELS[c]}
-                </SelectItem>
-              ))}
+              {CATEGORIES.map((category) => {
+                const CategoryIcon = CATEGORY_ICONS[category];
+                return (
+                  <SelectItem key={category} value={category}>
+                    <span className="inline-flex items-center gap-2">
+                      <CategoryIcon className="size-3.5" />
+                      {CATEGORY_LABELS[category]}
+                    </span>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         </div>

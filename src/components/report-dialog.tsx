@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -77,7 +78,8 @@ export function ReportDialog({ listingId, userId }: ReportDialogProps) {
             Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={loading || reason.trim().length < 10}>
-            {loading ? "Enviando..." : "Enviar denuncia"}
+            {loading && <LoaderCircle className="size-4 animate-spin" />}
+            {loading ? "Enviando denuncia..." : "Enviar denuncia"}
           </Button>
         </DialogFooter>
       </DialogContent>

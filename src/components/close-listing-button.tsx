@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function CloseListingButton({ listingId }: { listingId: string }) {
@@ -31,6 +32,7 @@ export function CloseListingButton({ listingId }: { listingId: string }) {
 
   return (
     <Button variant="outline" onClick={handleClick} disabled={loading}>
+      {loading && <LoaderCircle className="size-4 animate-spin" />}
       {loading ? "Cerrando..." : "Marcar como resuelta"}
     </Button>
   );

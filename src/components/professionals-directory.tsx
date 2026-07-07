@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import useSWR from "swr";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 import { ProfessionalCard } from "@/components/professional-card";
 import {
   MapFilterSidebar,
@@ -38,7 +39,7 @@ export function ProfessionalsDirectory() {
   const professionals = data?.professionals ?? [];
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10" data-testid="professionals-directory">
+    <div className="mx-auto grid max-w-5xl gap-8 px-4 py-10" data-testid="professionals-directory">
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
         <MapFilterSidebar
           filters={filters}
@@ -61,6 +62,9 @@ export function ProfessionalsDirectory() {
           ) : professionals.length === 0 ? (
             <div className="rounded-xl border bg-card p-12 text-center text-muted-foreground">
               <p>No hay profesionales verificados con estos filtros.</p>
+              <Link href="/registro" className="mt-2 block text-sm font-medium text-accent hover:underline">
+                Publica tu primera ficha
+              </Link>
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

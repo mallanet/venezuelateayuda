@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/api-helpers";
+import { getSessionUser } from "@/lib/session-guards";
 import { auth } from "@/lib/auth";
+import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
+import { listingCloseSchema } from "@/lib/validation";
 
-export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
+export async function GET(
+  _req: Request,
+  ctx: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   const { id } = await ctx.params;
   const session = await auth();
 
@@ -13,12 +18,14 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
       user: { select: { id: true, profile: { select: { displayName: true } } } },
     },
   });
-  if (!listing) return NextResponse.json({ error: "Ficha no encontrada" }, { status: 404 });
+  if (!listing) {
+    return apiErrorResponse(ApiErrorCode.NOT_FOUND, "Ficha no encontrada", 404);
+  }
 
   const isOwner = session?.user?.id === listing.userId;
   const isAdmin = session?.user?.role === "ADMIN";
   if (listing.status !== "APROBADA" && !isOwner && !isAdmin) {
-    return NextResponse.json({ error: "Ficha no disponible" }, { status: 404 });
+    return apiErrorResponse(ApiErrorCode.NOT_FOUND, "Ficha no disponible", 404);
   }
 
   return NextResponse.json({
@@ -40,21 +47,26 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
   });
 }
 
-/** El dueño puede cerrar su ficha; el resto de cambios de estado son del admin. */
-export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  req: Request,
+  ctx: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   const { id } = await ctx.params;
   const { user, error } = await getSessionUser();
   if (error) return error;
 
   const listing = await prisma.helpListing.findUnique({ where: { id } });
-  if (!listing) return NextResponse.json({ error: "Ficha no encontrada" }, { status: 404 });
+  if (!listing) {
+    return apiErrorResponse(ApiErrorCode.NOT_FOUND, "Ficha no encontrada", 404);
+  }
   if (listing.userId !== user.id) {
-    return NextResponse.json({ error: "No puedes modificar esta ficha" }, { status: 403 });
+    return apiErrorResponse(ApiErrorCode.FORBIDDEN, "No puedes modificar esta ficha", 403);
   }
 
-  const body = await req.json().catch(() => null);
-  if (body?.action !== "cerrar") {
-    return NextResponse.json({ error: "Acción no soportada" }, { status: 400 });
+  const json: unknown = await req.json().catch(() => null);
+  const parsed = listingCloseSchema.safeParse(json);
+  if (!parsed.success) {
+    return apiErrorResponse(ApiErrorCode.UNSUPPORTED, "Acción no soportada", 400);
   }
 
   const updated = await prisma.helpListing.update({

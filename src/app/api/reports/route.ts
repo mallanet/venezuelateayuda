@@ -1,30 +1,34 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/api-helpers";
+import { getSessionUser } from "@/lib/session-guards";
 import { reportSchema } from "@/lib/validation";
+import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<NextResponse> {
   const { user, error } = await getSessionUser();
   if (error) return error;
 
-  const json = await req.json().catch(() => null);
+  const json: unknown = await req.json().catch(() => null);
   const parsed = reportSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Datos inválidos" },
-      { status: 400 }
+    return apiErrorResponse(
+      ApiErrorCode.VALIDATION,
+      parsed.error.issues[0]?.message ?? "Datos inválidos",
+      400
     );
   }
 
   const { reason, listingId, userId } = parsed.data;
   if (!listingId && !userId) {
-    return NextResponse.json({ error: "Debes indicar qué denuncias" }, { status: 400 });
+    return apiErrorResponse(ApiErrorCode.VALIDATION, "Debes indicar qué denuncias", 400);
   }
 
   let reportedUserId = userId ?? null;
   if (listingId) {
     const listing = await prisma.helpListing.findUnique({ where: { id: listingId } });
-    if (!listing) return NextResponse.json({ error: "Ficha no encontrada" }, { status: 404 });
+    if (!listing) {
+      return apiErrorResponse(ApiErrorCode.NOT_FOUND, "Ficha no encontrada", 404);
+    }
     reportedUserId = reportedUserId ?? listing.userId;
   }
 
