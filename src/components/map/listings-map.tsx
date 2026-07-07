@@ -75,7 +75,7 @@ function FitToListings({
   const map = useMap();
   useEffect(() => {
     if (focusId) {
-      const focused = listings.find((l) => l.id === focusId);
+      const focused = listings.find((listing) => listing.id === focusId);
       if (focused) {
         map.setView([focused.lat, focused.lng], 13, { animate: true });
         return;
@@ -144,7 +144,9 @@ function ListingsMapContent({ listings, focusId, userLocation }: ListingsMapProp
           </Marker>
         )}
 
-        {listings.map((listing) => (
+        {listings.map((listing) => {
+          const CategoryIcon = CATEGORY_ICONS[listing.category];
+          return (
           <Marker key={listing.id} position={[listing.lat, listing.lng]} icon={markerIcon(listing)}>
             <Popup minWidth={260} maxWidth={300}>
               <div className="grid gap-2">
@@ -178,8 +180,9 @@ function ListingsMapContent({ listings, focusId, userLocation }: ListingsMapProp
                     ? "Ayuda online desde el exterior"
                     : `Zona de acción: ~${listing.radiusKm} km`}
                 </span>
-                <span className="text-xs text-muted-foreground">
-                  {CATEGORY_ICONS[listing.category]} {CATEGORY_LABELS[listing.category]}
+                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                  <CategoryIcon className="size-3.5" />
+                  {CATEGORY_LABELS[listing.category]}
                 </span>
                 <Badge variant="outline" className="w-fit text-[10px]">
                   {formatListingMeta(listing.quantity, listing.quantityUnit, listing.modality)}
@@ -191,7 +194,8 @@ function ListingsMapContent({ listings, focusId, userLocation }: ListingsMapProp
               </div>
             </Popup>
           </Marker>
-        ))}
+          );
+        })}
       </MapContainer>
       <MapLegend />
     </div>

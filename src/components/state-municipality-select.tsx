@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { VENEZUELA_STATES, getState } from "@/lib/venezuela";
 
-interface Props {
+interface StateMunicipalitySelectProps {
   state: string;
   municipality: string;
   onStateChange: (state: string) => void;
@@ -26,7 +26,7 @@ export function StateMunicipalitySelect({
   municipality,
   onStateChange,
   onMunicipalityChange,
-}: Props) {
+}: StateMunicipalitySelectProps) {
   const municipalities = getState(state)?.municipalities ?? [];
 
   return (
@@ -35,8 +35,8 @@ export function StateMunicipalitySelect({
         <Label htmlFor="estado">Estado</Label>
         <Select
           value={state}
-          onValueChange={(v) => {
-            onStateChange(v);
+          onValueChange={(value) => {
+            onStateChange(value);
             onMunicipalityChange("");
           }}
         >
@@ -44,9 +44,9 @@ export function StateMunicipalitySelect({
             <SelectValue placeholder="Selecciona un estado" />
           </SelectTrigger>
           <SelectContent className="z-[1300]">
-            {VENEZUELA_STATES.map((s) => (
-              <SelectItem key={s.name} value={s.name}>
-                {s.name}
+            {VENEZUELA_STATES.map((state) => (
+              <SelectItem key={state.name} value={state.name}>
+                {state.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -63,9 +63,9 @@ export function StateMunicipalitySelect({
             <SelectValue placeholder="Selecciona un municipio" />
           </SelectTrigger>
           <SelectContent className="z-[1300]">
-            {municipalities.map((m) => (
-              <SelectItem key={m} value={m}>
-                {m}
+            {municipalities.map((municipio) => (
+              <SelectItem key={municipio} value={municipio}>
+                {municipio}
               </SelectItem>
             ))}
           </SelectContent>

@@ -7,14 +7,16 @@ import { sendVerificationEmail } from "@/lib/email";
 import { abroadMapPosition, isAbroadState } from "@/lib/abroad";
 import { getState } from "@/lib/venezuela";
 import { getAvatarUrl } from "@/lib/avatar";
+import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 
-export async function POST(req: Request) {
-  const json = await req.json().catch(() => null);
+export async function POST(req: Request): Promise<NextResponse> {
+  const json: unknown = await req.json().catch(() => null);
   const parsed = registerSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Datos inválidos" },
-      { status: 400 }
+    return apiErrorResponse(
+      ApiErrorCode.VALIDATION,
+      parsed.error.issues[0]?.message ?? "Datos inválidos",
+      400
     );
   }
 
@@ -23,7 +25,7 @@ export async function POST(req: Request) {
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    return NextResponse.json({ error: "Ya existe una cuenta con ese email" }, { status: 409 });
+    return apiErrorResponse(ApiErrorCode.CONFLICT, "Ya existe una cuenta con ese email", 409);
   }
 
   const passwordHash = await bcrypt.hash(data.password, 12);
@@ -31,35 +33,35 @@ export async function POST(req: Request) {
   const coords = abroad
     ? abroadMapPosition(email)
     : { lat: getState(data.state)?.lat ?? null, lng: getState(data.state)?.lng ?? null };
+  const token = crypto.randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-  const user = await prisma.user.create({
-    data: {
-      email,
-      passwordHash,
-      role: data.role,
-      termsAcceptedAt: new Date(),
-      profile: {
-        create: {
-          displayName: data.displayName,
-          avatarUrl: getAvatarUrl(data.displayName),
-          phone: data.phone || null,
-          state: data.state,
-          municipality: data.municipality,
-          lat: coords.lat,
-          lng: coords.lng,
+  await prisma.$transaction(async (tx) => {
+    const created = await tx.user.create({
+      data: {
+        email,
+        passwordHash,
+        role: data.role,
+        termsAcceptedAt: new Date(),
+        profile: {
+          create: {
+            displayName: data.displayName,
+            avatarUrl: getAvatarUrl(data.displayName, undefined, email),
+            phone: data.phone || null,
+            state: data.state,
+            municipality: data.municipality,
+            lat: coords.lat,
+            lng: coords.lng,
+          },
         },
       },
-    },
+    });
+    await tx.verificationToken.create({
+      data: { token, userId: created.id, expiresAt },
+    });
+    return created;
   });
 
-  const token = crypto.randomBytes(32).toString("hex");
-  await prisma.verificationToken.create({
-    data: {
-      token,
-      userId: user.id,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    },
-  });
   await sendVerificationEmail(email, token);
 
   return NextResponse.json({ ok: true }, { status: 201 });

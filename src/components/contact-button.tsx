@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /** Crea (o recupera) la conversación de la ficha y lleva al chat interno. */
@@ -24,6 +25,8 @@ export function ContactButton({ listingId }: { listingId: string }) {
         return;
       }
       router.push(`/mensajes/${data.conversation.id}`);
+    } catch {
+      toast.error("Error de conexión. Intenta de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -31,6 +34,7 @@ export function ContactButton({ listingId }: { listingId: string }) {
 
   return (
     <Button onClick={handleClick} disabled={loading} data-testid="contact-button">
+      {loading && <LoaderCircle className="size-4 animate-spin" />}
       {loading ? "Abriendo chat..." : "Contactar"}
     </Button>
   );

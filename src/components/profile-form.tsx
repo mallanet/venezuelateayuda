@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Category } from "@prisma/client";
 import { toast } from "sonner";
+import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -39,11 +40,11 @@ export function ProfileForm({
   const canBeAbroad = role === "AYUDANTE";
 
   function toggleCategory(category: Category) {
-    setValues((v) => ({
-      ...v,
-      categories: v.categories.includes(category)
-        ? v.categories.filter((c) => c !== category)
-        : [...v.categories, category],
+    setValues((prev) => ({
+      ...prev,
+      categories: prev.categories.includes(category)
+        ? prev.categories.filter((cat) => cat !== category)
+        : [...prev.categories, category],
     }));
   }
 
@@ -83,7 +84,7 @@ export function ProfileForm({
           <Input
             id="displayName"
             value={values.displayName}
-            onChange={(e) => setValues((v) => ({ ...v, displayName: e.target.value }))}
+            onChange={(e) => setValues((prev) => ({ ...prev, displayName: e.target.value }))}
             required
             minLength={2}
             maxLength={60}
@@ -95,7 +96,7 @@ export function ProfileForm({
             id="phone"
             type="tel"
             value={values.phone}
-            onChange={(e) => setValues((v) => ({ ...v, phone: e.target.value }))}
+            onChange={(e) => setValues((prev) => ({ ...prev, phone: e.target.value }))}
             maxLength={20}
           />
         </div>
@@ -106,7 +107,7 @@ export function ProfileForm({
         <Textarea
           id="bio"
           value={values.bio}
-          onChange={(e) => setValues((v) => ({ ...v, bio: e.target.value }))}
+          onChange={(e) => setValues((prev) => ({ ...prev, bio: e.target.value }))}
           maxLength={500}
           rows={3}
           placeholder="Cuenta brevemente quién eres y cómo participas en la comunidad."
@@ -159,7 +160,7 @@ export function ProfileForm({
           {CATEGORIES.map((category) => (
             <label
               key={category}
-              className="flex items-center gap-2 rounded-md border p-2 text-sm"
+              className="flex items-center gap-2 rounded-md border p-2 text-sm transition-colors hover:border-accent/30 hover:bg-accent/5"
             >
               <Checkbox
                 checked={values.categories.includes(category)}
@@ -172,6 +173,7 @@ export function ProfileForm({
       </div>
 
       <Button type="submit" disabled={loading || !locationReady} className="justify-self-start">
+        {loading && <LoaderCircle className="size-4 animate-spin" />}
         {loading ? "Guardando..." : "Guardar cambios"}
       </Button>
     </form>

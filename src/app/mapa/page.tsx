@@ -24,5 +24,20 @@ export const metadata: Metadata = {
 };
 
 export default function MapaPage() {
-  return <MapExplorer />;
+  return (
+    <div className="flex flex-1 flex-col">
+      <section className="border-b border-border/40 bg-background px-4 py-14 sm:py-16">
+        <div className="mx-auto max-w-6xl">
+          <h1 className="font-heading text-3xl font-semibold tracking-tight text-primary sm:text-4xl">
+            Mapa de ayuda
+          </h1>
+          <p className="mt-2 max-w-2xl text-muted-foreground">
+            Explora fichas de ayuda en todo el país. Filtra por categoría,
+            estado y tipo para encontrar lo que necesitas.
+          </p>
+        </div>
+      </section>
+      <MapExplorer />
+    </div>
+  );
 }

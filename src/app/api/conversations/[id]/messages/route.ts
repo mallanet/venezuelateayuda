@@ -49,11 +49,11 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
       otherName: other.profile?.displayName?.split(" ")[0] ?? "Anónimo",
       otherUserId: other.id,
     },
-    messages: messages.map((m) => ({
-      id: m.id,
-      body: m.body,
-      mine: m.senderId === user.id,
-      createdAt: m.createdAt,
+    messages: messages.map((message) => ({
+      id: message.id,
+      body: message.body,
+      mine: message.senderId === user.id,
+      createdAt: message.createdAt,
     })),
   });
 }

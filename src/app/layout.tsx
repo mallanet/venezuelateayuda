@@ -9,14 +9,16 @@ import { SiteFooter } from "@/components/site-footer";
 import { OG_IMAGE, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_OPEN_GRAPH_IMAGE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const spaceGrotesk = Space_Grotesk({
@@ -70,9 +72,9 @@ export default async function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${geist.variable} ${geistMono.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background">
+      <body className="min-h-full flex flex-col bg-background font-sans">
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-731PM4G1GS"
           strategy="afterInteractive"

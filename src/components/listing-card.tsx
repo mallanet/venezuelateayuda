@@ -20,13 +20,14 @@ interface ListingCardProps {
 /** Tarjeta estilo directorio con foto de perfil, nombre y categoría. */
 export function ListingCard({ listing, selected, onSelect, compact, distanceKm }: ListingCardProps) {
   const Wrapper = onSelect ? "button" : "div";
+  const CategoryIcon = CATEGORY_ICONS[listing.category];
 
   return (
     <Wrapper
       type={onSelect ? "button" : undefined}
       onClick={onSelect}
       className={cn(
-        "grid overflow-hidden rounded-xl border bg-card text-left shadow-sm transition-all hover:shadow-md",
+        "grid overflow-hidden rounded-xl border bg-card text-left shadow-sm transition-all hover:shadow-md focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
         selected && "border-primary ring-2 ring-primary/30",
         compact ? "gap-2 p-3" : "gap-0"
       )}
@@ -39,7 +40,6 @@ export function ListingCard({ listing, selected, onSelect, compact, distanceKm }
           fill
           className={cn("object-cover", compact ? "rounded-full" : "")}
           sizes={compact ? "64px" : "(max-width:768px) 50vw, 25vw"}
-          unoptimized
         />
       </div>
       <div className={cn("grid gap-1", compact ? "text-center" : "p-4")}>
@@ -65,7 +65,8 @@ export function ListingCard({ listing, selected, onSelect, compact, distanceKm }
           {distanceKm !== undefined && ` · ~${distanceKm} km`}
         </span>
         <Badge variant="secondary" className="mt-1 w-fit text-[10px] uppercase tracking-wide">
-          {CATEGORY_ICONS[listing.category]} {CATEGORY_LABELS[listing.category]}
+          <CategoryIcon className="size-3" />
+          {CATEGORY_LABELS[listing.category]}
         </Badge>
         <Badge
           variant={listing.modality === "ONLINE" ? "success" : "outline"}
@@ -76,7 +77,7 @@ export function ListingCard({ listing, selected, onSelect, compact, distanceKm }
         {!onSelect && (
           <Link
             href={`/ayuda/${listing.id}`}
-            className="mt-2 text-xs font-medium text-primary underline"
+            className="mt-2 text-xs font-medium text-primary underline hover:underline hover:text-accent"
           >
             Ver ficha
           </Link>

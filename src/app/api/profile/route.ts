@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/api-helpers";
+import { getSessionUser } from "@/lib/session-guards";
 import { profileSchema } from "@/lib/validation";
 import { abroadMapPosition, isAbroadState } from "@/lib/abroad";
 import { getState } from "@/lib/venezuela";
 import { getAvatarUrl } from "@/lib/avatar";
+import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   const { user, error } = await getSessionUser();
   if (error) return error;
 
@@ -18,16 +19,17 @@ export async function GET() {
   return NextResponse.json({ profile, user: dbUser });
 }
 
-export async function PUT(req: Request) {
+export async function PUT(req: Request): Promise<NextResponse> {
   const { user, error } = await getSessionUser();
   if (error) return error;
 
-  const json = await req.json().catch(() => null);
+  const json: unknown = await req.json().catch(() => null);
   const parsed = profileSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Datos inválidos" },
-      { status: 400 }
+    return apiErrorResponse(
+      ApiErrorCode.VALIDATION,
+      parsed.error.issues[0]?.message ?? "Datos inválidos",
+      400
     );
   }
 

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { HomeHeroMap } from "@/components/home-hero-map";
+import { Logo } from "@/components/logo";
 import { CATEGORIES, CATEGORY_ICONS, CATEGORY_LABELS } from "@/lib/categories";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_OPEN_GRAPH_IMAGE, SITE_URL } from "@/lib/site";
 
@@ -85,61 +87,88 @@ export default async function HomePage() {
       <HomeHeroMap />
 
       <section className="mx-auto grid w-full max-w-5xl gap-8 px-4 py-16">
-        <h2 className="text-center text-2xl font-semibold">¿Cómo funciona?</h2>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="mx-auto flex items-center gap-3">
+          <Logo size={32} />
+          <h2 className="font-heading text-2xl font-semibold text-primary">
+            ¿Cómo funciona?
+          </h2>
+        </div>
+        <div className="grid gap-6 sm:grid-cols-3">
           {[
             {
-              title: "1. Regístrate y verifica",
+              step: "01",
+              title: "Regístrate y verifica",
               body: "Crea tu cuenta como ayudante o solicitante. Nuestro equipo revisa cada perfil para mantener la comunidad segura.",
             },
             {
-              title: "2. Publica tu ficha",
+              step: "02",
+              title: "Publica tu ficha",
               body: "Describe qué ofreces o necesitas y marca tu zona aproximada en el mapa. Cada ficha pasa por moderación.",
             },
             {
-              title: "3. Conecta por chat",
+              step: "03",
+              title: "Conecta por chat",
               body: "Encuentra fichas en el mapa y contacta por el chat interno, sin exponer tu teléfono ni tu dirección.",
             },
           ].map((step) => (
-            <Card key={step.title}>
-              <CardContent className="grid gap-2 pt-6">
-                <h3 className="font-semibold">{step.title}</h3>
-                <p className="text-sm text-muted-foreground">{step.body}</p>
+            <Card key={step.step} className="group relative overflow-hidden border-border/60 transition-shadow hover:shadow-md">
+              <CardContent className="grid gap-3 pt-6">
+                <span className="font-heading text-3xl font-bold text-accent/30">
+                  {step.step}
+                </span>
+                <h3 className="font-heading font-semibold text-primary">{step.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{step.body}</p>
               </CardContent>
             </Card>
           ))}
         </div>
       </section>
 
-      <section className="bg-muted/40 px-4 py-12">
-        <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-10 text-center">
-          <div>
-            <div className="text-3xl font-bold">{helpers}</div>
-            <div className="text-sm text-muted-foreground">ofertas de ayuda activas</div>
+      <section className="bg-gradient-to-b from-muted/30 to-background px-4 py-16">
+        <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-12 text-center">
+          <div className="min-w-[140px]">
+            <div className="font-heading text-4xl font-bold text-primary">{helpers}</div>
+            <div className="mt-1 text-sm text-muted-foreground">ofertas de ayuda activas</div>
           </div>
-          <div>
-            <div className="text-3xl font-bold">{requests}</div>
-            <div className="text-sm text-muted-foreground">solicitudes activas</div>
+          <div className="min-w-[140px]">
+            <div className="font-heading text-4xl font-bold text-destructive">{requests}</div>
+            <div className="mt-1 text-sm text-muted-foreground">solicitudes activas</div>
           </div>
-          <div>
-            <div className="text-3xl font-bold">{resolved}</div>
-            <div className="text-sm text-muted-foreground">ayudas concretadas</div>
+          <div className="min-w-[140px]">
+            <div className="font-heading text-4xl font-bold text-accent">{resolved}</div>
+            <div className="mt-1 text-sm text-muted-foreground">ayudas concretadas</div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-16">
-        <h2 className="text-center text-2xl font-semibold">Categorías de ayuda</h2>
+      <section className="mx-auto grid w-full max-w-5xl gap-8 px-4 py-16">
+        <div className="mx-auto text-center">
+          <h2 className="font-heading text-2xl font-semibold text-primary">
+            Categorías de ayuda
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Explora las fichas por categoría
+          </p>
+        </div>
         <div className="flex flex-wrap justify-center gap-3">
-          {CATEGORIES.map((category) => (
-            <Link
-              key={category}
-              href={`/mapa`}
-              className="rounded-full border px-4 py-2 text-sm transition-colors hover:bg-muted"
-            >
-              {CATEGORY_ICONS[category]} {CATEGORY_LABELS[category]}
-            </Link>
-          ))}
+          {CATEGORIES.map((category) => {
+            const CategoryIcon = CATEGORY_ICONS[category];
+            return (
+              <Link
+                key={category}
+                href={`/mapa?category=${category}`}
+                className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-5 py-2.5 text-sm font-medium text-foreground transition-all hover:border-accent/30 hover:bg-accent/5 hover:text-accent"
+              >
+                <CategoryIcon className="size-4" />
+                <span>{CATEGORY_LABELS[category]}</span>
+              </Link>
+            );
+          })}
+        </div>
+        <div className="mt-4 text-center">
+          <Button asChild variant="outline" size="lg">
+            <Link href="/mapa">Ver todas las fichas en el mapa</Link>
+          </Button>
         </div>
       </section>
     </div>
