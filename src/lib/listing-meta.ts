@@ -35,6 +35,7 @@ export const QUANTITY_UNIT_LABELS: Record<QuantityUnit, string> = {
 /** Texto legible: "1 kit", "3 familias". */
 export function formatHelpQuantity(quantity: number, unit: QuantityUnit): string {
   const forms = UNIT_FORMS[unit];
+  if (!forms) return `${quantity} ${QUANTITY_UNIT_LABELS[unit].toLowerCase()}`;
   const word = quantity === 1 ? forms.one : forms.other;
   return `${quantity} ${word}`;
 }

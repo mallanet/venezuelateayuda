@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import { Mail, Map, Package, Search } from "lucide-react";
+import { Logo } from "@/components/logo";
 
 const ALLY_GROUPS = [
   {
@@ -59,100 +60,121 @@ const LEGAL_LINKS = [
 ] as const;
 
 function LegalSeparator() {
-  return <span className="text-[#94a3b8]">·</span>;
+  return <span className="text-muted-foreground/50">·</span>;
 }
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-[#dde3eb] bg-white font-[family-name:var(--font-display),ui-sans-serif,system-ui,sans-serif] text-[#0a1628]">
-      <div className="mx-auto max-w-[1120px] px-6 pb-8 pt-12">
-        <div>
-          <h2 className="text-2xl font-semibold">¿Quiénes hacemos esto?</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#4a5568]">
-            Somos un equipo de voluntarios construyendo esta plataforma abierta para que cualquier
-            persona afectada por el terremoto pueda pedir y ofrecer ayuda en tiempo real. Gratuito,
-            sin fines de lucro y de código abierto.
-          </p>
+    <footer className="bg-section-glow border-t border-border text-foreground">
+      <div className="mx-auto max-w-6xl px-4 pb-10 pt-16">
+        <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
+          <div className="grid gap-5">
+            <div className="flex items-center gap-3">
+              <Logo size={44} />
+              <div className="grid">
+                <span className="font-display text-lg font-semibold leading-tight text-primary">
+                  Venezuela Te Ayuda
+                </span>
+                <span className="text-xs font-medium text-accent">Mapa de ayuda mutua</span>
+              </div>
+            </div>
+            <div>
+              <h2 className="font-display text-xl font-semibold text-primary">¿Quiénes hacemos esto?</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                Somos un equipo de voluntarios construyendo esta plataforma abierta para que
+                cualquier persona afectada por el terremoto pueda pedir y ofrecer ayuda en tiempo
+                real. Gratuito, sin fines de lucro y de código abierto.
+              </p>
+            </div>
+
+            <section className="grid gap-3">
+              <h3 className="font-display text-base font-semibold text-primary">Únete a la comunidad</h3>
+              <p className="text-sm text-muted-foreground">
+                Coordinamos ayuda y damos soporte en nuestro Discord. También puedes escribirnos
+                por correo.
+              </p>
+              <div className="flex flex-wrap items-center gap-4">
+                <a
+                  href="https://discord.gg/mallanet"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#5865f2] px-4 py-2.5 text-sm font-semibold text-white shadow-soft hover-lift hover:shadow-accent-glow"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                    <path d="M20.317 4.3698a19.7913 19.7913 0 0 0-4.8851-1.5152.0741.0741 0 0 0-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 0 0-.0785-.037 19.7363 19.7363 0 0 0-4.8852 1.515.0699.0699 0 0 0-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 0 0 .0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 0 0 .0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 0 0-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 0 1-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 0 1 .0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 0 1 .0785.0095c.1202.099.246.198.3728.2924a.077.077 0 0 1-.0066.1276 12.2986 12.2986 0 0 1-1.873.8914.0766.0766 0 0 0-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 0 0 .0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 0 0 .0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 0 0-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
+                  </svg>
+                  Únete a Discord
+                </a>
+                <a
+                  href="mailto:info@mallanet.org"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-primary underline-offset-4 decoration-accent/40 transition-colors hover:decoration-accent"
+                >
+                  <Mail size={15} aria-hidden />
+                  info@mallanet.org
+                </a>
+              </div>
+            </section>
+          </div>
+
+          <section className="grid gap-3">
+            <h3 className="font-display text-base font-semibold text-primary">Sitios aliados</h3>
+            <p className="text-sm text-muted-foreground">
+              Otras plataformas ciudadanas que ayudan ante el terremoto. Compártelas para llegar a
+              más personas.
+            </p>
+            <div className="grid gap-3">
+              {ALLY_GROUPS.map((group) => (
+                <div key={group.label} className="grid gap-2">
+                  <h4 className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-[0.12em] text-muted-foreground uppercase">
+                    <group.icon size={13} aria-hidden />
+                    {group.label}
+                  </h4>
+                  <ul className="grid gap-2">
+                    {group.links.map((link) => (
+                      <li key={link.href}>
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block rounded-xl border border-border/60 bg-card px-3.5 py-2.5 shadow-soft hover-lift hover-glow"
+                        >
+                          <span className="block text-sm font-semibold text-primary">
+                            {link.title}
+                          </span>
+                          <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
+                            {link.desc}
+                          </span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
 
-        <section className="mt-8 border-t border-[#dde3eb] pt-6">
-          <h3 className="text-xl font-semibold">Únete a la comunidad</h3>
-          <p className="mt-3 text-sm text-[#4a5568]">
-            Coordinamos ayuda y damos soporte en nuestro Discord. También puedes escribirnos por
-            correo.
-          </p>
-          <div className="mt-4 flex flex-wrap items-center gap-4">
-            <a
-              href="https://discord.gg/mallanet"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-[#5865f2] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M20.317 4.3698a19.7913 19.7913 0 0 0-4.8851-1.5152.0741.0741 0 0 0-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 0 0-.0785-.037 19.7363 19.7363 0 0 0-4.8852 1.515.0699.0699 0 0 0-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 0 0 .0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 0 0 .0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 0 0-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 0 1-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 0 1 .0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 0 1 .0785.0095c.1202.099.246.198.3728.2924a.077.077 0 0 1-.0066.1276 12.2986 12.2986 0 0 1-1.873.8914.0766.0766 0 0 0-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 0 0 .0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 0 0 .0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 0 0-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
-              </svg>
-              Únete a Discord
-            </a>
-            <a
-              href="mailto:info@mallanet.org"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[#0a1628] hover:underline"
-            >
-              <Mail size={15} aria-hidden />
-              info@mallanet.org
-            </a>
-          </div>
-        </section>
-
-        <section className="mt-8 border-t border-[#dde3eb] pt-6">
-          <h3 className="text-xl font-semibold">Sitios aliados</h3>
-          <p className="mt-3 text-sm text-[#4a5568]">
-            Otras plataformas ciudadanas que ayudan ante el terremoto. Compártelas para llegar a más
-            personas.
-          </p>
-          <div className="mt-3 grid gap-5 md:grid-cols-3">
-            {ALLY_GROUPS.map((group) => (
-              <div key={group.label}>
-                <h4 className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[#4a5568]">
-                  <group.icon size={13} aria-hidden />
-                  {group.label}
-                </h4>
-                <ul className="mt-3 space-y-2">
-                  {group.links.map((link) => (
-                    <li key={link.href}>
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block rounded-xl border border-[#dde3eb] bg-white px-3 py-2.5 transition-colors hover:border-[#1a98ff]/40 hover:bg-[#f7f8f9]"
-                      >
-                        <span className="block text-sm font-semibold text-[#0a1628]">
-                          {link.title}
-                        </span>
-                        <span className="mt-0.5 block text-xs leading-relaxed text-[#4a5568]">
-                          {link.desc}
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>
+        <div className="mt-12 h-px w-full flag-rule" aria-hidden />
 
         <nav
-          className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-t border-[#dde3eb] pt-6 text-sm"
+          className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm"
           aria-label="Legal"
         >
           {LEGAL_LINKS.map((link, index) => (
             <Fragment key={link.href}>
               {index > 0 && <LegalSeparator />}
               {link.href.startsWith("/") ? (
-                <Link href={link.href} className="font-semibold hover:underline">
+                <Link
+                  href={link.href}
+                  className="font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
+                >
                   {link.label}
                 </Link>
               ) : (
-                <a href={link.href} className="font-semibold hover:underline">
+                <a
+                  href={link.href}
+                  className="font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
+                >
                   {link.label}
                 </a>
               )}
@@ -160,14 +182,14 @@ export function SiteFooter() {
           ))}
         </nav>
 
-        <div className="mt-4 text-center text-xs leading-relaxed text-[#4a5568]">
+        <div className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
           <p>
             Plataforma de reporte ciudadano sin fines de lucro. Datos de mapas ©{" "}
             <a
               href="https://www.openstreetmap.org/copyright"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#0284c7] hover:underline"
+              className="text-accent underline-offset-2 hover:underline"
             >
               OpenStreetMap
             </a>
@@ -179,7 +201,7 @@ export function SiteFooter() {
               href="https://terremotovenezuela.app/metodologia"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:underline"
+              className="underline-offset-2 hover:text-primary hover:underline"
             >
               Metodología
             </a>
@@ -188,7 +210,7 @@ export function SiteFooter() {
               href="https://terremotovenezuela.app/riesgo-sismico"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:underline"
+              className="underline-offset-2 hover:text-primary hover:underline"
             >
               Riesgo sísmico
             </a>

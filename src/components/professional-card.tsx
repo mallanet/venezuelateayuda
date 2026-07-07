@@ -21,7 +21,7 @@ export function ProfessionalCard({ professional, selected }: ProfessionalCardPro
   return (
     <article
       className={cn(
-        "grid overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:shadow-md focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
+        "grid overflow-hidden rounded-xl border border-border/60 bg-card shadow-soft hover-lift focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
         selected && "border-primary ring-2 ring-primary/30"
       )}
       data-testid={`professional-card-${professional.id}`}
@@ -62,7 +62,7 @@ export function ProfessionalCard({ professional, selected }: ProfessionalCardPro
         </span>
         <Link
           href={`/mapa?state=${encodeURIComponent(professional.state)}`}
-          className="text-xs font-medium text-primary underline hover:underline hover:text-accent"
+          className="text-xs font-medium text-primary underline underline-offset-2 link-underline transition-[color] hover:text-accent"
         >
           Ver en el mapa
         </Link>

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/api-helpers";
+import { getSessionUser } from "@/lib/session-guards";
 import { messageSchema } from "@/lib/validation";
 
 async function getConversationForUser(conversationId: string, userId: string) {

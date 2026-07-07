@@ -1,25 +1,26 @@
 "use client";
 
+import { useCallback, useEffect, useMemo, useState, Suspense } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import useSWR from "swr";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import useSWR from "swr";
+import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  MapFilterSidebar,
+  FILTER_ALL,
+  buildListingsQuery,
+  type MapFilters,
+} from "@/components/map-filter-sidebar";
 import type { PublicListing } from "@/lib/types";
-import { CATEGORIES, CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
+import { CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
 import { formatListingMeta } from "@/lib/listing-meta";
-import { VENEZUELA_STATES } from "@/lib/venezuela";
+import { filterWithinRadius, sortByDistance } from "@/lib/geo";
 import { fetchJson } from "@/lib/fetch-json";
-import { sortByDistance } from "@/lib/geo";
+import { useHasGeolocation } from "@/lib/use-client-mounted";
 import { cn } from "@/lib/utils";
 import type { MapUserLocation } from "@/components/map/listings-map";
 
@@ -28,148 +29,206 @@ const ListingsMap = dynamic(() => import("@/components/map/listings-map"), {
   loading: () => <Skeleton className="h-full w-full" />,
 });
 
-const ALL = "TODOS";
+function MapExplorerInner() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const hasGeolocation = useHasGeolocation();
 
-/**
- * Vista principal del mapa: filtros, mapa a pantalla completa y lista
- * sincronizada (panel lateral en escritorio, hoja inferior en móvil).
- */
-export function MapExplorer() {
-  const [type, setType] = useState(ALL);
-  const [category, setCategory] = useState(ALL);
-  const [stateFilter, setStateFilter] = useState(ALL);
+  const filters = useMemo<MapFilters>(
+    () => ({
+      q: searchParams.get("q") ?? "",
+      type: searchParams.get("type") ?? FILTER_ALL,
+      category: searchParams.get("category") ?? FILTER_ALL,
+      state: searchParams.get("state") ?? FILTER_ALL,
+      nearMe: searchParams.get("nearMe") === "true",
+    }),
+    [searchParams]
+  );
+
   const [focusId, setFocusId] = useState<string | null>(null);
   const [listOpen, setListOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [userLocation, setUserLocation] = useState<MapUserLocation | null>(null);
 
-  useEffect(() => {
-    if (!navigator.geolocation) return;
+  const updateFilters = useCallback(
+    (patch: Partial<MapFilters>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (patch.type !== undefined) {
+        if (patch.type !== FILTER_ALL) params.set("type", patch.type);
+        else params.delete("type");
+      }
+      if (patch.category !== undefined) {
+        if (patch.category !== FILTER_ALL) params.set("category", patch.category);
+        else params.delete("category");
+      }
+      if (patch.state !== undefined) {
+        if (patch.state !== FILTER_ALL) params.set("state", patch.state);
+        else params.delete("state");
+      }
+      if (patch.q !== undefined) {
+        if (patch.q.trim()) params.set("q", patch.q.trim());
+        else params.delete("q");
+      }
+      if (patch.nearMe !== undefined) {
+        if (patch.nearMe) params.set("nearMe", "true");
+        else params.delete("nearMe");
+      }
+      const qs = params.toString();
+      router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
+    },
+    [router, pathname, searchParams]
+  );
+
+  const requestUserLocation = useCallback(() => {
+    if (!hasGeolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) =>
         setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
       () => {},
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 }
     );
-  }, []);
+  }, [hasGeolocation]);
 
-  const query = useMemo(() => {
-    const params = new URLSearchParams();
-    if (type !== ALL) params.set("type", type);
-    if (category !== ALL) params.set("category", category);
-    if (stateFilter !== ALL) params.set("state", stateFilter);
-    const qs = params.toString();
-    return `/api/listings${qs ? `?${qs}` : ""}`;
-  }, [type, category, stateFilter]);
+  useEffect(() => {
+    requestUserLocation();
+  }, [requestUserLocation]);
 
-  const { data, isLoading } = useSWR<{ listings: PublicListing[] }>(query, fetchJson, {
+  useEffect(() => {
+    if (filters.nearMe && !userLocation) requestUserLocation();
+  }, [filters.nearMe, userLocation, requestUserLocation]);
+
+  const query = useMemo(() => buildListingsQuery(filters), [filters]);
+  const { data, isLoading, error } = useSWR<{ listings: PublicListing[] }>(query, fetchJson, {
     refreshInterval: 60_000,
   });
-  const listings = useMemo(() => {
-    const raw = data?.listings ?? [];
-    if (!userLocation) return raw;
-    return sortByDistance(raw, userLocation);
-  }, [data?.listings, userLocation]);
+
+  const listings = useMemo(() => data?.listings ?? [], [data?.listings]);
+
+  const visibleListings = useMemo(() => {
+    let pool = listings;
+    if (filters.nearMe && userLocation) {
+      pool = filterWithinRadius(pool, userLocation);
+    }
+    if (userLocation) return sortByDistance(pool, userLocation);
+    return pool;
+  }, [listings, userLocation, filters.nearMe]);
+
+  if (error) {
+    return (
+      <div
+        className="flex flex-1 flex-col items-center justify-center gap-4 p-10 text-center"
+        data-testid="map-explorer"
+      >
+        <p className="text-muted-foreground">No se pudieron cargar las fichas.</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Intentar de nuevo
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-1 flex-col" data-testid="map-explorer">
-      <div className="border-b border-border/40 bg-card px-4 py-4">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3">
-          <Select value={type} onValueChange={setType}>
-            <SelectTrigger
-              className="w-full rounded-xl border-border/60 sm:w-44"
-              data-testid="filter-type"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="z-[1300] rounded-xl">
-              <SelectItem value={ALL}>Ofrezco y necesito</SelectItem>
-              <SelectItem value="OFREZCO">Ofrezco ayuda</SelectItem>
-              <SelectItem value="NECESITO">Necesito ayuda</SelectItem>
-            </SelectContent>
-          </Select>
+    <div className="bg-section-glow flex flex-1 flex-col" data-testid="map-explorer">
+      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6">
+        <div className="grid flex-1 gap-6 lg:grid-cols-[320px_1fr]">
+          {/* Desktop sidebar — filters + listing list */}
+          <aside className="hidden overflow-y-auto rounded-2xl border border-border/60 bg-card shadow-soft lg:flex lg:flex-col">
+            <MapFilterSidebar
+              filters={filters}
+              onChange={updateFilters}
+              resultsCount={visibleListings.length}
+              isLoading={isLoading}
+              showNearMeFilter
+              locationReady={!!userLocation}
+              hasGeolocation={hasGeolocation}
+              className="border-b border-border/40 p-5"
+            />
+            <ListingList
+              listings={visibleListings}
+              isLoading={isLoading}
+              focusId={focusId}
+              onFocus={setFocusId}
+              testId="listing-list-desktop"
+            />
+          </aside>
 
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger
-              className="w-full rounded-xl border-border/60 sm:w-44"
-              data-testid="filter-category"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="z-[1300] rounded-xl">
-              <SelectItem value={ALL}>Todas las categorías</SelectItem>
-              {CATEGORIES.map((category) => {
-                const CategoryIcon = CATEGORY_ICONS[category];
-                return (
-                  <SelectItem key={category} value={category}>
-                    <span className="inline-flex items-center gap-2">
-                      <CategoryIcon className="size-3.5" />
-                      {CATEGORY_LABELS[category]}
-                    </span>
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
+          {/* Map card */}
+          <div className="relative flex h-[420px] flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-elevated sm:h-[480px] lg:h-[560px]">
+            <span
+              className="pointer-events-none absolute top-0 right-0 z-[400] h-10 w-10 rounded-bl-2xl border-l border-b border-accent/30 bg-gradient-to-bl from-accent/15 to-transparent"
+              aria-hidden
+            />
 
-          <Select value={stateFilter} onValueChange={setStateFilter}>
-            <SelectTrigger
-              className="w-full rounded-xl border-border/60 sm:w-44"
-              data-testid="filter-state"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="z-[1300] rounded-xl">
-              <SelectItem value={ALL}>Todo el país</SelectItem>
-              {VENEZUELA_STATES.map((estado) => (
-                <SelectItem key={estado.name} value={estado.name}>
-                  {estado.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            {/* Mobile filter toggle */}
+            <div className="absolute top-3 left-3 z-[1000] lg:hidden">
+              <button
+                type="button"
+                onClick={() => {
+                  setListOpen(false);
+                  setFiltersOpen((open) => !open);
+                }}
+                className="flex items-center gap-2 rounded-xl border border-border/60 bg-card/95 px-4 py-2 text-sm font-medium text-primary shadow-soft backdrop-blur"
+                aria-expanded={filtersOpen}
+              >
+                <SlidersHorizontal className="size-4" aria-hidden />
+                Filtros
+                <ChevronDown
+                  className={cn(
+                    "size-4 text-muted-foreground transition-transform duration-200",
+                    filtersOpen && "rotate-180"
+                  )}
+                  aria-hidden
+                />
+              </button>
+            </div>
 
-          <span className="ml-auto text-sm text-muted-foreground" data-testid="results-count">
-            {isLoading ? "Cargando..." : `${listings.length} fichas`}
-          </span>
-        </div>
-      </div>
+            {/* Mobile filters panel */}
+            {filtersOpen && (
+              <div className="absolute top-14 left-3 right-3 z-[1000] max-h-[70dvh] overflow-y-auto rounded-2xl border border-border/60 bg-card/95 p-5 shadow-elevated backdrop-blur lg:hidden">
+                <MapFilterSidebar
+                  filters={filters}
+                  onChange={updateFilters}
+                  resultsCount={visibleListings.length}
+                  isLoading={isLoading}
+                  showNearMeFilter
+                  locationReady={!!userLocation}
+                  hasGeolocation={hasGeolocation}
+                />
+              </div>
+            )}
 
-      <div className="relative flex flex-1 overflow-hidden">
-        <aside className="hidden w-96 shrink-0 overflow-y-auto border-r border-border/40 md:block">
-          <ListingList
-            listings={listings}
-            isLoading={isLoading}
-            focusId={focusId}
-            onFocus={setFocusId}
-            testId="listing-list-desktop"
-          />
-        </aside>
+            <div className="absolute inset-0">
+              <ListingsMap listings={visibleListings} focusId={focusId} userLocation={userLocation} />
+            </div>
 
-        <div className="relative h-[calc(100dvh-8.5rem)] flex-1 md:h-auto">
-          <ListingsMap listings={listings} focusId={focusId} userLocation={userLocation} />
-
-          <div className="absolute inset-x-0 bottom-0 z-[1000] md:hidden">
-            <button
-              type="button"
-              onClick={() => setListOpen((open) => !open)}
-              className="mx-auto flex w-full items-center justify-center gap-2 rounded-t-2xl border-t border-border/40 bg-card px-4 py-3 text-sm font-medium shadow-[0_-4px_12px_rgba(0,0,0,.08)] dark:shadow-[0_-4px_12px_rgba(0,0,0,.4)]"
-              aria-expanded={listOpen}
-            >
-              {listOpen ? "Ocultar lista" : `Ver lista (${listings.length})`}
-            </button>
-            <div
-              className={cn(
-                "overflow-y-auto bg-card transition-[max-height] duration-300",
-                listOpen ? "max-h-[45dvh]" : "max-h-0"
-              )}
-            >
-              <ListingList
-                listings={listings}
-                isLoading={isLoading}
-                focusId={focusId}
-                onFocus={setFocusId}
-                testId="listing-list-mobile"
-              />
+            {/* Mobile listing list */}
+            <div className="absolute inset-x-0 bottom-0 z-[1000] lg:hidden">
+              <button
+                type="button"
+                onClick={() => {
+                  setFiltersOpen(false);
+                  setListOpen((open) => !open);
+                }}
+                className="mx-auto flex w-full items-center justify-center gap-2 rounded-t-2xl border-t border-border/40 bg-card/95 px-4 py-3 text-sm font-medium shadow-[0_-4px_16px_rgba(27,58,92,0.10)] backdrop-blur"
+                aria-expanded={listOpen}
+              >
+                {listOpen ? "Ocultar lista" : `Ver lista (${visibleListings.length})`}
+              </button>
+              <div
+                className={cn(
+                  "overflow-y-auto bg-card/95 backdrop-blur transition-[max-height] duration-300",
+                  listOpen ? "max-h-[45dvh]" : "max-h-0"
+                )}
+              >
+                <ListingList
+                  listings={visibleListings}
+                  isLoading={isLoading}
+                  focusId={focusId}
+                  onFocus={setFocusId}
+                  testId="listing-list-mobile"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -195,7 +254,7 @@ function ListingList({
     return (
       <div className="grid gap-3 p-4">
         {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-28 w-full rounded-xl" />
+          <div key={i} className="vta-skeleton h-28 w-full rounded-xl" />
         ))}
       </div>
     );
@@ -204,9 +263,10 @@ function ListingList({
   if (listings.length === 0) {
     return (
       <div className="grid gap-3 p-6 text-center text-sm text-muted-foreground">
-        <p>No hay fichas con estos filtros todavía.</p>
+        <p className="font-medium text-foreground">No hay fichas con estos filtros todavía.</p>
+        <p className="text-xs">Puedes ser la primera persona en publicar.</p>
         <Button asChild variant="outline" size="sm" className="justify-self-center rounded-xl">
-          <Link href="/ayuda/nueva">Sé la primera persona en publicar</Link>
+          <Link href="/ayuda/nueva">Publicar una ficha</Link>
         </Button>
       </div>
     );
@@ -222,7 +282,7 @@ function ListingList({
               type="button"
               onClick={() => onFocus(listing.id)}
               className={cn(
-                "grid w-full gap-1.5 rounded-xl border border-border/60 bg-card p-4 text-left transition-all hover:border-accent/40 hover:bg-accent/[0.03] hover:shadow-sm",
+                "grid w-full gap-1.5 rounded-xl border border-border/60 bg-card p-4 text-left shadow-soft hover-lift hover-glow",
                 focusId === listing.id && "border-accent ring-1 ring-accent"
               )}
             >
@@ -242,7 +302,7 @@ function ListingList({
                   {CATEGORY_LABELS[listing.category]}
                 </span>
               </div>
-              <span className="font-heading text-sm font-medium text-foreground">
+              <span className="font-display text-sm font-medium text-foreground">
                 {listing.title}
               </span>
               <span className="text-xs text-muted-foreground">
@@ -253,15 +313,29 @@ function ListingList({
               </Badge>
               <Link
                 href={`/ayuda/${listing.id}`}
-                className="text-xs font-medium text-accent underline underline-offset-2"
+                className="text-xs font-medium text-primary underline underline-offset-2 decoration-accent/40 transition-colors hover:text-accent hover:decoration-accent"
                 onClick={(e) => e.stopPropagation()}
               >
-                Ver ficha completa
+                Ver ficha completa →
               </Link>
             </button>
           </li>
         );
       })}
     </ul>
+  );
+}
+
+export function MapExplorer() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-1 items-center justify-center bg-section-glow" data-testid="map-explorer">
+          <Skeleton className="h-8 w-48" />
+        </div>
+      }
+    >
+      <MapExplorerInner />
+    </Suspense>
   );
 }

@@ -26,12 +26,15 @@ export const metadata: Metadata = {
 export default function MapaPage() {
   return (
     <div className="flex flex-1 flex-col">
-      <section className="border-b border-border/40 bg-background px-4 py-14 sm:py-16">
-        <div className="mx-auto max-w-6xl">
-          <h1 className="font-heading text-3xl font-semibold tracking-tight text-primary sm:text-4xl">
+      <section className="border-b border-border/40 bg-section-glow px-4 py-14 sm:py-16">
+        <div className="mx-auto grid max-w-6xl gap-3">
+          <span className="reveal delay-1 font-mono-tokens text-xs font-medium tracking-[0.18em] text-accent uppercase">
+            Mapa interactivo
+          </span>
+          <h1 className="reveal delay-2 font-display text-3xl font-semibold tracking-tight text-primary sm:text-4xl md:text-5xl">
             Mapa de ayuda
           </h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground">
+          <p className="reveal delay-3 max-w-2xl text-muted-foreground">
             Explora fichas de ayuda en todo el país. Filtra por categoría,
             estado y tipo para encontrar lo que necesitas.
           </p>

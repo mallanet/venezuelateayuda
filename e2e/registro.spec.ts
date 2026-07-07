@@ -31,9 +31,10 @@ test.describe("Registro y verificación de cuenta", () => {
     expect(user.role).toBe("AYUDANTE");
     expect(user.emailVerified).toBeNull();
 
-    const verifyRes = await request.get(
-      `/api/verify-email?token=${user.verificationTokens[0].token}`
-    );
+    const verificationToken = user.verificationTokens[0]?.token;
+    expect(verificationToken).toBeTruthy();
+
+    const verifyRes = await request.get(`/api/verify-email?token=${verificationToken}`);
     expect(verifyRes.ok()).toBeTruthy();
 
     await login(page, email);

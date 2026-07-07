@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
 import type { Category, ListingType, Role } from "@prisma/client";
@@ -95,18 +94,21 @@ export function AdminDashboard() {
 
   if (isLoading || !data) {
     return (
-      <div className="mx-auto grid w-full max-w-5xl gap-4 px-4 py-10">
-        <Skeleton className="h-24 w-full rounded-xl" />
-        <Skeleton className="h-96 w-full rounded-xl" />
+      <div className="bg-section-glow mx-auto grid w-full max-w-5xl gap-4 px-4 py-10">
+        <div className="vta-skeleton h-24 w-full rounded-xl" />
+        <div className="vta-skeleton h-96 w-full rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-10">
-      <h1 className="font-heading text-2xl font-semibold text-primary">
-        Panel de administración
-      </h1>
+    <div className="bg-section-glow mx-auto grid w-full max-w-5xl gap-6 px-4 py-10">
+      <div className="grid gap-1">
+        <span className="font-mono-tokens text-xs font-medium tracking-[0.18em] text-accent uppercase">
+          Administración
+        </span>
+        <h1 className="font-display text-3xl font-semibold text-primary">Panel de administración</h1>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {[
@@ -116,17 +118,12 @@ export function AdminDashboard() {
           { label: "Resueltas", value: data.metrics.closedListings },
           { label: "Mensajes", value: data.metrics.totalMessages },
         ].map((metric) => (
-          <Card
-            key={metric.label}
-            className="border-border/60 shadow-sm"
-          >
+          <Card key={metric.label} className="border-border/60 bg-card shadow-soft">
             <CardContent className="pt-6 text-center">
-              <div className="font-heading text-2xl font-semibold text-primary">
+              <div className="font-mono-tokens text-3xl font-bold tabular-nums text-primary">
                 {metric.value}
               </div>
-              <div className="mt-1 text-xs text-muted-foreground">
-                {metric.label}
-              </div>
+              <div className="mt-1 text-xs text-muted-foreground">{metric.label}</div>
             </CardContent>
           </Card>
         ))}
@@ -160,7 +157,7 @@ export function AdminDashboard() {
         <TabsContent value="usuarios">
           <Card className="border-border/60 shadow-sm">
             <CardHeader className="border-b border-border/40 pb-4">
-              <CardTitle className="font-heading text-lg text-primary">
+              <CardTitle className="font-display text-lg font-semibold text-primary">
                 Usuarios pendientes de aprobación
               </CardTitle>
             </CardHeader>
@@ -205,7 +202,7 @@ export function AdminDashboard() {
                           size="sm"
                           disabled={busyId === user.id}
                           data-testid={`approve-user-${user.email}`}
-                          className="rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
+                          className="rounded-lg bg-primary text-primary-foreground shadow-soft hover:bg-primary/90"
                           onClick={() => runAction({ action: "aprobar_usuario", userId: user.id }, user.id)}
                         >
                           Aprobar
@@ -234,7 +231,7 @@ export function AdminDashboard() {
         <TabsContent value="fichas">
           <Card className="border-border/60 shadow-sm">
             <CardHeader className="border-b border-border/40 pb-4">
-              <CardTitle className="font-heading text-lg text-primary">
+              <CardTitle className="font-display text-lg font-semibold text-primary">
                 Fichas pendientes de aprobación
               </CardTitle>
             </CardHeader>
@@ -278,7 +275,7 @@ export function AdminDashboard() {
                           size="sm"
                           disabled={busyId === listing.id}
                           data-testid={`approve-listing-${listing.id}`}
-                          className="rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
+                          className="rounded-lg bg-primary text-primary-foreground shadow-soft hover:bg-primary/90"
                           onClick={() => runAction({ action: "aprobar_ficha", listingId: listing.id }, listing.id)}
                         >
                           Aprobar
@@ -307,7 +304,7 @@ export function AdminDashboard() {
         <TabsContent value="denuncias">
           <Card className="border-border/60 shadow-sm">
             <CardHeader className="border-b border-border/40 pb-4">
-              <CardTitle className="font-heading text-lg text-primary">
+              <CardTitle className="font-display text-lg font-semibold text-primary">
                 Denuncias abiertas
               </CardTitle>
             </CardHeader>

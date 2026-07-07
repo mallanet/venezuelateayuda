@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getAdminUser } from "@/lib/api-helpers";
+import { getAdminUser } from "@/lib/session-guards";
 import { purgeDemoUsers } from "@/lib/purge-demo-users";
 
 const actionSchema = z.discriminatedUnion("action", [

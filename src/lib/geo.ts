@@ -41,7 +41,9 @@ export function filterWithinRadius<T extends { lat: number; lng: number }>(
   return items.filter((item) => distanceKm(origin, item) <= maxKm);
 }
 
+// Paleta de zonas = bandera venezolana anclada en el azul del logo:
+// azul (Ofrezco), rojo (Necesito), amarillo (exterior/online, ver listings-map).
 export const ZONE_COLORS = {
-  OFREZCO: { stroke: "#2563eb", fill: "#2563eb" },
-  NECESITO: { stroke: "#dc2626", fill: "#dc2626" },
+  OFREZCO: { stroke: "#0E6BCB", fill: "#0E6BCB" },
+  NECESITO: { stroke: "#C94C3E", fill: "#C94C3E" },
 } as const;

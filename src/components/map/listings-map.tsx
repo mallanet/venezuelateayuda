@@ -3,7 +3,8 @@
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
 import Link from "next/link";
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect } from "react";
+import { useClientMounted } from "@/lib/use-client-mounted";
 import type { PublicListing } from "@/lib/types";
 import { CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
 import { formatListingMeta } from "@/lib/listing-meta";
@@ -23,14 +24,14 @@ export interface MapUserLocation {
 function markerIcon(listing: PublicListing) {
   const abroad = isAbroadState(listing.state);
   const borderColor = abroad
-    ? "#059669"
+    ? "#FFCC00"
     : listing.type === "OFREZCO"
       ? ZONE_COLORS.OFREZCO.stroke
       : ZONE_COLORS.NECESITO.stroke;
   const safeUrl = listing.authorAvatarUrl.replace(/"/g, "&quot;");
   return L.divIcon({
     className: "",
-    html: `<div style="width:44px;height:44px;border-radius:50%;border:3px solid ${borderColor};overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.35);background:#fff"><img src="${safeUrl}" alt="" style="width:100%;height:100%;object-fit:cover" /></div>`,
+    html: `<div style="width:44px;height:44px;border-radius:50%;border:3px solid ${borderColor};overflow:hidden;box-shadow:0 2px 8px rgba(14,107,203,.35);background:#fff"><img src="${safeUrl}" alt="" style="width:100%;height:100%;object-fit:cover" /></div>`,
     iconSize: [44, 44],
     iconAnchor: [22, 22],
     popupAnchor: [0, -24],
@@ -40,7 +41,7 @@ function markerIcon(listing: PublicListing) {
 function userLocationIcon() {
   return L.divIcon({
     className: "",
-    html: `<div style="width:16px;height:16px;border-radius:50%;background:#0ea5e9;border:3px solid #fff;box-shadow:0 0 0 2px #0ea5e9"></div>`,
+    html: `<div style="width:16px;height:16px;border-radius:50%;background:#1C99FA;border:3px solid #fff;box-shadow:0 0 0 2px #1C99FA"></div>`,
     iconSize: [16, 16],
     iconAnchor: [8, 8],
   });
@@ -49,14 +50,14 @@ function userLocationIcon() {
 function zoneStyle(listing: PublicListing) {
   const abroad = isAbroadState(listing.state);
   const colors = abroad
-    ? { stroke: "#059669", fill: "#10b981" }
+    ? { stroke: "#FFCC00", fill: "#FFCC00" }
     : listing.type === "OFREZCO"
       ? ZONE_COLORS.OFREZCO
       : ZONE_COLORS.NECESITO;
   return {
     color: colors.stroke,
     fillColor: colors.fill,
-    fillOpacity: listing.modality === "ONLINE" || abroad ? 0.12 : 0.22,
+    fillOpacity: listing.modality === "ONLINE" || abroad ? 0.14 : 0.22,
     weight: abroad ? 3 : 2,
     opacity: 0.85,
     dashArray: listing.modality === "ONLINE" || abroad ? "8 6" : undefined,
@@ -97,12 +98,6 @@ interface ListingsMapProps {
   userLocation?: MapUserLocation | null;
 }
 
-const subscribeNoop = () => () => {};
-
-function useClientMounted() {
-  return useSyncExternalStore(subscribeNoop, () => true, () => false);
-}
-
 /** Mapa con zonas azul/rojo, marcadores y solapamiento visible por transparencia. */
 export default function ListingsMap(props: ListingsMapProps) {
   const mounted = useClientMounted();
@@ -122,6 +117,7 @@ function ListingsMapContent({ listings, focusId, userLocation }: ListingsMapProp
         zoom={6}
         className="h-full w-full"
         scrollWheelZoom
+        doubleClickZoom={false}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'

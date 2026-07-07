@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 import { Logotype } from "@/components/logo";
+import { Reveal } from "@/components/reveal";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -58,9 +59,11 @@ function LoginForm() {
         <Logotype size={44} showTagline />
       </div>
 
-      <Card className="rounded-2xl border-border/60 shadow-sm">
+      <Reveal variant="in">
+      <Card className="overflow-hidden border-border/60 shadow-elevated">
+        <div className="accent-rule h-0.5 w-full" aria-hidden />
         <CardHeader className="pb-4 text-center">
-          <CardTitle className="font-heading text-2xl text-primary">
+          <CardTitle className="font-display text-2xl font-semibold text-primary">
             Iniciar sesión
           </CardTitle>
           <CardDescription className="text-muted-foreground">
@@ -91,29 +94,29 @@ function LoginForm() {
                 required
               />
             </div>
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90"
-            >
+            <Button type="submit" disabled={loading} className="w-full cursor-pointer shadow-soft">
               {loading ? "Entrando..." : "Entrar"}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               ¿No tienes cuenta?{" "}
-              <Link href="/registro" className="font-medium text-accent underline-offset-2 hover:underline">
+              <Link
+                href="/registro"
+                className="font-medium text-accent underline-offset-2 link-underline"
+              >
                 Regístrate
               </Link>
             </p>
           </form>
         </CardContent>
       </Card>
+      </Reveal>
     </>
   );
 }
 
 export default function LoginPage() {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-4 py-16">
+    <div className="bg-section-glow mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-16">
       <Suspense>
         <LoginForm />
       </Suspense>

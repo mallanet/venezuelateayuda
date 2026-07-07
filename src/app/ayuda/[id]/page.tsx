@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
+import { formatVeDate } from "@/lib/dates";
 import { formatListingMeta } from "@/lib/listing-meta";
 import { ContactButton } from "@/components/contact-button";
 import { ReportDialog } from "@/components/report-dialog";
@@ -47,18 +48,18 @@ export default async function FichaDetallePage({
     listing.status === "APROBADA";
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10">
-      <div className="mb-8">
+    <div className="bg-section-glow mx-auto w-full max-w-3xl px-4 py-12">
+      <div className="reveal delay-1 mb-6">
         <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-primary"
+          href="/mapa"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors duration-[var(--motion-duration-fast)] ease-[var(--motion-ease-out)] hover:text-primary link-underline underline-offset-4"
         >
           <span aria-hidden>&larr;</span> Volver al mapa
         </Link>
       </div>
 
-      <Card className="overflow-hidden border-accent/10 shadow-sm">
-        <div className="h-1.5 w-full bg-gradient-to-r from-primary via-accent to-destructive" />
+      <Card className="reveal delay-2 overflow-hidden border-accent/10 bg-card shadow-elevated">
+        <div className="flag-rule h-1.5 w-full" aria-hidden />
         <CardHeader>
           <div className="flex flex-wrap items-center gap-2">
             <Badge
@@ -80,50 +81,48 @@ export default async function FichaDetallePage({
               </Badge>
             )}
           </div>
-          <h1 className="font-heading text-2xl font-semibold text-primary">
+          <h1 className="font-display text-3xl font-semibold text-balance text-primary">
             {listing.title}
           </h1>
           <CardDescription className="text-sm">
             {listing.municipality}, {listing.state} · publicada por {authorName} ·{" "}
-            {listing.createdAt.toLocaleDateString("es-VE", { dateStyle: "medium" })}
+            {formatVeDate(listing.createdAt, "medium")}
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
-          <div className="rounded-xl bg-accent/5 p-5">
+          <div className="rounded-xl border border-accent/10 bg-accent/[0.04] p-5">
             <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
               {listing.description}
             </p>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-accent/20">
+          <div className="overflow-hidden rounded-xl border border-border/60 shadow-soft">
             <ListingMiniMap lat={listing.lat} lng={listing.lng} />
           </div>
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className="inline-block h-1 w-1 rounded-full bg-accent" />
+            <span className="inline-block size-1 rounded-full bg-accent" aria-hidden />
             La ubicación mostrada es aproximada para proteger la privacidad.
           </p>
 
-          <Separator className="bg-accent/10" />
+          <Separator className="bg-border/60" />
 
           <div className="flex flex-wrap items-center gap-3">
             {canContact && <ContactButton listingId={listing.id} />}
             {!session?.user && (
-              <Button asChild className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+              <Button asChild className="shadow-soft">
                 <Link href="/login">Inicia sesión para contactar</Link>
               </Button>
             )}
             {session?.user && session.user.status !== "APROBADO" && !isOwner && (
               <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <span className="inline-block h-1 w-1 rounded-full bg-accent" />
+                <span className="inline-block size-1 rounded-full bg-accent" aria-hidden />
                 Podrás contactar cuando tu cuenta sea aprobada.
               </p>
             )}
             {isOwner && listing.status !== "CERRADA" && (
               <CloseListingButton listingId={listing.id} />
             )}
-            {session?.user && !isOwner && (
-              <ReportDialog listingId={listing.id} />
-            )}
+            {session?.user && !isOwner && <ReportDialog listingId={listing.id} />}
           </div>
         </CardContent>
       </Card>

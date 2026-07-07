@@ -58,7 +58,10 @@ export function MapFilterSidebar({
       data-testid="map-filter-sidebar"
       aria-label="Filtra tu búsqueda"
     >
-      <h2 className="font-heading mb-4 text-lg font-semibold text-foreground">Filtra tu búsqueda</h2>
+      <h2 className="font-display mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+        <span className="inline-block size-1.5 rounded-full bg-accent" aria-hidden />
+        Filtra tu búsqueda
+      </h2>
       <div className="grid gap-4">
         <div className="grid gap-2">
           <Label htmlFor="filter-q">{searchLabel}</Label>
