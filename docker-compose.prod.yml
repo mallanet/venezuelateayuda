@@ -1,0 +1,97 @@
+name: venezuelateayuda
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vta
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: venezuelateayuda
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vta -d venezuelateayuda"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - internal
+
+  migrate:
+    build:
+      context: .
+      target: migrate
+    environment:
+      DATABASE_URL: postgresql://vta:${POSTGRES_PASSWORD}@db:5432/venezuelateayuda
+      DATABASE_URL_UNPOOLED: postgresql://vta:${POSTGRES_PASSWORD}@db:5432/venezuelateayuda
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://vta:${POSTGRES_PASSWORD}@db:5432/venezuelateayuda
+      DATABASE_URL_UNPOOLED: postgresql://vta:${POSTGRES_PASSWORD}@db:5432/venezuelateayuda
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_URL: ${AUTH_URL}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      EMAIL_FROM: ${EMAIL_FROM:-no-reply@venezuelateayuda.org}
+    networks:
+      - internal
+      - edge
+
+  seed:
+    build:
+      context: .
+      target: migrate
+    profiles: ["seed"]
+    command: ["npx", "tsx", "prisma/seed.ts"]
+    environment:
+      DATABASE_URL: postgresql://vta:${POSTGRES_PASSWORD}@db:5432/venezuelateayuda
+      DATABASE_URL_UNPOOLED: postgresql://vta:${POSTGRES_PASSWORD}@db:5432/venezuelateayuda
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@venezuelateayuda.org}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - internal
+    restart: "no"
+
+  caddy:
+    profiles: ["standalone"]
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/caddy/Caddyfile.standalone:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+    networks:
+      - edge
+
+networks:
+  internal:
+  edge:
+    name: terremotoapp_mapa_prod_net
+    external: true
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

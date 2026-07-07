@@ -1,0 +1,3 @@
+# Entry point for Hostinger VPS auto-discovery (production stack).
+include:
+  - docker-compose.prod.yml

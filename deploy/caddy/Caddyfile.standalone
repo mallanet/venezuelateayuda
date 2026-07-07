@@ -1,0 +1,3 @@
+venezuelateayuda.org, www.venezuelateayuda.org {
+	reverse_proxy app:3000
+}

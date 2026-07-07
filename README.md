@@ -58,3 +58,14 @@ Los tests levantan el dev server en el puerto 3100 y cubren: registro con verifi
 3. Configura las variables: `AUTH_SECRET` (genera con `openssl rand -hex 32`), `AUTH_URL` y `NEXT_PUBLIC_APP_URL` (URL pública del sitio).
 4. Ejecuta las migraciones contra la base de producción: `npx prisma migrate deploy`, y el seed del admin: `npm run seed`.
 5. Conecta un proveedor de email real (Resend, SES, etc.) en `src/lib/email.ts` para los correos de verificación.
+
+## Despliegue en VPS Hostinger
+
+Mismo patrón que Terremotoapp: runner self-hosted + Docker Compose + Caddy compartido.
+
+```bash
+cp .env.prod.example .env.prod   # o secrets en GitHub Actions
+RUN_SEED=true bash scripts/vps-deploy.sh
+```
+
+Detalle completo en [DEPLOY.md](./DEPLOY.md). DNS: `A @` y `CNAME www` → `2.25.77.231`.

@@ -1,0 +1,48 @@
+name: Deploy VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      run_seed:
+        description: "Run prisma seed (first deploy only)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Write production env
+        env:
+          EMAIL_FROM: ${{ secrets.VTA_EMAIL_FROM }}
+          ADMIN_EMAIL: ${{ secrets.VTA_ADMIN_EMAIL }}
+        run: |
+          cat > .env.prod <<EOF
+          POSTGRES_PASSWORD=${{ secrets.VTA_POSTGRES_PASSWORD }}
+          AUTH_SECRET=${{ secrets.VTA_AUTH_SECRET }}
+          AUTH_URL=https://venezuelateayuda.org
+          NEXT_PUBLIC_APP_URL=https://venezuelateayuda.org
+          EMAIL_FROM=${EMAIL_FROM:-no-reply@venezuelateayuda.org}
+          ADMIN_EMAIL=${ADMIN_EMAIL:-admin@venezuelateayuda.org}
+          ADMIN_PASSWORD=${{ secrets.VTA_ADMIN_PASSWORD }}
+          EOF
+
+      - name: Deploy to VPS
+        env:
+          RUN_SEED: ${{ github.event.inputs.run_seed || 'false' }}
+        run: |
+          chmod +x scripts/vps-deploy.sh scripts/vps-bootstrap.sh
+          bash scripts/vps-deploy.sh
