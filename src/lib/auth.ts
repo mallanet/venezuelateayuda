@@ -22,7 +22,15 @@ declare module "next-auth" {
   }
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string;
+    role?: Role;
+    status?: UserStatus;
+  }
+}
+
+export const { handlers, auth } = NextAuth({
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [
@@ -58,24 +66,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id;
         token.role = user.role;
         token.status = user.status;
-      } else if (token.id) {
-        // Refresca rol/estado en cada request para reflejar decisiones del admin.
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.id as string },
-          select: { role: true, status: true },
-        });
-        if (dbUser) {
-          token.role = dbUser.role;
-          token.status = dbUser.status;
+      } else if (typeof token.id === "string") {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id },
+            select: { role: true, status: true },
+          });
+          if (dbUser) {
+            token.role = dbUser.role;
+            token.status = dbUser.status;
+          } else {
+            token.id = undefined;
+            token.role = undefined;
+            token.status = undefined;
+            return token;
+          }
+        } catch {
+          // DB unavailable — keep existing token
         }
       }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as Role;
-        session.user.status = token.status as UserStatus;
+      if (session.user && typeof token.id === "string" && token.role && token.status) {
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.status = token.status;
       }
       return session;
     },

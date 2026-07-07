@@ -5,6 +5,20 @@ import { VENEZUELA_STATES } from "@/lib/venezuela";
 const venezuelaStateNames = VENEZUELA_STATES.map((s) => s.name) as [string, ...string[]];
 const stateNames = [...venezuelaStateNames, ABROAD_STATE] as [string, ...string[]];
 
+export const listingTypeSchema = z.enum(["OFREZCO", "NECESITO"]);
+
+export const categorySchema = z.enum([
+  "ALIMENTOS",
+  "MEDICINAS",
+  "TRANSPORTE",
+  "ALOJAMIENTO",
+  "EDUCACION",
+  "EMPLEO",
+  "OTRO",
+]);
+
+export const stateNameSchema = z.enum(stateNames);
+
 export const registerSchema = z
   .object({
     email: z.string().email("Email inválido"),
@@ -113,3 +127,67 @@ export const reportSchema = z.object({
   listingId: z.string().optional(),
   userId: z.string().optional(),
 });
+
+export const conversationCreateSchema = z.object({
+  listingId: z.string().min(1, "Ficha inválida"),
+});
+
+export const listingCloseSchema = z.object({
+  action: z.literal("cerrar"),
+});
+
+export const verifyEmailQuerySchema = z.object({
+  token: z.string().min(1),
+});
+
+export const listingsQuerySchema = z.object({
+  type: listingTypeSchema.optional(),
+  category: categorySchema.optional(),
+  state: stateNameSchema.optional(),
+  q: z.string().trim().optional(),
+});
+
+export const professionalsQuerySchema = z.object({
+  category: categorySchema.optional(),
+  state: stateNameSchema.optional(),
+  q: z.string().trim().optional(),
+});
+
+export const publicListingSchema = z.object({
+  id: z.string(),
+  type: listingTypeSchema,
+  title: z.string(),
+  description: z.string(),
+  category: categorySchema,
+  state: z.string(),
+  municipality: z.string(),
+  lat: z.number(),
+  lng: z.number(),
+  createdAt: z.coerce.date(),
+  authorName: z.string(),
+  authorAvatarUrl: z.string(),
+});
+
+export const publicProfessionalSchema = z.object({
+  id: z.string(),
+  displayName: z.string(),
+  avatarUrl: z.string(),
+  state: z.string(),
+  municipality: z.string(),
+  bio: z.string().nullable(),
+  categories: z.array(categorySchema),
+  listingsCount: z.number(),
+  primaryCategory: categorySchema.nullable(),
+});
+
+
+export function parseSearchParams<T>(
+  schema: z.ZodType<T>,
+  params: URLSearchParams
+): z.ZodSafeParseResult<T> {
+  const raw: Record<string, string> = {};
+  params.forEach((value, key) => {
+    raw[key] = value;
+  });
+  return schema.safeParse(raw);
+}

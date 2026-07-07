@@ -72,13 +72,16 @@ export function MapExplorer() {
 
   return (
     <div className="flex flex-1 flex-col" data-testid="map-explorer">
-      <div className="border-b bg-background px-4 py-3">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-2">
+      <div className="border-b border-border/40 bg-card px-4 py-4">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3">
           <Select value={type} onValueChange={setType}>
-            <SelectTrigger className="w-full sm:w-44" data-testid="filter-type">
+            <SelectTrigger
+              className="w-full rounded-xl border-border/60 sm:w-44"
+              data-testid="filter-type"
+            >
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="z-[1300]">
+            <SelectContent className="z-[1300] rounded-xl">
               <SelectItem value={ALL}>Ofrezco y necesito</SelectItem>
               <SelectItem value="OFREZCO">Ofrezco ayuda</SelectItem>
               <SelectItem value="NECESITO">Necesito ayuda</SelectItem>
@@ -86,28 +89,40 @@ export function MapExplorer() {
           </Select>
 
           <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="w-full sm:w-44" data-testid="filter-category">
+            <SelectTrigger
+              className="w-full rounded-xl border-border/60 sm:w-44"
+              data-testid="filter-category"
+            >
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="z-[1300]">
+            <SelectContent className="z-[1300] rounded-xl">
               <SelectItem value={ALL}>Todas las categorías</SelectItem>
-              {CATEGORIES.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {CATEGORY_ICONS[c]} {CATEGORY_LABELS[c]}
-                </SelectItem>
-              ))}
+              {CATEGORIES.map((category) => {
+                const CategoryIcon = CATEGORY_ICONS[category];
+                return (
+                  <SelectItem key={category} value={category}>
+                    <span className="inline-flex items-center gap-2">
+                      <CategoryIcon className="size-3.5" />
+                      {CATEGORY_LABELS[category]}
+                    </span>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
 
           <Select value={stateFilter} onValueChange={setStateFilter}>
-            <SelectTrigger className="w-full sm:w-44" data-testid="filter-state">
+            <SelectTrigger
+              className="w-full rounded-xl border-border/60 sm:w-44"
+              data-testid="filter-state"
+            >
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="z-[1300]">
+            <SelectContent className="z-[1300] rounded-xl">
               <SelectItem value={ALL}>Todo el país</SelectItem>
-              {VENEZUELA_STATES.map((s) => (
-                <SelectItem key={s.name} value={s.name}>
-                  {s.name}
+              {VENEZUELA_STATES.map((estado) => (
+                <SelectItem key={estado.name} value={estado.name}>
+                  {estado.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -120,7 +135,7 @@ export function MapExplorer() {
       </div>
 
       <div className="relative flex flex-1 overflow-hidden">
-        <aside className="hidden w-96 shrink-0 overflow-y-auto border-r md:block">
+        <aside className="hidden w-96 shrink-0 overflow-y-auto border-r border-border/40 md:block">
           <ListingList
             listings={listings}
             isLoading={isLoading}
@@ -136,15 +151,15 @@ export function MapExplorer() {
           <div className="absolute inset-x-0 bottom-0 z-[1000] md:hidden">
             <button
               type="button"
-              onClick={() => setListOpen((v) => !v)}
-              className="mx-auto flex w-full items-center justify-center gap-2 rounded-t-2xl border-t bg-background px-4 py-3 text-sm font-medium shadow-[0_-4px_12px_rgba(0,0,0,.08)]"
+              onClick={() => setListOpen((open) => !open)}
+              className="mx-auto flex w-full items-center justify-center gap-2 rounded-t-2xl border-t border-border/40 bg-card px-4 py-3 text-sm font-medium shadow-[0_-4px_12px_rgba(0,0,0,.08)] dark:shadow-[0_-4px_12px_rgba(0,0,0,.4)]"
               aria-expanded={listOpen}
             >
               {listOpen ? "Ocultar lista" : `Ver lista (${listings.length})`}
             </button>
             <div
               className={cn(
-                "overflow-y-auto bg-background transition-[max-height] duration-300",
+                "overflow-y-auto bg-card transition-[max-height] duration-300",
                 listOpen ? "max-h-[45dvh]" : "max-h-0"
               )}
             >
@@ -180,7 +195,7 @@ function ListingList({
     return (
       <div className="grid gap-3 p-4">
         {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-28 w-full" />
+          <Skeleton key={i} className="h-28 w-full rounded-xl" />
         ))}
       </div>
     );
@@ -190,7 +205,7 @@ function ListingList({
     return (
       <div className="grid gap-3 p-6 text-center text-sm text-muted-foreground">
         <p>No hay fichas con estos filtros todavía.</p>
-        <Button asChild variant="outline" size="sm" className="justify-self-center">
+        <Button asChild variant="outline" size="sm" className="justify-self-center rounded-xl">
           <Link href="/ayuda/nueva">Sé la primera persona en publicar</Link>
         </Button>
       </div>
@@ -199,44 +214,54 @@ function ListingList({
 
   return (
     <ul className="grid gap-2 p-3" data-testid={testId}>
-      {listings.map((listing) => (
-        <li key={listing.id}>
-          <button
-            type="button"
-            onClick={() => onFocus(listing.id)}
-            className={cn(
-              "grid w-full gap-1 rounded-lg border p-3 text-left transition-colors hover:bg-muted",
-              focusId === listing.id && "border-primary ring-1 ring-primary"
-            )}
-          >
-            <div className="flex items-center gap-2">
-              <Badge
-                variant={listing.type === "OFREZCO" ? "default" : "destructive"}
-                className="text-[10px]"
-              >
-                {LISTING_TYPE_LABELS[listing.type]}
-              </Badge>
-              <span className="text-xs text-muted-foreground">
-                {CATEGORY_ICONS[listing.category]} {CATEGORY_LABELS[listing.category]}
-              </span>
-            </div>
-            <span className="text-sm font-medium">{listing.title}</span>
-            <span className="text-xs text-muted-foreground">
-              {listing.municipality}, {listing.state} · por {listing.authorName}
-            </span>
-            <Badge variant="outline" className="w-fit text-[10px]">
-              {formatListingMeta(listing.quantity, listing.quantityUnit, listing.modality)}
-            </Badge>
-            <Link
-              href={`/ayuda/${listing.id}`}
-              className="text-xs font-medium text-primary underline"
-              onClick={(e) => e.stopPropagation()}
+      {listings.map((listing) => {
+        const CategoryIcon = CATEGORY_ICONS[listing.category];
+        return (
+          <li key={listing.id}>
+            <button
+              type="button"
+              onClick={() => onFocus(listing.id)}
+              className={cn(
+                "grid w-full gap-1.5 rounded-xl border border-border/60 bg-card p-4 text-left transition-all hover:border-accent/40 hover:bg-accent/[0.03] hover:shadow-sm",
+                focusId === listing.id && "border-accent ring-1 ring-accent"
+              )}
             >
-              Ver ficha completa
-            </Link>
-          </button>
-        </li>
-      ))}
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant={listing.type === "OFREZCO" ? "default" : "destructive"}
+                  className={
+                    listing.type === "OFREZCO"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-destructive/10 text-destructive"
+                  }
+                >
+                  {LISTING_TYPE_LABELS[listing.type]}
+                </Badge>
+                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                  <CategoryIcon className="size-3.5" />
+                  {CATEGORY_LABELS[listing.category]}
+                </span>
+              </div>
+              <span className="font-heading text-sm font-medium text-foreground">
+                {listing.title}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {listing.municipality}, {listing.state} · por {listing.authorName}
+              </span>
+              <Badge variant="outline" className="w-fit text-[10px]">
+                {formatListingMeta(listing.quantity, listing.quantityUnit, listing.modality)}
+              </Badge>
+              <Link
+                href={`/ayuda/${listing.id}`}
+                className="text-xs font-medium text-accent underline underline-offset-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Ver ficha completa
+              </Link>
+            </button>
+          </li>
+        );
+      })}
     </ul>
   );
 }

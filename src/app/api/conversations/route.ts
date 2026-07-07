@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/api-helpers";
+import { getSessionUser } from "@/lib/session-guards";
+import { conversationCreateSchema } from "@/lib/validation";
+import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 
-/** Lista las conversaciones del usuario con último mensaje y contador de no leídos. */
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   const { user, error } = await getSessionUser();
   if (error) return error;
 
@@ -24,44 +25,53 @@ export async function GET() {
   });
 
   return NextResponse.json({
-    conversations: conversations.map((c) => {
-      const other = c.participantAId === user.id ? c.participantB : c.participantA;
+    conversations: conversations.map((conversation) => {
+      const other =
+        conversation.participantAId === user.id
+          ? conversation.participantB
+          : conversation.participantA;
       return {
-        id: c.id,
-        listing: c.listing,
+        id: conversation.id,
+        listing: conversation.listing,
         otherName: other.profile?.displayName?.split(" ")[0] ?? "Anónimo",
-        lastMessage: c.messages[0]?.body?.slice(0, 80) ?? null,
-        lastMessageAt: c.messages[0]?.createdAt ?? c.createdAt,
-        unreadCount: c._count.messages,
+        lastMessage: conversation.messages[0]?.body?.slice(0, 80) ?? null,
+        lastMessageAt: conversation.messages[0]?.createdAt ?? conversation.createdAt,
+        unreadCount: conversation._count.messages,
       };
     }),
   });
 }
 
-/** Crea (o recupera) la conversación entre el usuario y el dueño de la ficha. */
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<NextResponse> {
   const { user, error } = await getSessionUser({ requireApproved: true });
   if (error) return error;
 
-  const body = await req.json().catch(() => null);
-  const listingId = String(body?.listingId ?? "");
-  if (!listingId) return NextResponse.json({ error: "Ficha inválida" }, { status: 400 });
+  const json: unknown = await req.json().catch(() => null);
+  const parsed = conversationCreateSchema.safeParse(json);
+  if (!parsed.success) {
+    return apiErrorResponse(
+      ApiErrorCode.VALIDATION,
+      parsed.error.issues[0]?.message ?? "Ficha inválida",
+      400
+    );
+  }
 
+  const { listingId } = parsed.data;
   const listing = await prisma.helpListing.findUnique({ where: { id: listingId } });
   if (!listing || listing.status !== "APROBADA") {
-    return NextResponse.json({ error: "Ficha no disponible" }, { status: 404 });
+    return apiErrorResponse(ApiErrorCode.NOT_FOUND, "Ficha no disponible", 404);
   }
   if (listing.userId === user.id) {
-    return NextResponse.json({ error: "No puedes contactar tu propia ficha" }, { status: 400 });
+    return apiErrorResponse(ApiErrorCode.VALIDATION, "No puedes contactar tu propia ficha", 400);
   }
 
-  const existing = await prisma.conversation.findUnique({
+  const existing = await prisma.conversation.findFirst({
     where: {
-      listingId_participantAId_participantBId: {
-        listingId,
-        participantAId: user.id,
-        participantBId: listing.userId,
-      },
+      listingId,
+      OR: [
+        { participantAId: user.id, participantBId: listing.userId },
+        { participantAId: listing.userId, participantBId: user.id },
+      ],
     },
   });
   if (existing) return NextResponse.json({ conversation: existing });

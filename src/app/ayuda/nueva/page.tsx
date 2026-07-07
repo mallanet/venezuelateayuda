@@ -5,14 +5,9 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -24,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { Logo } from "@/components/logo";
 import { StateMunicipalitySelect } from "@/components/state-municipality-select";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import { MODALITY_LABELS, QUANTITY_UNITS, QUANTITY_UNIT_LABELS } from "@/lib/listing-meta";
@@ -69,8 +65,8 @@ export default function NuevaFichaPage() {
 
   function handleStateChange(newState: string) {
     setState(newState);
-    const info = getState(newState);
-    if (info) setPosition({ lat: info.lat, lng: info.lng });
+    const matched = getState(newState);
+    if (matched) setPosition({ lat: matched.lat, lng: matched.lng });
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -122,23 +118,30 @@ export default function NuevaFichaPage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Publicar ficha de ayuda</CardTitle>
-          <CardDescription>
-            Tu ficha será revisada por nuestro equipo antes de aparecer en el
-            mapa. Usa una ubicación aproximada: nunca publiques tu dirección
-            exacta.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <div className="mb-8 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10">
+          <Logo size={24} />
+        </div>
+        <div>
+          <h1 className="font-heading text-xl font-semibold text-primary">
+            Publicar ficha de ayuda
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Tu ficha será revisada antes de aparecer en el mapa
+          </p>
+        </div>
+      </div>
+
+      <Card className="border-accent/10 shadow-sm">
+        <CardContent className="pt-6">
           {session.user.status !== "APROBADO" && (
-            <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+            <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm text-foreground">
+              <Clock className="size-4 shrink-0 text-accent" />
               Tu cuenta aún está en revisión. Podrás publicar fichas cuando sea
               aprobada por nuestro equipo.
             </div>
           )}
-          <form onSubmit={handleSubmit} className="grid gap-5">
+          <form onSubmit={handleSubmit} className="grid gap-6">
             {isAbroadProfile && (
               <div className="rounded-lg border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-900">
                 Publicas como ayudante en el exterior ({municipality}). Tu ficha será online y
@@ -148,40 +151,48 @@ export default function NuevaFichaPage() {
 
             {!isAbroadProfile && (
             <div className="grid gap-2">
-              <Label>Tipo de ficha</Label>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <Label className="font-heading text-sm font-semibold">Tipo de ficha</Label>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <button
                   type="button"
                   data-testid="type-ofrezco"
                   onClick={() => setType("OFREZCO")}
                   className={cn(
-                    "rounded-lg border p-4 text-left transition-colors",
+                    "rounded-xl border-2 p-4 text-left transition-all",
                     type === "OFREZCO"
-                      ? "border-emerald-600 bg-emerald-50 ring-1 ring-emerald-600"
-                      : "hover:bg-muted"
+                      ? "border-primary bg-primary/5 shadow-sm"
+                      : "border-border bg-card hover:border-primary/30"
                   )}
                 >
-                  <div className="font-medium">Ofrezco ayuda</div>
+                  <div className="font-heading font-medium text-primary">Ofrezco ayuda</div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Comparte tu tiempo, recursos o habilidades
+                  </p>
                 </button>
                 <button
                   type="button"
                   data-testid="type-necesito"
                   onClick={() => setType("NECESITO")}
                   className={cn(
-                    "rounded-lg border p-4 text-left transition-colors",
+                    "rounded-xl border-2 p-4 text-left transition-all",
                     type === "NECESITO"
-                      ? "border-rose-600 bg-rose-50 ring-1 ring-rose-600"
-                      : "hover:bg-muted"
+                      ? "border-destructive bg-destructive/5 shadow-sm"
+                      : "border-border bg-card hover:border-destructive/30"
                   )}
                 >
-                  <div className="font-medium">Necesito ayuda</div>
+                  <div className="font-heading font-medium text-destructive">Necesito ayuda</div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Busca apoyo de la comunidad
+                  </p>
                 </button>
               </div>
             </div>
             )}
 
             <div className="grid gap-2">
-              <Label htmlFor="title">Título</Label>
+              <Label htmlFor="title" className="font-heading text-sm font-semibold">
+                Título
+              </Label>
               <Input
                 id="title"
                 name="title"
@@ -189,19 +200,22 @@ export default function NuevaFichaPage() {
                 required
                 minLength={5}
                 maxLength={100}
+                className="border-accent/20 focus-visible:ring-accent"
               />
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="categoria">Categoría</Label>
+              <Label htmlFor="categoria" className="font-heading text-sm font-semibold">
+                Categoría
+              </Label>
               <Select value={category || undefined} onValueChange={setCategory}>
-                <SelectTrigger id="categoria" data-testid="select-categoria" className="w-full">
+                <SelectTrigger id="categoria" data-testid="select-categoria" className="w-full border-accent/20 focus:ring-accent">
                   <SelectValue placeholder="Selecciona una categoría" />
                 </SelectTrigger>
                 <SelectContent className="z-[1300]">
-                  {CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {CATEGORY_LABELS[c]}
+                  {CATEGORIES.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {CATEGORY_LABELS[category]}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -277,7 +291,9 @@ export default function NuevaFichaPage() {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="description">Descripción</Label>
+              <Label htmlFor="description" className="font-heading text-sm font-semibold">
+                Descripción
+              </Label>
               <Textarea
                 id="description"
                 name="description"
@@ -286,6 +302,7 @@ export default function NuevaFichaPage() {
                 minLength={20}
                 maxLength={2000}
                 rows={5}
+                className="border-accent/20 focus-visible:ring-accent"
               />
             </div>
 
@@ -300,8 +317,13 @@ export default function NuevaFichaPage() {
 
             {!isAbroadProfile && (
             <div className="grid gap-2">
-              <Label>Ubicación aproximada (arrastra el pin o haz clic en el mapa)</Label>
-              <div className="h-72 overflow-hidden rounded-lg border" data-testid="map-picker">
+              <Label className="font-heading text-sm font-semibold">
+                Ubicación aproximada
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Arrastra el pin o haz clic en el mapa
+              </p>
+              <div className="h-72 overflow-hidden rounded-xl border border-accent/20" data-testid="map-picker">
                 <MapPicker
                   lat={position.lat}
                   lng={position.lng}
@@ -312,18 +334,21 @@ export default function NuevaFichaPage() {
             </div>
             )}
 
-            <Button
-              type="submit"
-              disabled={
-                loading ||
-                !category ||
-                (!isAbroadProfile && (!state || !municipality)) ||
-                (isAbroadProfile && !municipality) ||
-                session.user.status !== "APROBADO"
-              }
-            >
-              {loading ? "Enviando..." : "Enviar para revisión"}
-            </Button>
+            <div className="border-t border-accent/10 pt-4">
+              <Button
+                type="submit"
+                disabled={
+                  loading ||
+                  !category ||
+                  (!isAbroadProfile && (!state || !municipality)) ||
+                  (isAbroadProfile && !municipality) ||
+                  session.user.status !== "APROBADO"
+                }
+                className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 sm:w-auto"
+              >
+                {loading ? "Enviando..." : "Enviar para revisión"}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

@@ -1,6 +1,5 @@
 import type { Category, HelpModality, ListingType, QuantityUnit } from "@prisma/client";
 
-/** Ficha de ayuda tal como se expone públicamente (datos minimizados). */
 export interface PublicListing {
   id: string;
   type: ListingType;
@@ -22,7 +21,6 @@ export interface PublicListing {
   isAbroad: boolean;
 }
 
-/** Ayudante verificado expuesto en el directorio de profesionales. */
 export interface PublicProfessional {
   id: string;
   displayName: string;

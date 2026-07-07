@@ -1,20 +1,25 @@
 import { NextResponse } from "next/server";
-import type { Category, Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import { getAvatarUrl } from "@/lib/avatar";
+import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
+import { parseSearchParams, professionalsQuerySchema } from "@/lib/validation";
 
-/** Directorio público de ayudantes verificados con al menos una ficha aprobada. */
-export async function GET(req: Request) {
+export async function GET(req: Request): Promise<NextResponse> {
   const url = new URL(req.url);
-  const category = url.searchParams.get("category");
-  const state = url.searchParams.get("state");
-  const q = url.searchParams.get("q")?.trim();
-
-  const listingFilter: Prisma.HelpListingWhereInput = { status: "APROBADA" };
-  if (category && CATEGORIES.includes(category as Category)) {
-    listingFilter.category = category as Category;
+  const parsed = parseSearchParams(professionalsQuerySchema, url.searchParams);
+  if (!parsed.success) {
+    return apiErrorResponse(
+      ApiErrorCode.VALIDATION,
+      parsed.error.issues[0]?.message ?? "Filtros inválidos",
+      400
+    );
   }
+
+  const { category, state, q } = parsed.data;
+  const listingFilter: Prisma.HelpListingWhereInput = { status: "APROBADA" };
+  if (category) listingFilter.category = category;
   if (state) listingFilter.state = state;
 
   const profileWhere: Prisma.ProfileWhereInput = {};
@@ -30,9 +35,7 @@ export async function GET(req: Request) {
     ];
   }
   if (state) profileWhere.state = state;
-  if (category && CATEGORIES.includes(category as Category)) {
-    profileWhere.categories = { has: category as Category };
-  }
+  if (category) profileWhere.categories = { has: category };
 
   const users = await prisma.user.findMany({
     where: {

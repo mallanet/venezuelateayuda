@@ -1,35 +1,24 @@
 import { NextResponse } from "next/server";
-import type { Category, ListingType, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/api-helpers";
-import { listingSchema } from "@/lib/validation";
-import { CATEGORIES } from "@/lib/categories";
 import { abroadMapPosition, isAbroadState } from "@/lib/abroad";
-import { getAvatarUrl } from "@/lib/avatar";
+import { getSessionUser } from "@/lib/session-guards";
+import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
+import { listingSchema, parseSearchParams, listingsQuerySchema } from "@/lib/validation";
+import { buildApprovedListingsWhere, mapListingRowToPublic } from "@/lib/listings-query";
 
-/** Lista pública de fichas aprobadas, con filtros por tipo, categoría, estado y búsqueda. */
-export async function GET(req: Request) {
+export async function GET(req: Request): Promise<NextResponse> {
   const url = new URL(req.url);
-  const type = url.searchParams.get("type");
-  const category = url.searchParams.get("category");
-  const state = url.searchParams.get("state");
-  const q = url.searchParams.get("q")?.trim().toLowerCase();
-
-  const where: Prisma.HelpListingWhereInput = { status: "APROBADA" };
-  if (type === "OFREZCO" || type === "NECESITO") where.type = type as ListingType;
-  if (category && CATEGORIES.includes(category as Category)) where.category = category as Category;
-  if (state) where.state = state;
-  if (q) {
-    where.OR = [
-      { title: { contains: q, mode: "insensitive" } },
-      { description: { contains: q, mode: "insensitive" } },
-      { municipality: { contains: q, mode: "insensitive" } },
-      { user: { profile: { displayName: { contains: q, mode: "insensitive" } } } },
-    ];
+  const parsed = parseSearchParams(listingsQuerySchema, url.searchParams);
+  if (!parsed.success) {
+    return apiErrorResponse(
+      ApiErrorCode.VALIDATION,
+      parsed.error.issues[0]?.message ?? "Filtros inválidos",
+      400
+    );
   }
 
   const listings = await prisma.helpListing.findMany({
-    where,
+    where: buildApprovedListingsWhere(parsed.data),
     orderBy: { createdAt: "desc" },
     take: 500,
     select: {
@@ -56,42 +45,21 @@ export async function GET(req: Request) {
   });
 
   return NextResponse.json({
-    listings: listings.map((l) => {
-      const displayName = l.user.profile?.displayName ?? "Anónimo";
-      return {
-        id: l.id,
-        type: l.type,
-        title: l.title,
-        description: l.description,
-        category: l.category,
-        state: l.state,
-        municipality: l.municipality,
-        lat: l.lat,
-        lng: l.lng,
-        createdAt: l.createdAt,
-        authorName: displayName.split(" ")[0],
-        authorDisplayName: displayName,
-        authorAvatarUrl: getAvatarUrl(displayName, l.user.profile?.avatarUrl, l.user.id),
-        radiusKm: l.user.profile?.radiusKm ?? 10,
-        quantity: l.quantity,
-        quantityUnit: l.quantityUnit,
-        modality: l.modality,
-        isAbroad: isAbroadState(l.state),
-      };
-    }),
+    listings: listings.map(mapListingRowToPublic),
   });
 }
 
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<NextResponse> {
   const { user, error } = await getSessionUser({ requireApproved: true });
   if (error) return error;
 
-  const json = await req.json().catch(() => null);
+  const json: unknown = await req.json().catch(() => null);
   const parsed = listingSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Datos inválidos" },
-      { status: 400 }
+    return apiErrorResponse(
+      ApiErrorCode.VALIDATION,
+      parsed.error.issues[0]?.message ?? "Datos inválidos",
+      400
     );
   }
 

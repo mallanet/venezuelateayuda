@@ -63,8 +63,8 @@ export function AdminDashboard() {
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        const errData = await res.json();
-        toast.error(errData.error ?? "No se pudo ejecutar la acción");
+        const errorBody = await res.json();
+        toast.error(errorBody.error ?? "No se pudo ejecutar la acción");
         return;
       }
       toast.success("Acción aplicada");
@@ -75,8 +75,17 @@ export function AdminDashboard() {
   }
 
   function promptReason(message: string): string | null {
-    const reason = window.prompt(message);
-    if (reason === null) return null;
+    let reason: string | null = null;
+    try {
+      reason = window.prompt(message);
+    } catch {
+      toast.error("Operación cancelada");
+      return null;
+    }
+    if (reason === null) {
+      toast.error("Operación cancelada");
+      return null;
+    }
     if (!reason.trim()) {
       toast.error("Debes indicar un motivo");
       return null;
@@ -87,91 +96,128 @@ export function AdminDashboard() {
   if (isLoading || !data) {
     return (
       <div className="mx-auto grid w-full max-w-5xl gap-4 px-4 py-10">
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-96 w-full" />
+        <Skeleton className="h-24 w-full rounded-xl" />
+        <Skeleton className="h-96 w-full rounded-xl" />
       </div>
     );
   }
 
   return (
     <div className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-10">
-      <h1 className="text-2xl font-bold">Panel de administración</h1>
+      <h1 className="font-heading text-2xl font-semibold text-primary">
+        Panel de administración
+      </h1>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {[
           { label: "Usuarios", value: data.metrics.totalUsers },
           { label: "Aprobados", value: data.metrics.approvedUsers },
           { label: "Fichas activas", value: data.metrics.activeListings },
           { label: "Resueltas", value: data.metrics.closedListings },
           { label: "Mensajes", value: data.metrics.totalMessages },
-        ].map((m) => (
-          <Card key={m.label}>
+        ].map((metric) => (
+          <Card
+            key={metric.label}
+            className="border-border/60 shadow-sm"
+          >
             <CardContent className="pt-6 text-center">
-              <div className="text-2xl font-bold">{m.value}</div>
-              <div className="text-xs text-muted-foreground">{m.label}</div>
+              <div className="font-heading text-2xl font-semibold text-primary">
+                {metric.value}
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                {metric.label}
+              </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
       <Tabs defaultValue="usuarios">
-        <TabsList className="w-full flex-wrap sm:w-auto">
-          <TabsTrigger value="usuarios" data-testid="tab-usuarios">
+        <TabsList className="w-full flex-wrap rounded-xl bg-muted sm:w-auto">
+          <TabsTrigger
+            value="usuarios"
+            data-testid="tab-usuarios"
+            className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
+          >
             Usuarios ({data.pendingUsers.length})
           </TabsTrigger>
-          <TabsTrigger value="fichas" data-testid="tab-fichas">
+          <TabsTrigger
+            value="fichas"
+            data-testid="tab-fichas"
+            className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
+          >
             Fichas ({data.pendingListings.length})
           </TabsTrigger>
-          <TabsTrigger value="denuncias" data-testid="tab-denuncias">
+          <TabsTrigger
+            value="denuncias"
+            data-testid="tab-denuncias"
+            className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
+          >
             Denuncias ({data.openReports.length})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="usuarios">
-          <Card>
-            <CardHeader>
-              <CardTitle>Usuarios pendientes de aprobación</CardTitle>
+          <Card className="border-border/60 shadow-sm">
+            <CardHeader className="border-b border-border/40 pb-4">
+              <CardTitle className="font-heading text-lg text-primary">
+                Usuarios pendientes de aprobación
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {data.pendingUsers.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No hay usuarios pendientes.</p>
               ) : (
                 <ul className="grid gap-3" data-testid="pending-users">
-                  {data.pendingUsers.map((u) => (
+                  {data.pendingUsers.map((user) => (
                     <li
-                      key={u.id}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4"
+                      key={user.id}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card p-4"
                     >
                       <div className="grid gap-1">
-                        <span className="font-medium">{u.profile?.displayName ?? "(sin perfil)"}</span>
+                        <span className="font-heading font-medium text-foreground">
+                          {user.profile?.displayName ?? "(sin perfil)"}
+                        </span>
                         <span className="text-xs text-muted-foreground">
-                          {u.email} · {u.role === "AYUDANTE" ? "Ayudante" : "Solicitante"} ·{" "}
-                          {u.profile?.municipality}, {u.profile?.state}
+                          {user.email} · {user.role === "AYUDANTE" ? "Ayudante" : "Solicitante"} ·{" "}
+                          {user.profile?.municipality}, {user.profile?.state}
                         </span>
                         <div className="flex gap-2">
-                          {u.emailVerified ? (
-                            <Badge variant="outline">Email verificado</Badge>
+                          {user.emailVerified ? (
+                            <Badge
+                              variant="outline"
+                              className="border-accent/40 text-accent"
+                            >
+                              Email verificado
+                            </Badge>
                           ) : (
-                            <Badge variant="destructive">Email sin verificar</Badge>
+                            <Badge
+                              variant="destructive"
+                              className="bg-destructive/10 text-destructive"
+                            >
+                              Email sin verificar
+                            </Badge>
                           )}
                         </div>
                       </div>
                       <div className="flex gap-2">
                         <Button
                           size="sm"
-                          disabled={busyId === u.id}
-                          data-testid={`approve-user-${u.email}`}
-                          onClick={() => runAction({ action: "aprobar_usuario", userId: u.id }, u.id)}
+                          disabled={busyId === user.id}
+                          data-testid={`approve-user-${user.email}`}
+                          className="rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
+                          onClick={() => runAction({ action: "aprobar_usuario", userId: user.id }, user.id)}
                         >
                           Aprobar
                         </Button>
                         <Button
                           size="sm"
                           variant="destructive"
-                          disabled={busyId === u.id}
+                          disabled={busyId === user.id}
+                          className="rounded-lg"
                           onClick={() => {
                             const reason = promptReason("Motivo del rechazo:");
-                            if (reason) runAction({ action: "rechazar_usuario", userId: u.id, reason }, u.id);
+                            if (reason) runAction({ action: "rechazar_usuario", userId: user.id, reason }, user.id);
                           }}
                         >
                           Rechazar
@@ -186,47 +232,65 @@ export function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="fichas">
-          <Card>
-            <CardHeader>
-              <CardTitle>Fichas pendientes de aprobación</CardTitle>
+          <Card className="border-border/60 shadow-sm">
+            <CardHeader className="border-b border-border/40 pb-4">
+              <CardTitle className="font-heading text-lg text-primary">
+                Fichas pendientes de aprobación
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {data.pendingListings.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No hay fichas pendientes.</p>
               ) : (
                 <ul className="grid gap-3" data-testid="pending-listings">
-                  {data.pendingListings.map((l) => (
-                    <li key={l.id} className="grid gap-2 rounded-lg border p-4">
+                  {data.pendingListings.map((listing) => (
+                    <li
+                      key={listing.id}
+                      className="grid gap-2 rounded-xl border border-border/60 bg-card p-4"
+                    >
                       <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant={l.type === "OFREZCO" ? "default" : "destructive"}>
-                          {LISTING_TYPE_LABELS[l.type]}
+                        <Badge
+                          variant={listing.type === "OFREZCO" ? "default" : "destructive"}
+                          className={
+                            listing.type === "OFREZCO"
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-destructive/10 text-destructive"
+                          }
+                        >
+                          {LISTING_TYPE_LABELS[listing.type]}
                         </Badge>
-                        <Badge variant="secondary">{CATEGORY_LABELS[l.category]}</Badge>
+                        <Badge variant="secondary" className="bg-accent/10 text-accent-foreground">
+                          {CATEGORY_LABELS[listing.category]}
+                        </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {l.municipality}, {l.state}
+                          {listing.municipality}, {listing.state}
                         </span>
                       </div>
-                      <span className="font-medium">{l.title}</span>
-                      <p className="text-sm text-muted-foreground">{l.description}</p>
+                      <span className="font-heading font-medium text-foreground">
+                        {listing.title}
+                      </span>
+                      <p className="text-sm text-muted-foreground">{listing.description}</p>
                       <span className="text-xs text-muted-foreground">
-                        Por: {l.user.profile?.displayName} ({l.user.email})
+                        Por: {listing.user.profile?.displayName} ({listing.user.email})
                       </span>
                       <div className="flex gap-2">
                         <Button
                           size="sm"
-                          disabled={busyId === l.id}
-                          data-testid={`approve-listing-${l.id}`}
-                          onClick={() => runAction({ action: "aprobar_ficha", listingId: l.id }, l.id)}
+                          disabled={busyId === listing.id}
+                          data-testid={`approve-listing-${listing.id}`}
+                          className="rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
+                          onClick={() => runAction({ action: "aprobar_ficha", listingId: listing.id }, listing.id)}
                         >
                           Aprobar
                         </Button>
                         <Button
                           size="sm"
                           variant="destructive"
-                          disabled={busyId === l.id}
+                          disabled={busyId === listing.id}
+                          className="rounded-lg"
                           onClick={() => {
                             const reason = promptReason("Motivo del rechazo:");
-                            if (reason) runAction({ action: "rechazar_ficha", listingId: l.id, reason }, l.id);
+                            if (reason) runAction({ action: "rechazar_ficha", listingId: listing.id, reason }, listing.id);
                           }}
                         >
                           Rechazar
@@ -241,43 +305,52 @@ export function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="denuncias">
-          <Card>
-            <CardHeader>
-              <CardTitle>Denuncias abiertas</CardTitle>
+          <Card className="border-border/60 shadow-sm">
+            <CardHeader className="border-b border-border/40 pb-4">
+              <CardTitle className="font-heading text-lg text-primary">
+                Denuncias abiertas
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {data.openReports.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No hay denuncias abiertas.</p>
               ) : (
                 <ul className="grid gap-3" data-testid="open-reports">
-                  {data.openReports.map((r) => (
-                    <li key={r.id} className="grid gap-2 rounded-lg border p-4">
-                      <p className="text-sm">{r.reason}</p>
+                  {data.openReports.map((report) => (
+                    <li
+                      key={report.id}
+                      className="grid gap-2 rounded-xl border border-border/60 bg-card p-4"
+                    >
+                      <p className="text-sm">{report.reason}</p>
                       <span className="text-xs text-muted-foreground">
-                        Denunciante: {r.reporter.email}
-                        {r.reportedUser && <> · Denunciado: {r.reportedUser.email}</>}
-                        {r.reportedListing && (
+                        Denunciante: {report.reporter.email}
+                        {report.reportedUser && <> · Denunciado: {report.reportedUser.email}</>}
+                        {report.reportedListing && (
                           <>
                             {" "}
                             · Ficha:{" "}
-                            <Link href={`/ayuda/${r.reportedListing.id}`} className="underline">
-                              {r.reportedListing.title}
+                            <Link
+                              href={`/ayuda/${report.reportedListing.id}`}
+                              className="font-medium text-accent underline underline-offset-2"
+                            >
+                              {report.reportedListing.title}
                             </Link>
                           </>
                         )}
                       </span>
                       <div className="flex flex-wrap gap-2">
-                        {r.reportedUser && r.reportedUser.status !== "SUSPENDIDO" && (
+                        {report.reportedUser && report.reportedUser.status !== "SUSPENDIDO" && (
                           <Button
                             size="sm"
                             variant="destructive"
-                            disabled={busyId === r.id}
+                            disabled={busyId === report.id}
+                            className="rounded-lg"
                             onClick={() => {
                               const reason = promptReason("Motivo de la suspensión:");
                               if (reason)
                                 runAction(
-                                  { action: "suspender_usuario", userId: r.reportedUser!.id, reason },
-                                  r.id
+                                  { action: "suspender_usuario", userId: report.reportedUser!.id, reason },
+                                  report.id
                                 );
                             }}
                           >
@@ -286,13 +359,14 @@ export function AdminDashboard() {
                         )}
                         <Button
                           size="sm"
-                          disabled={busyId === r.id}
+                          disabled={busyId === report.id}
+                          className="rounded-lg bg-accent text-accent-foreground hover:bg-accent/90"
                           onClick={() => {
                             const resolution = promptReason("Resolución:");
                             if (resolution)
                               runAction(
-                                { action: "resolver_denuncia", reportId: r.id, resolution, outcome: "RESUELTA" },
-                                r.id
+                                { action: "resolver_denuncia", reportId: report.id, resolution, outcome: "RESUELTA" },
+                                report.id
                               );
                           }}
                         >
@@ -301,16 +375,17 @@ export function AdminDashboard() {
                         <Button
                           size="sm"
                           variant="outline"
-                          disabled={busyId === r.id}
+                          disabled={busyId === report.id}
+                          className="rounded-lg border-border/60"
                           onClick={() =>
                             runAction(
                               {
                                 action: "resolver_denuncia",
-                                reportId: r.id,
+                                reportId: report.id,
                                 resolution: "Descartada sin acción",
                                 outcome: "DESCARTADA",
                               },
-                              r.id
+                              report.id
                             )
                           }
                         >
