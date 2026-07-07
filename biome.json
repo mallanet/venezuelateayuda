@@ -1,0 +1,133 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"includes": [
+			"**",
+			"!!**/.next",
+			"!!**/dist",
+			"!!**/out",
+			"!!**/build",
+			"!!**/node_modules"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab"
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"preset": "all",
+			"recommended": true,
+			"a11y": {
+				"useKeyWithClickEvents": "error",
+				"useSemanticElements": "error",
+				"useAnchorContent": "error",
+				"noSvgWithoutTitle": "error",
+				"useButtonType": "error",
+				"noPositiveTabindex": "error",
+				"useAltText": "error",
+				"noHeaderScope": "error",
+				"useHtmlLang": "error",
+				"noAutofocus": "error",
+				"useValidAnchor": "error"
+			},
+			"complexity": {
+				"noForEach": "error",
+				"noBannedTypes": "error",
+				"noUselessSwitchCase": "error",
+				"useLiteralKeys": "error",
+				"noUselessTypeConstraint": "error",
+				"noVoid": "error"
+			},
+			"correctness": {
+				"noUnusedImports": "error",
+				"noUnusedVariables": "error",
+				"noSwitchDeclarations": "error",
+				"useExhaustiveDependencies": "error",
+				"noInvalidConstructorSuper": "error",
+				"noNewSymbol": "error",
+				"noRenderReturnValue": "error",
+				"useIsNan": "error",
+				"noUnsafeOptionalChaining": "error",
+				"noUnnecessaryContinue": "error"
+			},
+			"security": {
+				"noDangerouslySetInnerHtml": "error",
+				"noGlobalEval": "error"
+			},
+			"suspicious": {
+				"noExplicitAny": "error",
+				"noConsoleLog": "warn",
+				"noDebugger": "error",
+				"noAssignInExpressions": "error",
+				"noControlCharactersInRegex": "error",
+				"noDuplicateJsxProps": "error",
+				"noEmptyBlockStatements": "error",
+				"noFunctionSelfAssignment": "error",
+				"noImportAssign": "error",
+				"noMisleadingCharacterClass": "error",
+				"noPrototypeBuiltins": "error",
+				"noShadowRestrictedNames": "error",
+				"noUnsafeDeclarationMerging": "error",
+				"useAwait": "error",
+				"noConfusingVoidType": "error",
+				"noFallthroughSwitchClause": "error",
+				"noGlobalAssign": "error",
+				"noImplicitAnyLet": "error",
+				"noVar": "error"
+			},
+			"style": {
+				"noArguments": "error",
+				"noNonNullAssertion": "error",
+				"noParameterAssign": "error",
+				"useAsConstAssertion": "error",
+				"useConst": "error",
+				"useDefaultParameterLast": "error",
+				"useEnumInitializers": "error",
+				"useSelfClosingElements": "error",
+				"useSingleVarDeclarator": "error",
+				"noYodaExpression": "error",
+				"useImportType": "error",
+				"useNodejsImportProtocol": "error",
+				"noInferrableTypes": "error",
+				"noBitwiseOperators": "error"
+			},
+			"nursery": {
+				"noUnknownFunction": "warn",
+				"noIrregularWhitespace": "error",
+				"noRestrictedImports": "error"
+			},
+			"performance": {
+				"noDelete": "error",
+				"noReExportAll": "error"
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double"
+		},
+		"parser": {
+			"unsafeParameterDecoratorsEnabled": true
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	}
+}
