@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getAdminUser } from "@/lib/api-helpers";
+import { purgeDemoUsers } from "@/lib/purge-demo-users";
 
 const actionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("aprobar_usuario"), userId: z.string() }),
@@ -16,6 +17,7 @@ const actionSchema = z.discriminatedUnion("action", [
     resolution: z.string().min(1),
     outcome: z.enum(["RESUELTA", "DESCARTADA"]),
   }),
+  z.object({ action: z.literal("limpiar_datos_demo") }),
 ]);
 
 export async function POST(req: Request) {
@@ -85,6 +87,11 @@ export async function POST(req: Request) {
       });
       await log("resolver_denuncia", "Report", data.reportId, `${data.outcome}: ${data.resolution}`);
       break;
+    }
+    case "limpiar_datos_demo": {
+      const { deleted, kept } = await purgeDemoUsers(prisma);
+      await log("limpiar_datos_demo", "System", "purge", `deleted=${deleted}; kept=${kept.join(",")}`);
+      return NextResponse.json({ ok: true, deleted, kept });
     }
   }
 
