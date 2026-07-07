@@ -20,4 +20,15 @@ export const SITE_KEYWORDS = [
   "venezuela te ayuda",
 ];
 
-export const OG_IMAGE = "/logo.png";
+export const OG_IMAGE = "/og-image.png";
+export const OG_IMAGE_WIDTH = 2816;
+export const OG_IMAGE_HEIGHT = 1536;
+export const OG_IMAGE_ALT = "Venezuela Te Ayuda — Mapa de ayuda mutua en Venezuela";
+
+export const SITE_OPEN_GRAPH_IMAGE = {
+  url: OG_IMAGE,
+  width: OG_IMAGE_WIDTH,
+  height: OG_IMAGE_HEIGHT,
+  alt: OG_IMAGE_ALT,
+  type: "image/png",
+} as const;

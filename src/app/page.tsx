@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent } from "@/components/ui/card";
 import { HomeHeroMap } from "@/components/home-hero-map";
 import { CATEGORIES, CATEGORY_ICONS, CATEGORY_LABELS } from "@/lib/categories";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_OPEN_GRAPH_IMAGE, SITE_URL } from "@/lib/site";
 
 export const revalidate = 300;
 
@@ -16,6 +16,16 @@ export const metadata: Metadata = {
     title: "Buscar ayuda en Venezuela — Mapa de ayuda mutua",
     description: SITE_DESCRIPTION,
     url: SITE_URL,
+    type: "website",
+    siteName: SITE_NAME,
+    locale: "es_VE",
+    images: [SITE_OPEN_GRAPH_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Buscar ayuda en Venezuela — Mapa de ayuda mutua",
+    description: SITE_DESCRIPTION,
+    images: [SITE_OPEN_GRAPH_IMAGE.url],
   },
 };
 

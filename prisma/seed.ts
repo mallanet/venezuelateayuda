@@ -7,6 +7,7 @@ import {
   type Role,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { ABROAD_STATE, abroadMapPosition } from "../src/lib/abroad";
 
 const prisma = new PrismaClient();
 
@@ -230,6 +231,111 @@ const DEMO_LISTINGS: DemoListing[] = [
   },
 ];
 
+const DEMO_ABROAD_ONLINE: DemoListing[] = [
+  {
+    email: "demo-online-miami@venezuelateayuda.org",
+    displayName: "Andrea Vásquez",
+    role: "AYUDANTE",
+    bio: "Psicóloga venezolana en Miami; ofrezco contención emocional por videollamada.",
+    state: ABROAD_STATE,
+    municipality: "Miami, EE.UU.",
+    lat: 0,
+    lng: 0,
+    categories: ["OTRO"],
+    type: "OFREZCO",
+    category: "OTRO",
+    title: "Contención emocional online",
+    description:
+      "Sesiones gratuitas de 45 minutos para personas en Venezuela que necesiten hablar y organizar ideas. Horario EST, fines de semana.",
+    quantity: 2,
+    quantityUnit: "SESION",
+    modality: "ONLINE",
+  },
+  {
+    email: "demo-online-madrid@venezuelateayuda.org",
+    displayName: "Carlos Ibáñez",
+    role: "AYUDANTE",
+    bio: "Desarrollador en Madrid; ayudo con CV tech y entrevistas remotas.",
+    state: ABROAD_STATE,
+    municipality: "Madrid, España",
+    lat: 0,
+    lng: 0,
+    categories: ["EMPLEO"],
+    type: "OFREZCO",
+    category: "EMPLEO",
+    title: "Mentoría laboral tech online",
+    description:
+      "Revisión de CV, perfil de LinkedIn y simulación de entrevistas para roles de desarrollo y soporte IT.",
+    quantity: 3,
+    quantityUnit: "SESION",
+    modality: "ONLINE",
+  },
+  {
+    email: "demo-online-bogota@venezuelateayuda.org",
+    displayName: "Dra. Patricia Mora",
+    role: "AYUDANTE",
+    bio: "Médica general en Bogotá; orientación de primeros auxilios y derivación.",
+    state: ABROAD_STATE,
+    municipality: "Bogotá, Colombia",
+    lat: 0,
+    lng: 0,
+    categories: ["MEDICINAS"],
+    type: "OFREZCO",
+    category: "MEDICINAS",
+    title: "Orientación médica por videollamada",
+    description:
+      "Consulta breve para evaluar síntomas, explicar tratamientos y sugerir cuándo acudir a un centro de salud en Venezuela.",
+    quantity: 1,
+    quantityUnit: "PERSONA",
+    modality: "ONLINE",
+  },
+  {
+    email: "demo-online-panama@venezuelateayuda.org",
+    displayName: "Luisana Pérez",
+    role: "AYUDANTE",
+    bio: "Docente en Panamá; clases de refuerzo de primaria por Zoom.",
+    state: ABROAD_STATE,
+    municipality: "Ciudad de Panamá",
+    lat: 0,
+    lng: 0,
+    categories: ["EDUCACION"],
+    type: "OFREZCO",
+    category: "EDUCACION",
+    title: "Clases de matemáticas online",
+    description:
+      "Refuerzo para estudiantes de 4to a 6to grado, dos sesiones semanales por videollamada en horario vespertino.",
+    quantity: 2,
+    quantityUnit: "HORA",
+    modality: "ONLINE",
+  },
+];
+
+/** Voluntarios y aliados reales (no demo). */
+const REAL_VOLUNTEERS: DemoListing[] = [
+  {
+    email: "calma-universidadcontinental@venezuelateayuda.org",
+    displayName: "Calma (Universidad Continental)",
+    role: "AYUDANTE",
+    bio: "Programa social de la Facultad de Psicología de la Universidad Continental. Primeros auxilios psicológicos en línea para personas de Venezuela y sus familiares.",
+    state: ABROAD_STATE,
+    municipality: "Lima, Perú",
+    lat: 0,
+    lng: 0,
+    categories: ["OTRO"],
+    type: "OFREZCO",
+    category: "OTRO",
+    title: "Calma - Primeros auxilios psicológicos en línea",
+    description:
+      "Apoyo psicológico gratuito en línea. Calma ofrece escucha, contención y orientación inicial para personas de Venezuela y sus familiares que atraviesan emergencias o crisis emocionales.\n\n" +
+      "Programa social de la Facultad de Psicología de la Universidad Continental. Equipo de voluntarios (docentes, egresados y estudiantes de últimos ciclos) con enfoque de atención a la diversidad.\n\n" +
+      "Solicita tu cita en: https://ucontinental.edu.pe/calma-cita/\n\n" +
+      "El formulario también está disponible en inglés, alemán, portugués, francés, quechua e italiano en el mismo enlace.",
+    quantity: 1,
+    quantityUnit: "SESION",
+    modality: "ONLINE",
+  },
+];
+
 async function ensureAdmin() {
   const email = process.env.ADMIN_EMAIL ?? "admin@venezuelateayuda.org";
   const password = process.env.ADMIN_PASSWORD ?? "admin-vta-2026";
@@ -330,7 +436,7 @@ async function seedDemoListings() {
 /** Actualiza cantidad y modalidad en fichas demo ya existentes. */
 async function syncDemoListingMeta() {
   let updated = 0;
-  for (const demo of DEMO_LISTINGS) {
+  for (const demo of [...DEMO_LISTINGS, ...DEMO_ABROAD_ONLINE]) {
     const result = await prisma.helpListing.updateMany({
       where: { user: { email: demo.email } },
       data: {
@@ -346,10 +452,130 @@ async function syncDemoListingMeta() {
   }
 }
 
+async function seedAbroadOnlineHelpers() {
+  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
+  let created = 0;
+
+  for (const demo of DEMO_ABROAD_ONLINE) {
+    const existing = await prisma.user.findUnique({ where: { email: demo.email } });
+    if (existing) continue;
+
+    const { lat, lng } = abroadMapPosition(demo.email);
+    await prisma.user.create({
+      data: {
+        email: demo.email,
+        passwordHash,
+        role: demo.role,
+        status: "APROBADO",
+        emailVerified: new Date(),
+        termsAcceptedAt: new Date(),
+        profile: {
+          create: {
+            displayName: demo.displayName,
+            avatarUrl: avatarUrl(demo.displayName),
+            bio: demo.bio,
+            state: demo.state,
+            municipality: demo.municipality,
+            lat,
+            lng,
+            categories: demo.categories,
+          },
+        },
+        listings: {
+          create: {
+            type: demo.type,
+            title: demo.title,
+            description: demo.description,
+            category: demo.category,
+            state: demo.state,
+            municipality: demo.municipality,
+            lat,
+            lng,
+            status: "APROBADA",
+            quantity: demo.quantity,
+            quantityUnit: demo.quantityUnit,
+            modality: demo.modality,
+          },
+        },
+      },
+    });
+    created++;
+    console.log(`Demo online: ${demo.displayName} — ${demo.title}`);
+  }
+
+  if (created > 0) {
+    console.log(`${created} ayudantes online desde el exterior creados.`);
+  } else {
+    console.log("Los ayudantes online demo ya existen.");
+  }
+}
+
+async function seedRealVolunteers() {
+  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
+  let created = 0;
+
+  for (const volunteer of REAL_VOLUNTEERS) {
+    const existing = await prisma.user.findUnique({ where: { email: volunteer.email } });
+    if (existing) continue;
+
+    const { lat, lng } = abroadMapPosition(volunteer.email);
+    await prisma.user.create({
+      data: {
+        email: volunteer.email,
+        passwordHash,
+        role: volunteer.role,
+        status: "APROBADO",
+        emailVerified: new Date(),
+        termsAcceptedAt: new Date(),
+        profile: {
+          create: {
+            displayName: volunteer.displayName,
+            avatarUrl: avatarUrl(volunteer.displayName),
+            bio: volunteer.bio,
+            state: volunteer.state,
+            municipality: volunteer.municipality,
+            lat,
+            lng,
+            categories: volunteer.categories,
+          },
+        },
+        listings: {
+          create: {
+            type: volunteer.type,
+            title: volunteer.title,
+            description: volunteer.description,
+            category: volunteer.category,
+            state: volunteer.state,
+            municipality: volunteer.municipality,
+            lat,
+            lng,
+            status: "APROBADA",
+            quantity: volunteer.quantity,
+            quantityUnit: volunteer.quantityUnit,
+            modality: volunteer.modality,
+          },
+        },
+      },
+    });
+    created++;
+    console.log(`Voluntario real: ${volunteer.displayName} — ${volunteer.title}`);
+  }
+
+  if (created > 0) {
+    console.log(`${created} voluntario(s) real(es) creado(s).`);
+  } else {
+    console.log("Los voluntarios reales ya existen.");
+  }
+}
+
 async function main() {
   await ensureAdmin();
-  await seedDemoListings();
-  await syncDemoListingMeta();
+  if (process.env.SEED_DEMOS === "true") {
+    await seedDemoListings();
+    await seedAbroadOnlineHelpers();
+    await syncDemoListingMeta();
+  }
+  await seedRealVolunteers();
 }
 
 main()

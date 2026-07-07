@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { MapExplorer } from "@/components/map-explorer";
-import { SITE_URL } from "@/lib/site";
+import { SITE_OPEN_GRAPH_IMAGE, SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Mapa de ayuda en Venezuela — Encuentra ayuda cerca de ti",
@@ -12,6 +12,14 @@ export const metadata: Metadata = {
     description:
       "Mapa interactivo para buscar u ofrecer ayuda en Venezuela: alimentos, medicinas, transporte y más.",
     url: `${SITE_URL}/mapa`,
+    images: [SITE_OPEN_GRAPH_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mapa de ayuda en Venezuela",
+    description:
+      "Mapa interactivo para buscar u ofrecer ayuda en Venezuela: alimentos, medicinas, transporte y más.",
+    images: [SITE_OPEN_GRAPH_IMAGE.url],
   },
 };
 

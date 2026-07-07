@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { auth } from "@/lib/auth";
 import { Navbar } from "@/components/navbar";
 import { SiteFooter } from "@/components/site-footer";
-import { OG_IMAGE, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_URL } from "@/lib/site";
+import { OG_IMAGE, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_OPEN_GRAPH_IMAGE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -45,10 +45,10 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: `${SITE_NAME} — Buscar y ofrecer ayuda en Venezuela`,
     description: SITE_DESCRIPTION,
-    images: [{ url: OG_IMAGE, width: 410, height: 364, alt: SITE_NAME }],
+    images: [SITE_OPEN_GRAPH_IMAGE],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: `${SITE_NAME} — Mapa de ayuda mutua`,
     description: SITE_DESCRIPTION,
     images: [OG_IMAGE],
