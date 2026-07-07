@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -15,6 +14,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Logotype } from "@/components/logo";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -37,19 +37,10 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-[1100] border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
-        <Link href="/" className="flex items-center gap-2 font-semibold text-primary">
-          <Image
-            src="/logo.png"
-            alt=""
-            width={56}
-            height={56}
-            className="h-14 w-14 shrink-0 object-contain"
-            aria-hidden
-            priority
-          />
-          <span className="whitespace-nowrap">Venezuela Te Ayuda</span>
+    <header className="sticky top-0 z-[1100] border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-4 px-4">
+        <Link href="/" className="flex items-center gap-2 no-underline">
+          <Logotype size={36} />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Principal">
