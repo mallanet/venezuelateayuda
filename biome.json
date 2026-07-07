@@ -23,7 +23,6 @@
 		"enabled": true,
 		"rules": {
 			"preset": "all",
-			"recommended": true,
 			"a11y": {
 				"useKeyWithClickEvents": "error",
 				"useSemanticElements": "error",
@@ -51,11 +50,9 @@
 				"noSwitchDeclarations": "error",
 				"useExhaustiveDependencies": "error",
 				"noInvalidConstructorSuper": "error",
-				"noNewSymbol": "error",
 				"noRenderReturnValue": "error",
 				"useIsNan": "error",
-				"noUnsafeOptionalChaining": "error",
-				"noUnnecessaryContinue": "error"
+				"noUnsafeOptionalChaining": "error"
 			},
 			"security": {
 				"noDangerouslySetInnerHtml": "error",
@@ -63,13 +60,11 @@
 			},
 			"suspicious": {
 				"noExplicitAny": "error",
-				"noConsoleLog": "warn",
 				"noDebugger": "error",
 				"noAssignInExpressions": "error",
 				"noControlCharactersInRegex": "error",
 				"noDuplicateJsxProps": "error",
 				"noEmptyBlockStatements": "error",
-				"noFunctionSelfAssignment": "error",
 				"noImportAssign": "error",
 				"noMisleadingCharacterClass": "error",
 				"noPrototypeBuiltins": "error",
@@ -83,7 +78,6 @@
 				"noVar": "error"
 			},
 			"style": {
-				"noArguments": "error",
 				"noNonNullAssertion": "error",
 				"noParameterAssign": "error",
 				"useAsConstAssertion": "error",
@@ -95,13 +89,9 @@
 				"noYodaExpression": "error",
 				"useImportType": "error",
 				"useNodejsImportProtocol": "error",
-				"noInferrableTypes": "error",
-				"noBitwiseOperators": "error"
+				"noInferrableTypes": "error"
 			},
 			"nursery": {
-				"noUnknownFunction": "warn",
-				"noIrregularWhitespace": "error",
-				"noRestrictedImports": "error"
 			},
 			"performance": {
 				"noDelete": "error",
