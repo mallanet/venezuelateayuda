@@ -34,19 +34,31 @@ export function ListingDetailModal({ listing, open, onOpenChange }: ListingDetai
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg" data-testid="listing-detail-modal">
+      <DialogContent
+        className="max-h-[90dvh] overflow-y-auto border-border/60 bg-card shadow-elevated sm:max-w-lg"
+        data-testid="listing-detail-modal"
+      >
+        <div className="accent-rule h-0.5 w-full rounded-t-2xl" aria-hidden />
         <DialogHeader>
-          <div className="relative mx-auto mb-2 h-32 w-32 overflow-hidden rounded-full border-4 border-primary/20">
-            <Image
-              src={listing.authorAvatarUrl}
-              alt={`Foto de ${listing.authorDisplayName}`}
-              fill
-              className="object-cover"
-              sizes="128px"
-              unoptimized
+          <div className="relative mx-auto mb-2 size-32">
+            <span
+              className="absolute inset-0 -m-1 rounded-full bg-gradient-to-br from-accent/30 to-primary/20 blur-sm"
+              aria-hidden
             />
+            <div className="relative size-32 overflow-hidden rounded-full border-4 border-card shadow-soft ring-1 ring-accent/30">
+              <Image
+                src={listing.authorAvatarUrl}
+                alt={`Foto de ${listing.authorDisplayName}`}
+                fill
+                className="object-cover"
+                sizes="128px"
+                unoptimized
+              />
+            </div>
           </div>
-          <DialogTitle className="text-center text-xl">{listing.title}</DialogTitle>
+          <DialogTitle className="font-display text-center text-2xl font-semibold text-primary">
+            {listing.title}
+          </DialogTitle>
           <DialogDescription className="text-center">
             {listing.authorDisplayName} · {listing.municipality}, {listing.state}
           </DialogDescription>
@@ -66,21 +78,20 @@ export function ListingDetailModal({ listing, open, onOpenChange }: ListingDetai
             </Badge>
           </div>
 
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-            {listing.description}
-          </p>
+          <div className="rounded-xl border border-accent/10 bg-accent/[0.04] p-4">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+              {listing.description}
+            </p>
+          </div>
 
           <p className="text-xs text-muted-foreground">
-            Publicada el{" "}
-            {formatVeDate(listing.createdAt, "long")}
+            Publicada el {formatVeDate(listing.createdAt, "long")}
           </p>
         </div>
 
         <DialogFooter className="flex-col gap-2 sm:flex-col">
-          <Button asChild className="w-full" variant="default">
-            <a href={whatsAppUrl} target="_blank" rel="noopener noreferrer" data-testid="whatsapp-button">
-              Comunicarme por WhatsApp
-            </a>
+          <Button asChild className="w-full shadow-soft" variant="default">
+            <Link href={`/ayuda/${listing.id}`}>Ver ficha completa y chat interno →</Link>
           </Button>
           <Button asChild className="w-full" variant="outline">
             <a href={mapsUrl} target="_blank" rel="noopener noreferrer" data-testid="maps-button">
@@ -88,7 +99,9 @@ export function ListingDetailModal({ listing, open, onOpenChange }: ListingDetai
             </a>
           </Button>
           <Button asChild className="w-full" variant="ghost" size="sm">
-            <Link href={`/ayuda/${listing.id}`}>Ver ficha completa y chat interno</Link>
+            <a href={whatsAppUrl} target="_blank" rel="noopener noreferrer" data-testid="whatsapp-button">
+              Contactar por WhatsApp
+            </a>
           </Button>
         </DialogFooter>
       </DialogContent>

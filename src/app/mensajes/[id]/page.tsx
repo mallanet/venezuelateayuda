@@ -8,7 +8,6 @@ import useSWR from "swr";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ReportDialog } from "@/components/report-dialog";
 import { formatVeTime } from "@/lib/dates";
 import { fetchJson } from "@/lib/fetch-json";
@@ -85,15 +84,15 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-6">
+    <div className="bg-section-glow mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-6">
       <div className="flex items-center justify-between gap-2 border-b border-border/40 pb-4">
         {isLoading || !data?.conversation ? (
-          <Skeleton className="h-10 w-64" />
+          <div className="vta-skeleton h-10 w-64 rounded-lg" />
         ) : (
           <>
             <div className="grid gap-0.5">
               <span
-                className="font-heading font-semibold text-foreground"
+                className="font-display font-semibold text-foreground"
                 data-testid="chat-other-name"
               >
                 {data.conversation.otherName}
@@ -114,7 +113,7 @@ export default function ChatPage() {
         {isLoading ? (
           <div className="grid gap-3">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-12 w-2/3 rounded-2xl" />
+              <div key={i} className="vta-skeleton h-12 w-2/3 rounded-2xl" />
             ))}
           </div>
         ) : (
@@ -126,7 +125,7 @@ export default function ChatPage() {
               >
                 <div
                   className={cn(
-                    "max-w-[80%] rounded-2xl px-4 py-2.5 text-sm shadow-sm",
+                    "max-w-[80%] rounded-2xl px-4 py-2.5 text-sm shadow-soft",
                     message.mine
                       ? "rounded-br-sm bg-primary text-primary-foreground"
                       : "rounded-bl-sm border border-border/60 bg-card"
@@ -162,14 +161,14 @@ export default function ChatPage() {
           type="submit"
           disabled={sending || !body.trim()}
           data-testid="chat-send"
-          className="rounded-xl bg-accent text-accent-foreground hover:bg-accent/90"
+          className="rounded-xl shadow-soft"
         >
           Enviar
         </Button>
       </form>
       <p className="pt-3 text-xs text-muted-foreground">
-        Por tu seguridad, mantén la conversación dentro de la plataforma y no
-        compartas datos bancarios.
+        Por tu seguridad, mantén la conversación dentro de la plataforma y no compartas datos
+        bancarios.
       </p>
     </div>
   );

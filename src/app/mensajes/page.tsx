@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import useSWR from "swr";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Reveal } from "@/components/reveal";
 import { fetchJson } from "@/lib/fetch-json";
 
 interface ConversationSummary {
@@ -41,38 +41,46 @@ export default function MensajesPage() {
   const conversations = data?.conversations ?? [];
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10">
-      <Card className="border-border/60 shadow-sm">
-        <CardHeader className="border-b border-border/40 pb-4">
-          <CardTitle className="font-heading text-2xl text-primary">
-            Mensajes
-          </CardTitle>
-        </CardHeader>
+    <div className="bg-section-glow mx-auto w-full max-w-3xl px-4 py-12">
+      <Reveal as="div">
+        <Card className="overflow-hidden border-border/60 shadow-elevated">
+          <div className="accent-rule h-0.5 w-full" aria-hidden />
+          <CardHeader className="border-b border-border/40 pb-4">
+            <CardTitle className="font-display text-2xl font-semibold text-primary">
+              Mensajes
+            </CardTitle>
+          </CardHeader>
         <CardContent className="pt-6">
           {isLoading || sessionStatus === "loading" ? (
             <div className="grid gap-3">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-20 w-full rounded-xl" />
+                <div key={i} className="vta-skeleton h-20 w-full rounded-xl" />
               ))}
             </div>
           ) : conversations.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No tienes conversaciones todavía. Explora el{" "}
-              <Link href="/mapa" className="font-medium text-accent underline underline-offset-2">
-                mapa de ayuda
-              </Link>{" "}
-              y contacta una ficha para empezar.
-            </p>
+            <div className="rounded-xl border border-dashed border-border/70 bg-card/50 p-8 text-center text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">No tienes conversaciones todavía.</p>
+              <p className="mt-1">
+                Explora el{" "}
+                <Link
+                  href="/mapa"
+                  className="font-medium text-accent underline underline-offset-2 link-underline"
+                >
+                  mapa de ayuda
+                </Link>{" "}
+                y contacta una ficha para empezar.
+              </p>
+            </div>
           ) : (
-            <ul className="grid gap-2" data-testid="conversation-list">
+            <ul className="stagger-children grid gap-2" data-testid="conversation-list">
               {conversations.map((conversation) => (
-                <li key={conversation.id}>
+                <Reveal as="li" key={conversation.id}>
                   <Link
                     href={`/mensajes/${conversation.id}`}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-card p-4 transition-all hover:border-accent/40 hover:bg-accent/[0.03] hover:shadow-sm"
+                    className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-card p-4 shadow-soft hover-lift hover-glow"
                   >
                     <div className="grid gap-1">
-                      <span className="font-heading font-medium text-foreground">
+                      <span className="font-display font-medium text-foreground">
                         {conversation.otherName}
                       </span>
                       <span className="text-xs text-muted-foreground">
@@ -93,12 +101,13 @@ export default function MensajesPage() {
                       </Badge>
                     )}
                   </Link>
-                </li>
+                </Reveal>
               ))}
             </ul>
           )}
         </CardContent>
       </Card>
+      </Reveal>
     </div>
   );
 }

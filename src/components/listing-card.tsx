@@ -27,20 +27,31 @@ export function ListingCard({ listing, selected, onSelect, compact, distanceKm }
       type={onSelect ? "button" : undefined}
       onClick={onSelect}
       className={cn(
-        "grid overflow-hidden rounded-xl border bg-card text-left shadow-sm transition-all hover:shadow-md focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
-        selected && "border-primary ring-2 ring-primary/30",
+        "group grid overflow-hidden rounded-2xl border border-border/60 bg-card text-left shadow-soft hover-lift focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
+        selected && "border-accent ring-2 ring-accent/35",
         compact ? "gap-2 p-3" : "gap-0"
       )}
       data-testid={`listing-card-${listing.id}`}
     >
-      <div className={cn("relative bg-muted", compact ? "mx-auto h-16 w-16 overflow-hidden rounded-full" : "aspect-[4/3] w-full")}>
+      <div
+        className={cn(
+          "relative bg-muted",
+          compact ? "mx-auto h-16 w-16 overflow-hidden rounded-full" : "aspect-[4/3] w-full"
+        )}
+      >
         <Image
           src={listing.authorAvatarUrl}
           alt={`Foto de ${listing.authorName}`}
           fill
-          className={cn("object-cover", compact ? "rounded-full" : "")}
+          className={cn("object-cover transition-transform duration-[var(--motion-duration-slow)] ease-[var(--motion-ease-out)] group-hover:scale-[1.04]", compact ? "rounded-full" : "")}
           sizes={compact ? "64px" : "(max-width:768px) 50vw, 25vw"}
         />
+        {!compact && (
+          <span
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-primary/25 to-transparent opacity-0 transition-opacity duration-[var(--motion-duration-base)] group-hover:opacity-100"
+            aria-hidden
+          />
+        )}
       </div>
       <div className={cn("grid gap-1", compact ? "text-center" : "p-4")}>
         {!compact && isAbroadState(listing.state) && (
@@ -56,7 +67,9 @@ export function ListingCard({ listing, selected, onSelect, compact, distanceKm }
             {LISTING_TYPE_LABELS[listing.type]}
           </Badge>
         )}
-        <span className="font-semibold leading-tight">{listing.title}</span>
+        <span className="font-display text-[0.95rem] leading-snug font-semibold text-primary">
+          {listing.title}
+        </span>
         <span className="text-xs text-muted-foreground">
           {listing.authorName} ·{" "}
           {isAbroadState(listing.state)
@@ -64,7 +77,7 @@ export function ListingCard({ listing, selected, onSelect, compact, distanceKm }
             : `${listing.municipality}, ${listing.state}`}
           {distanceKm !== undefined && ` · ~${distanceKm} km`}
         </span>
-        <Badge variant="secondary" className="mt-1 w-fit text-[10px] uppercase tracking-wide">
+        <Badge variant="secondary" className="mt-1 w-fit gap-1 text-[10px] tracking-wide uppercase">
           <CategoryIcon className="size-3" />
           {CATEGORY_LABELS[listing.category]}
         </Badge>
@@ -77,9 +90,9 @@ export function ListingCard({ listing, selected, onSelect, compact, distanceKm }
         {!onSelect && (
           <Link
             href={`/ayuda/${listing.id}`}
-            className="mt-2 text-xs font-medium text-primary underline hover:underline hover:text-accent"
+            className="mt-2 text-xs font-medium text-primary underline underline-offset-2 link-underline transition-[color] hover:text-accent"
           >
-            Ver ficha
+            Ver ficha →
           </Link>
         )}
       </div>
