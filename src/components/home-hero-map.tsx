@@ -17,6 +17,7 @@ import {
 import type { PublicListing } from "@/lib/types";
 import { distanceKm, filterWithinRadius, sortByDistance } from "@/lib/geo";
 import { fetchJson } from "@/lib/fetch-json";
+import { useHasGeolocation } from "@/lib/use-client-mounted";
 import type { MapUserLocation } from "@/components/map/listings-map";
 
 const ListingsMap = dynamic(() => import("@/components/map/listings-map"), {
@@ -38,7 +39,7 @@ export function HomeHeroMap() {
   const [modalOpen, setModalOpen] = useState(false);
   const [userLocation, setUserLocation] = useState<MapUserLocation | null>(null);
 
-  const hasGeolocation = typeof navigator !== "undefined" && !!navigator.geolocation;
+  const hasGeolocation = useHasGeolocation();
 
   const requestUserLocation = useCallback(() => {
     if (!hasGeolocation) return;

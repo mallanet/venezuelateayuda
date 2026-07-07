@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReportDialog } from "@/components/report-dialog";
+import { formatVeTime } from "@/lib/dates";
 import { fetchJson } from "@/lib/fetch-json";
 import { cn } from "@/lib/utils";
 
@@ -138,10 +139,7 @@ export default function ChatPage() {
                       message.mine ? "text-primary-foreground/70" : "text-muted-foreground"
                     )}
                   >
-                    {new Date(message.createdAt).toLocaleTimeString("es-VE", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {formatVeTime(message.createdAt)}
                   </span>
                 </div>
               </li>

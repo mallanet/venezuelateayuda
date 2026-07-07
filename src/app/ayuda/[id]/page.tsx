@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
+import { formatVeDate } from "@/lib/dates";
 import { formatListingMeta } from "@/lib/listing-meta";
 import { ContactButton } from "@/components/contact-button";
 import { ReportDialog } from "@/components/report-dialog";
@@ -85,7 +86,7 @@ export default async function FichaDetallePage({
           </h1>
           <CardDescription className="text-sm">
             {listing.municipality}, {listing.state} · publicada por {authorName} ·{" "}
-            {listing.createdAt.toLocaleDateString("es-VE", { dateStyle: "medium" })}
+            {formatVeDate(listing.createdAt, "medium")}
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">

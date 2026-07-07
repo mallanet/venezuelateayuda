@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { PublicListing } from "@/lib/types";
 import { CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
+import { formatVeDate } from "@/lib/dates";
 import { formatListingMeta } from "@/lib/listing-meta";
 import { getMapsDirectionsUrl, getWhatsAppContactUrl } from "@/lib/listing-links";
 import { Badge } from "@/components/ui/badge";
@@ -71,7 +72,7 @@ export function ListingDetailModal({ listing, open, onOpenChange }: ListingDetai
 
           <p className="text-xs text-muted-foreground">
             Publicada el{" "}
-            {new Date(listing.createdAt).toLocaleDateString("es-VE", { dateStyle: "long" })}
+            {formatVeDate(listing.createdAt, "long")}
           </p>
         </div>
 

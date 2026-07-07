@@ -3,7 +3,8 @@
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
 import Link from "next/link";
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect } from "react";
+import { useClientMounted } from "@/lib/use-client-mounted";
 import type { PublicListing } from "@/lib/types";
 import { CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
 import { formatListingMeta } from "@/lib/listing-meta";
@@ -95,12 +96,6 @@ interface ListingsMapProps {
   listings: PublicListing[];
   focusId?: string | null;
   userLocation?: MapUserLocation | null;
-}
-
-const subscribeNoop = () => () => {};
-
-function useClientMounted() {
-  return useSyncExternalStore(subscribeNoop, () => true, () => false);
 }
 
 /** Mapa con zonas azul/rojo, marcadores y solapamiento visible por transparencia. */
