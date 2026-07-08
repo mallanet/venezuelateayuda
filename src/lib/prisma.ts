@@ -5,10 +5,11 @@ declare global {
 }
 
 function databaseUrl(): string | undefined {
-  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
   const password = process.env.POSTGRES_PASSWORD;
-  if (!password) return undefined;
-  return `postgresql://vta:${encodeURIComponent(password)}@db:5432/venezuelateayuda`;
+  if (password) {
+    return `postgresql://vta:${encodeURIComponent(password)}@db:5432/venezuelateayuda`;
+  }
+  return process.env.DATABASE_URL;
 }
 
 function createPrismaClient(): PrismaClient {
