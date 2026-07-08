@@ -68,4 +68,4 @@ cp .env.prod.example .env.prod   # o secrets en GitHub Actions
 RUN_SEED=true bash scripts/vps-deploy.sh
 ```
 
-Detalle completo en [DEPLOY.md](./DEPLOY.md). DNS: `A @` y `CNAME www` → `2.25.77.231`.
+Detalle completo en [DEPLOY.md](./DEPLOY.md). DNS: `A @` y `CNAME www` → `2.25.77.231`. Postgres corre en el VPS (`venezuelateayuda-db-1`).

@@ -1,24 +1,40 @@
 #!/usr/bin/env bash
-# Registers venezuelateayuda.org in Terremoto's Caddy (shared 80/443).
+# Registers venezuelateayuda.org in persistent /docker/caddy/Caddyfile.prod and rebuilds Caddy.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-CADDY_CONTAINER="${CADDY_CONTAINER:-terremotoapp-caddy-1}"
+CADDY_DIR="${CADDY_DIR:-/docker/caddy}"
 PROXY_NETWORK="${PROXY_NETWORK:-terremotoapp_mapa_prod_net}"
 SITE_FILE="$ROOT/deploy/caddy/venezuelateayuda.caddy"
+CADDYFILE="$CADDY_DIR/Caddyfile.prod"
 
-echo "==> Connecting Caddy to $PROXY_NETWORK"
-docker network connect "$PROXY_NETWORK" "$CADDY_CONTAINER" 2>/dev/null || true
+sudo mkdir -p "$CADDY_DIR"
 
-if docker exec "$CADDY_CONTAINER" grep -q 'venezuelateayuda.org' /etc/caddy/Caddyfile 2>/dev/null; then
-  echo "Caddy site already configured"
-else
-  echo "==> Appending site block to Caddyfile"
-  docker cp "$SITE_FILE" "${CADDY_CONTAINER}:/tmp/venezuelateayuda.caddy"
-  docker exec "$CADDY_CONTAINER" sh -c 'cat /tmp/venezuelateayuda.caddy >> /etc/caddy/Caddyfile'
+if [[ ! -f "$CADDYFILE" ]]; then
+  echo "==> Seeding Caddyfile from running container or /opt/mallanet"
+  if docker exec terremotoapp-caddy-1 test -f /etc/caddy/Caddyfile 2>/dev/null; then
+    docker exec terremotoapp-caddy-1 cat /etc/caddy/Caddyfile | sudo tee "$CADDYFILE" >/dev/null
+  elif [[ -f /opt/mallanet/Caddyfile.prod ]]; then
+    sudo cp /opt/mallanet/Caddyfile.prod "$CADDYFILE"
+  else
+    echo "No base Caddyfile found"
+    exit 1
+  fi
 fi
 
-echo "==> Reloading Caddy"
-docker exec "$CADDY_CONTAINER" caddy reload --config /etc/caddy/Caddyfile
+if ! sudo grep -q 'venezuelateayuda.org' "$CADDYFILE"; then
+  echo "==> Appending venezuelateayuda site block"
+  sudo tee -a "$CADDYFILE" < "$SITE_FILE" >/dev/null
+fi
+
+if [[ ! -f "$CADDY_DIR/Dockerfile" ]]; then
+  sudo tee "$CADDY_DIR/Dockerfile" >/dev/null <<'EOF'
+FROM caddy:2-alpine
+COPY Caddyfile.prod /etc/caddy/Caddyfile
+EOF
+fi
+
+echo "==> Rebuilding Caddy from persistent config"
+bash "$ROOT/scripts/vps-rebuild-caddy.sh"
 
 echo "Bootstrap done."
