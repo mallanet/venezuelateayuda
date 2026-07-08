@@ -2,10 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 const createPrismaClient = (): PrismaClient => {
   const url = process.env.DATABASE_URL;
-  if (!url) {
-    throw new Error("DATABASE_URL is not set");
-  }
-  return new PrismaClient({ datasourceUrl: url });
+  return new PrismaClient(url ? { datasourceUrl: url } : {});
 };
 
 declare global {
