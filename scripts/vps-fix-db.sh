@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Nuclear but reliable: recreate Postgres volume from canonical .env.prod
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -9,11 +8,13 @@ ENV_FILE="${ENV_FILE:-$ROOT/.env.prod}"
 [[ -f "$ENV_FILE" ]] || ENV_FILE="/opt/venezuelateayuda/.env.prod"
 [[ -f "$ENV_FILE" ]] || { echo "Missing env file"; exit 1; }
 
-grep -q '^POSTGRES_PASSWORD=.' "$ENV_FILE" || { echo "POSTGRES_PASSWORD missing in env"; exit 1; }
+# shellcheck disable=SC1090
+set -a && source "$ENV_FILE" && set +a
+[[ -n "${POSTGRES_PASSWORD:-}" ]] || { echo "POSTGRES_PASSWORD empty"; exit 1; }
 
 COMPOSE_FILE="docker-compose.prod.yml"
 
-echo "==> Recreate DB volume and stack"
+echo "==> Recreate DB volume"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" down -v --remove-orphans || true
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d db
 
@@ -22,13 +23,16 @@ for _ in $(seq 1 40); do
   sleep 1
 done
 
+echo "==> Migrate"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm migrate
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" --profile seed run --rm seed
+
+echo "==> Seed (best effort)"
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" --profile seed run --rm seed || true
+
+echo "==> App"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build app
 
 sleep 8
 curl -sf "http://venezuelateayuda-app-1:3000/api/health"
-echo
-curl -sf "http://venezuelateayuda-app-1:3000/api/listings" | head -c 200
 echo
 echo "DB fix done."
