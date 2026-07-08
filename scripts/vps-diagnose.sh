@@ -74,6 +74,8 @@ docker run --rm --network venezuelateayuda_internal -e PGPASSWORD="$POSTGRES_PAS
 echo "==> TCP auth sharing app network namespace"
 docker run --rm --network "container:venezuelateayuda-app-1" -e PGPASSWORD="$POSTGRES_PASSWORD" postgres:16-alpine \
   psql -h db -U vta -d venezuelateayuda -c 'SELECT 4 AS app_net_ok;' 2>&1 || true
+docker run --rm --network "container:venezuelateayuda-app-1" -e PGPASSWORD="$POSTGRES_PASSWORD" -e DATABASE_URL= postgres:16-alpine \
+  env -u DATABASE_URL psql -h db -U vta -d venezuelateayuda -c 'SELECT 5 AS app_net_no_dburl;' 2>&1 || true
 
 echo "==> URL hash (app vs migrate)"
 docker exec venezuelateayuda-app-1 node -e "
