@@ -38,6 +38,7 @@ env_prod_write() {
   cat >"$dest" <<EOF
 POSTGRES_PASSWORD='$(env_prod_quote "${POSTGRES_PASSWORD}")'
 DATABASE_URL='$(env_prod_quote "${db_url}")'
+DATABASE_URL_UNPOOLED='$(env_prod_quote "${db_url}")'
 AUTH_SECRET='$(env_prod_quote "${AUTH_SECRET}")'
 AUTH_URL='$(env_prod_quote "${AUTH_URL}")'
 NEXT_PUBLIC_APP_URL='$(env_prod_quote "${NEXT_PUBLIC_APP_URL}")'
