@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - scripts/vps-fix-db.sh
+      - scripts/vps-deploy.sh
       - .github/workflows/fix-db.yml
 
 jobs:
