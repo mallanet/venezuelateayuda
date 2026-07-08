@@ -25,35 +25,28 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Write production env
-        run: |
-          if [[ -f /opt/venezuelateayuda/.env.prod ]]; then
-            cp /opt/venezuelateayuda/.env.prod .env.prod
-          else
-            cat > .env.prod <<EOF
-          POSTGRES_PASSWORD=${{ secrets.VTA_POSTGRES_PASSWORD }}
-          AUTH_SECRET=${{ secrets.VTA_AUTH_SECRET }}
-          AUTH_URL=https://venezuelateayuda.org
-          NEXT_PUBLIC_APP_URL=https://venezuelateayuda.org
-          EMAIL_FROM=${EMAIL_FROM:-no-reply@venezuelateayuda.org}
-          ADMIN_EMAIL=${ADMIN_EMAIL:-admin@venezuelateayuda.org}
-          ADMIN_PASSWORD=${{ secrets.VTA_ADMIN_PASSWORD }}
-          EOF
-          fi
+      - name: Write canonical production env
         env:
-          EMAIL_FROM: ${{ secrets.VTA_EMAIL_FROM }}
+          POSTGRES_PASSWORD: ${{ secrets.VTA_POSTGRES_PASSWORD }}
+          AUTH_SECRET: ${{ secrets.VTA_AUTH_SECRET }}
+          ADMIN_PASSWORD: ${{ secrets.VTA_ADMIN_PASSWORD }}
           ADMIN_EMAIL: ${{ secrets.VTA_ADMIN_EMAIL }}
-
-      - name: Fix DB auth (canonical env)
+          EMAIL_FROM: ${{ secrets.VTA_EMAIL_FROM }}
         run: |
-          test -s .env.prod
-          grep -q '^POSTGRES_PASSWORD=.' .env.prod
-          chmod +x scripts/vps-fix-db.sh
-          bash scripts/vps-fix-db.sh
+          export ADMIN_EMAIL="${ADMIN_EMAIL:-admin@venezuelateayuda.org}"
+          export EMAIL_FROM="${EMAIL_FROM:-no-reply@venezuelateayuda.org}"
+          chmod +x scripts/vps-write-env.sh
+          bash scripts/vps-write-env.sh
 
-      - name: Deploy to VPS
+      - name: Sync DB password and deploy
         env:
           RUN_SEED: ${{ github.event.inputs.run_seed || 'false' }}
         run: |
-          chmod +x scripts/vps-deploy.sh scripts/vps-bootstrap.sh scripts/vps-fix-terremoto.sh scripts/vps-rebuild-caddy.sh
+          chmod +x scripts/vps-sync-db-password.sh scripts/vps-deploy.sh scripts/vps-bootstrap.sh scripts/vps-fix-terremoto.sh scripts/vps-rebuild-caddy.sh
+          bash scripts/vps-sync-db-password.sh
           bash scripts/vps-deploy.sh
+
+      - name: Verify public API
+        run: |
+          curl -sf https://venezuelateayuda.org/api/health | grep -q '"ok":true'
+          curl -sf https://venezuelateayuda.org/api/listings | grep -q '"listings"'

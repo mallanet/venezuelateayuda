@@ -37,7 +37,8 @@ export async function GET(req: Request): Promise<NextResponse> {
   if (state) profileWhere.state = state;
   if (category) profileWhere.categories = { has: category };
 
-  const users = await prisma.user.findMany({
+  try {
+    const users = await prisma.user.findMany({
     where: {
       role: "AYUDANTE",
       status: "APROBADO",
@@ -86,4 +87,14 @@ export async function GET(req: Request): Promise<NextResponse> {
         };
       }),
   });
+  } catch (err) {
+    console.error("[api/professionals]", err);
+    const message =
+      process.env.NODE_ENV === "production"
+        ? "No se pudieron cargar los profesionales. Intenta de nuevo en unos minutos."
+        : err instanceof Error
+          ? err.message
+          : "Error interno";
+    return apiErrorResponse(ApiErrorCode.INTERNAL, message, 500);
+  }
 }

@@ -50,7 +50,12 @@ export async function GET(req: Request): Promise<NextResponse> {
     });
   } catch (err) {
     console.error("[api/listings]", err);
-    const message = err instanceof Error ? err.message : "Error interno";
+    const message =
+      process.env.NODE_ENV === "production"
+        ? "No se pudieron cargar las fichas. Intenta de nuevo en unos minutos."
+        : err instanceof Error
+          ? err.message
+          : "Error interno";
     return apiErrorResponse(ApiErrorCode.INTERNAL, message, 500);
   }
 }

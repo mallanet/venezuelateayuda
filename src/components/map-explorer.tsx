@@ -20,9 +20,8 @@ import { CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/cate
 import { formatListingMeta } from "@/lib/listing-meta";
 import { filterWithinRadius, sortByDistance } from "@/lib/geo";
 import { fetchJson } from "@/lib/fetch-json";
-import { useHasGeolocation } from "@/lib/use-client-mounted";
+import { useUserLocation } from "@/lib/geolocation";
 import { cn } from "@/lib/utils";
-import type { MapUserLocation } from "@/components/map/listings-map";
 
 const ListingsMap = dynamic(() => import("@/components/map/listings-map"), {
   ssr: false,
@@ -33,8 +32,6 @@ function MapExplorerInner() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const hasGeolocation = useHasGeolocation();
-
   const filters = useMemo<MapFilters>(
     () => ({
       q: searchParams.get("q") ?? "",
@@ -49,7 +46,14 @@ function MapExplorerInner() {
   const [focusId, setFocusId] = useState<string | null>(null);
   const [listOpen, setListOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [userLocation, setUserLocation] = useState<MapUserLocation | null>(null);
+  const {
+    coords: userLocation,
+    permission: geoPermission,
+    isLocating,
+    hasGeolocation,
+    requestLocation,
+    locationReady,
+  } = useUserLocation({ requestOnMount: true });
 
   const updateFilters = useCallback(
     (patch: Partial<MapFilters>) => {
@@ -80,23 +84,17 @@ function MapExplorerInner() {
     [router, pathname, searchParams]
   );
 
-  const requestUserLocation = useCallback(() => {
-    if (!hasGeolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) =>
-        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => {},
-      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 }
-    );
-  }, [hasGeolocation]);
+  useEffect(() => {
+    if (filters.nearMe && !userLocation && geoPermission !== "denied" && hasGeolocation) {
+      requestLocation();
+    }
+  }, [filters.nearMe, userLocation, geoPermission, hasGeolocation, requestLocation]);
 
   useEffect(() => {
-    requestUserLocation();
-  }, [requestUserLocation]);
-
-  useEffect(() => {
-    if (filters.nearMe && !userLocation) requestUserLocation();
-  }, [filters.nearMe, userLocation, requestUserLocation]);
+    if (geoPermission === "denied" && filters.nearMe) {
+      updateFilters({ nearMe: false });
+    }
+  }, [geoPermission, filters.nearMe, updateFilters]);
 
   const query = useMemo(() => buildListingsQuery(filters), [filters]);
   const { data, isLoading, error } = useSWR<{ listings: PublicListing[] }>(query, fetchJson, {
@@ -140,8 +138,10 @@ function MapExplorerInner() {
               resultsCount={visibleListings.length}
               isLoading={isLoading}
               showNearMeFilter
-              locationReady={!!userLocation}
+              locationReady={locationReady}
               hasGeolocation={hasGeolocation}
+              geoPermission={geoPermission}
+              isLocating={isLocating}
               className="border-b border-border/40 p-5"
             />
             <ListingList
@@ -192,8 +192,10 @@ function MapExplorerInner() {
                   resultsCount={visibleListings.length}
                   isLoading={isLoading}
                   showNearMeFilter
-                  locationReady={!!userLocation}
+                  locationReady={locationReady}
                   hasGeolocation={hasGeolocation}
+                  geoPermission={geoPermission}
+                  isLocating={isLocating}
                 />
               </div>
             )}

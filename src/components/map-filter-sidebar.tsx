@@ -33,6 +33,8 @@ interface MapFilterSidebarProps {
   showNearMeFilter?: boolean;
   locationReady?: boolean;
   hasGeolocation?: boolean;
+  geoPermission?: "unknown" | "granted" | "denied" | "unsupported";
+  isLocating?: boolean;
   searchLabel?: string;
   searchPlaceholder?: string;
   className?: string;
@@ -48,6 +50,8 @@ export function MapFilterSidebar({
   showNearMeFilter = false,
   locationReady = false,
   hasGeolocation = true,
+  geoPermission = "unknown",
+  isLocating = false,
   searchLabel = "Busca por nombre",
   searchPlaceholder = "Busca por nombre...",
   className,
@@ -81,19 +85,24 @@ export function MapFilterSidebar({
                 id="filter-near-me"
                 checked={filters.nearMe}
                 onCheckedChange={(checked) => onChange({ nearMe: checked === true })}
-                disabled={!hasGeolocation}
+                disabled={!hasGeolocation || geoPermission === "denied"}
                 data-testid="filter-near-me"
               />
               <Label htmlFor="filter-near-me" className="cursor-pointer font-normal">
                 Cerca de mí
               </Label>
             </div>
-            {filters.nearMe && !locationReady && hasGeolocation && (
+            {filters.nearMe && isLocating && hasGeolocation && geoPermission !== "denied" && (
               <p className="text-xs text-muted-foreground">Obteniendo tu ubicación…</p>
             )}
             {!hasGeolocation && (
               <p className="text-xs text-muted-foreground">
                 Tu navegador no permite usar la ubicación.
+              </p>
+            )}
+            {geoPermission === "denied" && (
+              <p className="text-xs text-muted-foreground">
+                Ubicación bloqueada. Actívala en el icono del candado junto a la URL del sitio.
               </p>
             )}
             {filters.nearMe && locationReady && (

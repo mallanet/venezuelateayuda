@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk, Fraunces, IBM_Plex_Mono } from "next/font/google";
+import { Nunito, Source_Sans_3 } from "next/font/google";
 import Script from "next/script";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/sonner";
@@ -9,26 +9,18 @@ import { SiteFooter } from "@/components/site-footer";
 import { OG_IMAGE, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_OPEN_GRAPH_IMAGE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-// Tipografía del sistema:
-//  - Hanken Grotesk: cuerpo/UI (grotesk humano, cálido, no es el sans por defecto).
-//  - Fraunces: titulares display (serif moderno suave con optical sizing; calidez editorial).
-//  - IBM Plex Mono: numerales, contadores y micro-leydos.
-const body = Hanken_Grotesk({
+// Alineado con Mallanet.org: Nunito (display) + Source Sans 3 (cuerpo).
+const body = Source_Sans_3({
   variable: "--font-body",
   subsets: ["latin", "latin-ext"],
+  weight: ["400", "600", "700"],
   display: "swap",
 });
 
-const display = Fraunces({
+const display = Nunito({
   variable: "--font-display",
   subsets: ["latin", "latin-ext"],
-  display: "swap",
-});
-
-const mono = IBM_Plex_Mono({
-  variable: "--font-mono-family",
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600"],
+  weight: ["800", "900"],
   display: "swap",
 });
 
@@ -67,6 +59,7 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
   category: "humanitarian",
+  themeColor: "#0055AA",
 };
 
 export default async function RootLayout({
@@ -78,7 +71,7 @@ export default async function RootLayout({
   return (
     <html
       lang="es"
-      className={`${body.variable} ${display.variable} ${mono.variable} h-full antialiased`}
+      className={`${body.variable} ${display.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background font-sans">
         <Script
@@ -95,7 +88,9 @@ export default async function RootLayout({
         </Script>
         <SessionProvider session={session}>
           <Navbar />
-          <main className="flex-1 flex flex-col">{children}</main>
+          <main id="contenido-principal" className="flex flex-1 flex-col" tabIndex={-1}>
+            {children}
+          </main>
           <SiteFooter />
           <Toaster richColors position="top-center" />
         </SessionProvider>

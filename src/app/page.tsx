@@ -89,15 +89,14 @@ export default async function HomePage() {
       />
       <HomeHeroMap />
 
-      <section className="mx-auto grid w-full max-w-5xl gap-10 px-4 py-20 md:py-24">
+      <section className="mx-auto grid w-full max-w-[1120px] gap-10 px-6 py-20 md:py-24">
         <Reveal className="mx-auto grid max-w-2xl gap-3 text-center">
-          <span className="font-mono-tokens text-xs font-medium tracking-[0.18em] text-accent uppercase">
-            Así funciona
-          </span>
-          <h2 className="font-display text-3xl font-semibold tracking-tight text-balance text-primary md:text-4xl">
+          <span className="kicker">Así funciona</span>
+          <h2 className="font-display text-[clamp(26px,1.45rem+1.2vw,36px)] tracking-[-0.01em] text-balance">
             Tres pasos para conectar
           </h2>
-          <p className="mx-auto max-w-xl text-sm text-muted-foreground md:text-base">
+          <hr className="section-rule mx-auto" />
+          <p className="mx-auto max-w-xl text-base text-muted-foreground">
             Fichas moderadas a mano, chat interno sin exponer tu teléfono y ubicación aproximada
             para proteger tu privacidad.
           </p>
@@ -130,7 +129,7 @@ export default async function HomePage() {
               key={step.step}
               className="relative grid grid-cols-[52px_1fr] gap-5 py-7 sm:grid-cols-[60px_1fr]"
             >
-              <span className="font-display text-4xl font-semibold tabular-nums text-accent sm:text-5xl">
+              <span className="font-display text-4xl font-black tabular-nums text-[var(--mallanet-blue-700)] sm:text-5xl">
                 {step.step}
               </span>
               <div className="grid gap-1.5 pt-1">
@@ -154,15 +153,14 @@ export default async function HomePage() {
         </Reveal>
       </section>
 
-      <section className="mx-auto grid w-full max-w-5xl gap-10 px-4 py-20 md:py-24">
+      <section className="mx-auto grid w-full max-w-[1120px] gap-10 px-6 py-20 md:py-24">
         <Reveal className="mx-auto grid max-w-2xl gap-3 text-center">
-          <span className="font-mono-tokens text-xs font-medium tracking-[0.18em] text-accent uppercase">
-            Explora
-          </span>
-          <h2 className="font-display text-3xl font-semibold tracking-tight text-balance text-primary md:text-4xl">
+          <span className="kicker">Explora</span>
+          <h2 className="font-display text-[clamp(26px,1.45rem+1.2vw,36px)] tracking-[-0.01em] text-balance">
             Categorías de ayuda
           </h2>
-          <p className="mx-auto max-w-xl text-sm text-muted-foreground md:text-base">
+          <hr className="section-rule mx-auto" />
+          <p className="mx-auto max-w-xl text-base text-muted-foreground">
             Fichas verificadas agrupadas por tipo de necesidad.
           </p>
         </Reveal>

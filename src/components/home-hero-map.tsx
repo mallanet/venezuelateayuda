@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,9 +23,8 @@ import {
 import type { PublicListing } from "@/lib/types";
 import { distanceKm, filterWithinRadius, sortByDistance } from "@/lib/geo";
 import { fetchJson } from "@/lib/fetch-json";
-import { useHasGeolocation } from "@/lib/use-client-mounted";
+import { useUserLocation } from "@/lib/geolocation";
 import { cn } from "@/lib/utils";
-import type { MapUserLocation } from "@/components/map/listings-map";
 
 const ListingsMap = dynamic(() => import("@/components/map/listings-map"), {
   ssr: false,
@@ -44,31 +43,28 @@ export function HomeHeroMap() {
   const [focusId, setFocusId] = useState<string | null>(null);
   const [modalListing, setModalListing] = useState<PublicListing | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [userLocation, setUserLocation] = useState<MapUserLocation | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const hasGeolocation = useHasGeolocation();
-
-  const requestUserLocation = useCallback(() => {
-    if (!hasGeolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) =>
-        setUserLocation({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        }),
-      () => {},
-      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 }
-    );
-  }, [hasGeolocation]);
+  const {
+    coords: userLocation,
+    permission: geoPermission,
+    isLocating,
+    hasGeolocation,
+    requestLocation,
+    locationReady,
+  } = useUserLocation({ requestOnMount: true });
 
   useEffect(() => {
-    requestUserLocation();
-  }, [requestUserLocation]);
+    if (filters.nearMe && !userLocation && geoPermission !== "denied" && hasGeolocation) {
+      requestLocation();
+    }
+  }, [filters.nearMe, userLocation, geoPermission, hasGeolocation, requestLocation]);
 
   useEffect(() => {
-    if (filters.nearMe && !userLocation) requestUserLocation();
-  }, [filters.nearMe, userLocation, requestUserLocation]);
+    if (geoPermission === "denied" && filters.nearMe) {
+      setFilters((prev) => ({ ...prev, nearMe: false }));
+    }
+  }, [geoPermission, filters.nearMe]);
 
   const query = useMemo(() => buildListingsQuery(filters), [filters]);
   const { data, isLoading, error } = useSWR<{ listings: PublicListing[] }>(query, fetchJson, {
@@ -107,22 +103,21 @@ export function HomeHeroMap() {
 
   return (
     <section
-      className="bg-hero-glow relative overflow-hidden px-4 pb-16 pt-12 md:pb-20 md:pt-16"
+      className="bg-hero-glow relative overflow-hidden px-6 pb-16 pt-12 md:pb-20 md:pt-16"
       data-testid="home-hero-map"
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px accent-rule" aria-hidden />
-      <div className="mx-auto grid max-w-7xl gap-10">
+      <div className="mx-auto grid max-w-[1120px] gap-10">
         <div className="mx-auto grid max-w-3xl gap-5 text-center">
-          <span className="reveal delay-1 inline-flex items-center justify-center gap-2 self-center rounded-full border border-accent/30 bg-accent/5 px-3.5 py-1.5 text-xs font-medium tracking-wide text-accent-foreground uppercase">
-            <span className="inline-block size-1.5 rounded-full bg-accent" aria-hidden />
+          <span className="reveal delay-1 inline-flex items-center justify-center gap-2 self-center rounded-full border border-[var(--mallanet-blue-100)] bg-[var(--mallanet-blue-50)] px-4 py-1.5 text-sm font-semibold text-primary">
+            <span className="inline-block size-1.5 rounded-full bg-[var(--mallanet-blue-400)]" aria-hidden />
             Mapa de ayuda mutua · Venezuela
           </span>
-          <h1 className="reveal delay-2 font-display text-4xl leading-[1.05] font-semibold tracking-tight text-balance text-primary sm:text-5xl md:text-6xl">
+          <h1 className="reveal delay-2 font-display text-[clamp(34px,2.2rem+2.4vw,60px)] leading-[1.06] font-black tracking-[-0.018em] text-balance sm:text-5xl md:text-6xl">
             Conectamos ayuda con quien la necesita
           </h1>
-          <p className="reveal delay-3 mx-auto max-w-2xl text-base text-pretty text-muted-foreground md:text-lg">
-            Venezuela Te Ayuda es un mapa de ayuda mutua: publica lo que puedes ofrecer o lo que
-            necesitas, y encuentra personas verificadas cerca de ti.
+          <p className="reveal delay-3 mx-auto max-w-[52ch] text-[clamp(17px,1rem+0.3vw,20px)] text-pretty leading-relaxed text-muted-foreground">
+            Publica lo que puedes ofrecer o lo que necesitas, y encuentra personas verificadas
+            cerca de ti — sin exponer tu teléfono ni tu dirección exacta.
           </p>
           <div className="reveal delay-4 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg" className="shadow-soft">
@@ -167,8 +162,10 @@ export function HomeHeroMap() {
               resultsCount={visibleListings.length}
               isLoading={isLoading}
               showNearMeFilter
-              locationReady={!!userLocation}
+              locationReady={locationReady}
               hasGeolocation={hasGeolocation}
+              geoPermission={geoPermission}
+              isLocating={isLocating}
               className="rounded-2xl border border-border/60 bg-card/80 p-5 shadow-soft backdrop-blur"
             />
           </aside>
@@ -197,8 +194,10 @@ export function HomeHeroMap() {
                     resultsCount={visibleListings.length}
                     isLoading={isLoading}
                     showNearMeFilter
-                    locationReady={!!userLocation}
+                    locationReady={locationReady}
                     hasGeolocation={hasGeolocation}
+                    geoPermission={geoPermission}
+                    isLocating={isLocating}
                   />
                 </div>
               )}

@@ -66,17 +66,19 @@ function LegalSeparator() {
 
 export function SiteFooter() {
   return (
-    <footer className="bg-section-glow border-t border-border text-foreground">
-      <div className="mx-auto max-w-6xl px-4 pb-10 pt-16">
+    <footer className="bg-section-glow border-t border-[#EFF3F8] text-foreground">
+      <div className="mx-auto max-w-[1120px] px-6 pb-10 pt-16">
         <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
           <div className="grid gap-5">
             <div className="flex items-center gap-3">
               <Logo size={44} />
               <div className="grid">
-                <span className="font-display text-lg font-semibold leading-tight text-primary">
+                <span className="font-display text-[23px] font-black leading-tight text-[var(--mallanet-blue-600)]">
                   Venezuela Te Ayuda
                 </span>
-                <span className="text-xs font-medium text-accent">Mapa de ayuda mutua</span>
+                <span className="text-sm font-semibold text-[var(--mallanet-blue-500)]">
+                  Mapa de ayuda mutua
+                </span>
               </div>
             </div>
             <div>
@@ -158,7 +160,7 @@ export function SiteFooter() {
           </section>
         </div>
 
-        <div className="mt-12 h-px w-full flag-rule" aria-hidden />
+        <div className="mt-12 h-px w-full bg-[var(--mallanet-gray-200)]" aria-hidden />
 
         <nav
           className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm"

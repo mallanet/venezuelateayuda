@@ -38,14 +38,19 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-[1100] border-b border-border/60 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/70">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px flag-rule opacity-70" aria-hidden />
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-        <Link href="/" className="flex items-center gap-2 no-underline transition-opacity duration-[var(--motion-duration-fast)] hover:opacity-90">
-          <Logotype size={36} />
+    <header className="sticky top-0 z-[1100] border-b border-[#EFF3F8] bg-background">
+      <a
+        href="#contenido-principal"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-6 focus:top-3 focus:z-[1200] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
+      >
+        Saltar al contenido
+      </a>
+      <div className="mx-auto flex min-h-[68px] max-w-[1120px] items-center justify-between gap-4 px-6">
+        <Link href="/" className="flex shrink-0 items-center gap-2.5 no-underline hover:opacity-90">
+          <Logotype size={42} />
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Principal">
+        <nav className="hidden items-center gap-6 md:flex" aria-label="Principal">
           {links.map((link) => {
             const active = pathname === link.href;
             return (
@@ -53,17 +58,11 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "relative rounded-lg px-3 py-2 text-sm font-medium transition-[color,background-color] duration-[var(--motion-duration-fast)] ease-[var(--motion-ease-out)] hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
-                  active ? "text-primary" : "text-muted-foreground"
+                  "border-b-2 border-transparent px-0 py-1 text-base font-semibold text-primary transition-[border-color,color] duration-[var(--motion-duration-base)] ease-[var(--motion-ease-out)] hover:border-[var(--mallanet-blue-200)] hover:text-[var(--mallanet-blue-800)] hover:no-underline focus-visible:shadow-[0_0_0_3px_rgba(24,116,199,0.35)]",
+                  active && "border-[var(--mallanet-blue-400)]"
                 )}
               >
                 {link.label}
-                {active && (
-                  <span
-                    className="absolute inset-x-3 -bottom-[calc(0.5rem+1px)] h-0.5 rounded-full bg-accent transition-transform duration-[var(--motion-duration-base)] ease-[var(--motion-ease-out)]"
-                    aria-hidden
-                  />
-                )}
               </Link>
             );
           })}

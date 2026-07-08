@@ -2,12 +2,6 @@ name: Ops — Fix DB
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - scripts/vps-fix-db.sh
-      - scripts/vps-deploy.sh
-      - .github/workflows/fix-db.yml
 
 jobs:
   fix:
@@ -15,6 +9,20 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - run: |
-          chmod +x scripts/vps-fix-db.sh
-          bash scripts/vps-fix-db.sh
+      - name: Write canonical production env
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.VTA_POSTGRES_PASSWORD }}
+          AUTH_SECRET: ${{ secrets.VTA_AUTH_SECRET }}
+          ADMIN_PASSWORD: ${{ secrets.VTA_ADMIN_PASSWORD }}
+          ADMIN_EMAIL: ${{ secrets.VTA_ADMIN_EMAIL }}
+          EMAIL_FROM: ${{ secrets.VTA_EMAIL_FROM }}
+        run: |
+          export ADMIN_EMAIL="${ADMIN_EMAIL:-admin@venezuelateayuda.org}"
+          export EMAIL_FROM="${EMAIL_FROM:-no-reply@venezuelateayuda.org}"
+          chmod +x scripts/vps-write-env.sh scripts/vps-sync-db-password.sh
+          bash scripts/vps-write-env.sh
+          bash scripts/vps-sync-db-password.sh
+      - name: Verify public API
+        run: |
+          curl -sf https://venezuelateayuda.org/api/health | grep -q '"ok":true'
+          curl -sf https://venezuelateayuda.org/api/listings | grep -q '"listings"'

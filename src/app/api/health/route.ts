@@ -6,7 +6,13 @@ export async function GET(): Promise<NextResponse> {
     const count = await prisma.helpListing.count();
     return NextResponse.json({ ok: true, listings: count });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown";
+    console.error("[api/health]", err);
+    const message =
+      process.env.NODE_ENV === "production"
+        ? "Servicio temporalmente no disponible"
+        : err instanceof Error
+          ? err.message
+          : "unknown";
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

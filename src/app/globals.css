@@ -10,7 +10,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-family), ui-monospace, monospace;
-  --font-heading: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-display), "Trebuchet MS", system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -50,48 +50,65 @@
 }
 
 :root {
-  /* Motion tokens — single source of truth */
-  --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --motion-ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
-  --motion-duration-fast: 160ms;
-  --motion-duration-base: 280ms;
-  --motion-duration-slow: 520ms;
-  --motion-duration-reveal: 720ms;
-  --motion-stagger-step: 80ms;
+  /* Mallanet.org design tokens — https://mallanet.org/css/site.css */
+  --mallanet-blue-950: #0b1526;
+  --mallanet-blue-900: #0d1650;
+  --mallanet-blue-800: #094a8f;
+  --mallanet-blue-700: #0055aa;
+  --mallanet-blue-600: #045eba;
+  --mallanet-blue-500: #1874c7;
+  --mallanet-blue-400: #4bacf1;
+  --mallanet-blue-200: #a3c6e5;
+  --mallanet-blue-100: #d6e9fa;
+  --mallanet-blue-50: #eff6fc;
+  --mallanet-gray-50: #f9fbfd;
+  --mallanet-gray-200: #d0ddea;
+  --mallanet-gray-500: #5b6b82;
+  --mallanet-gray-700: #33445c;
+  --mallanet-heading: var(--mallanet-blue-900);
 
-  --background: oklch(0.992 0.006 240);
-  --foreground: oklch(0.26 0.03 253);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.26 0.03 253);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.26 0.03 253);
-  --primary: oklch(0.46 0.16 253);
-  --primary-foreground: oklch(0.99 0.005 250);
-  --secondary: oklch(0.96 0.022 250);
-  --secondary-foreground: oklch(0.46 0.16 253);
-  --muted: oklch(0.95 0.016 250);
-  --muted-foreground: oklch(0.50 0.026 252);
-  --accent: oklch(0.69 0.155 248);
-  --accent-foreground: oklch(0.28 0.07 253);
-  --destructive: oklch(0.55 0.18 28);
-  --destructive-foreground: oklch(0.99 0.005 250);
-  --border: oklch(0.90 0.02 250);
-  --input: oklch(0.90 0.02 250);
-  --ring: oklch(0.69 0.155 248);
-  --chart-1: oklch(0.69 0.155 248);
-  --chart-2: oklch(0.46 0.16 253);
-  --chart-3: oklch(0.55 0.18 28);
-  --chart-4: oklch(0.78 0.10 245);
-  --chart-5: oklch(0.58 0.14 255);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.992 0.006 240);
-  --sidebar-foreground: oklch(0.26 0.03 253);
-  --sidebar-primary: oklch(0.46 0.16 253);
-  --sidebar-primary-foreground: oklch(0.99 0.005 250);
-  --sidebar-accent: oklch(0.69 0.155 248);
-  --sidebar-accent-foreground: oklch(0.28 0.07 253);
-  --sidebar-border: oklch(0.90 0.02 250);
-  --sidebar-ring: oklch(0.69 0.155 248);
+  /* Motion — ritmo Mallanet (120/200ms) */
+  --motion-ease-out: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --motion-ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --motion-duration-fast: 120ms;
+  --motion-duration-base: 200ms;
+  --motion-duration-slow: 340ms;
+  --motion-duration-reveal: 480ms;
+  --motion-stagger-step: 50ms;
+
+  --background: #ffffff;
+  --foreground: var(--mallanet-gray-700);
+  --card: #ffffff;
+  --card-foreground: var(--mallanet-gray-700);
+  --popover: #ffffff;
+  --popover-foreground: var(--mallanet-gray-700);
+  --primary: var(--mallanet-blue-700);
+  --primary-foreground: #ffffff;
+  --secondary: var(--mallanet-blue-50);
+  --secondary-foreground: var(--mallanet-blue-700);
+  --muted: var(--mallanet-gray-50);
+  --muted-foreground: var(--mallanet-gray-500);
+  --accent: var(--mallanet-blue-500);
+  --accent-foreground: var(--mallanet-blue-900);
+  --destructive: #c94c3e;
+  --destructive-foreground: #ffffff;
+  --border: var(--mallanet-gray-200);
+  --input: var(--mallanet-gray-200);
+  --ring: var(--mallanet-blue-500);
+  --chart-1: var(--mallanet-blue-500);
+  --chart-2: var(--mallanet-blue-700);
+  --chart-3: #c94c3e;
+  --chart-4: var(--mallanet-blue-400);
+  --chart-5: var(--mallanet-blue-600);
+  --radius: 0.5rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: var(--mallanet-gray-700);
+  --sidebar-primary: var(--mallanet-blue-700);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--mallanet-blue-500);
+  --sidebar-accent-foreground: var(--mallanet-blue-900);
+  --sidebar-border: var(--mallanet-gray-200);
+  --sidebar-ring: var(--mallanet-blue-500);
 }
 
 .dark {
@@ -136,12 +153,32 @@
   html,
   body {
     @apply font-sans;
+    font-size: 17px;
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
   }
   body {
     @apply bg-background text-foreground;
   }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display), "Trebuchet MS", system-ui, sans-serif;
+    font-weight: 800;
+    line-height: 1.12;
+    color: var(--mallanet-heading);
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: var(--mallanet-blue-100);
+    color: var(--mallanet-blue-900);
+  }
   .leaflet-container {
-    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-body), "Segoe UI", system-ui, sans-serif;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -163,23 +200,45 @@
 
 @layer utilities {
   .font-display {
-    font-family: var(--font-display), Georgia, "Times New Roman", serif;
-    font-optical-sizing: auto;
+    font-family: var(--font-display), "Trebuchet MS", system-ui, sans-serif;
+    font-weight: 800;
   }
   .font-mono-tokens {
-    font-family: var(--font-mono-family), ui-monospace, monospace;
+    font-family: var(--font-body), "Segoe UI", system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+  .kicker {
+    display: block;
+    font-family: var(--font-display), "Trebuchet MS", system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mallanet-blue-500);
+  }
+  .section-rule {
+    width: 72px;
+    height: 3px;
+    border: 0;
+    border-radius: 2px;
+    background: var(--mallanet-blue-200);
+  }
+  .container-mallanet {
+    max-width: 1120px;
   }
 }
 
-/* Atmosphere — subtle brand-blue glows for hero and section headers */
+/* Atmosphere — radial suave estilo Mallanet hero */
 .bg-hero-glow {
-  background-image:
-    radial-gradient(55% 75% at 50% -8%, oklch(0.46 0.16 253 / 0.14), transparent 70%),
-    radial-gradient(38% 55% at 88% 18%, oklch(0.69 0.155 248 / 0.16), transparent 72%),
-    radial-gradient(45% 60% at 8% 30%, oklch(0.69 0.155 248 / 0.09), transparent 70%);
+  background-image: radial-gradient(
+    closest-side,
+    rgba(239, 246, 252, 0.95) 0%,
+    transparent 100%
+  );
 }
 .bg-section-glow {
-  background-image: radial-gradient(70% 110% at 50% 0%, oklch(0.46 0.16 253 / 0.05), transparent 78%);
+  background: var(--mallanet-gray-50);
 }
 
 /* Editorial brand-blue hairline */
@@ -199,24 +258,22 @@
 .text-flag-blue { color: #1c99fa; }
 .text-flag-red { color: #c94c3e; }
 
-/* Elevation — soft, brand-blue-tinted, never harsh */
+/* Elevation — sombras Mallanet (azul navy tenue) */
 .shadow-soft {
   box-shadow:
-    0 1px 2px oklch(0.46 0.16 253 / 0.07),
-    0 6px 18px -10px oklch(0.46 0.16 253 / 0.18);
+    0 1px 3px rgba(13, 22, 80, 0.06),
+    0 4px 14px rgba(13, 22, 80, 0.05);
 }
 .shadow-elevated {
-  box-shadow:
-    0 1px 0 0 oklch(0.46 0.16 253 / 0.06),
-    0 18px 44px -18px oklch(0.46 0.16 253 / 0.24);
+  box-shadow: 0 6px 24px rgba(13, 22, 80, 0.12);
 }
 .shadow-accent-glow {
   box-shadow:
-    0 1px 0 0 oklch(0.69 0.155 248 / 0.3),
-    0 14px 38px -14px oklch(0.69 0.155 248 / 0.32);
+    0 1px 3px rgba(13, 22, 80, 0.06),
+    0 8px 28px rgba(4, 94, 186, 0.14);
 }
 .ring-accent {
-  box-shadow: 0 0 0 1px oklch(0.69 0.155 248 / 0.45);
+  box-shadow: 0 0 0 3px rgba(24, 116, 199, 0.35);
 }
 
 /* Staggered page-load reveal — fires on load, fills to visible,
@@ -280,10 +337,8 @@
     box-shadow var(--motion-duration-base) var(--motion-ease-out);
 }
 .hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    0 1px 0 0 oklch(0.46 0.16 253 / 0.06),
-    0 18px 44px -18px oklch(0.46 0.16 253 / 0.24);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(13, 22, 80, 0.12);
 }
 
 /* Hover glow — anillo de acento suave + elevación combinada con hover-lift. */
@@ -293,17 +348,17 @@
     box-shadow var(--motion-duration-base) var(--motion-ease-out);
 }
 .hover-glow:hover {
-  border-color: oklch(0.69 0.155 248 / 0.35);
-  box-shadow: 0 0 0 1px oklch(0.69 0.155 248 / 0.2);
+  border-color: var(--mallanet-blue-200);
+  box-shadow: 0 6px 24px rgba(13, 22, 80, 0.12);
 }
 
 /* Link underline animado — transición suave del color de subrayado. */
 .link-underline {
-  text-decoration-color: oklch(0.69 0.155 248 / 0.35);
+  text-decoration-color: var(--mallanet-blue-200);
   transition: text-decoration-color var(--motion-duration-fast) var(--motion-ease-out);
 }
 .link-underline:hover {
-  text-decoration-color: oklch(0.69 0.155 248 / 1);
+  text-decoration-color: var(--mallanet-blue-500);
 }
 
 /* Branded skeleton shimmer */
