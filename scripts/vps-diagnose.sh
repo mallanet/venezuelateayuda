@@ -60,6 +60,9 @@ file_hash="$(printf '%s' "$file_pass" | sha256sum | cut -c1-12)"
 echo "shellPassHash=${shell_hash}"
 echo "filePassHash=${file_hash}"
 
+echo "==> App networks"
+docker inspect venezuelateayuda-app-1 --format '{{range $k,$v := .NetworkSettings.Networks}}{{println $k}}{{end}}' 2>/dev/null || true
+
 echo "==> docker inspect app env_file"
 docker inspect venezuelateayuda-app-1 --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | rg '^POSTGRES_PASSWORD=|^DATABASE_URL=' | sed 's/=.*$/=<redacted>/' || true
 
