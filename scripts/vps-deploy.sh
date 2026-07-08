@@ -54,4 +54,3 @@ echo "==> Status"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps
 
 echo "Deploy complete — https://venezuelateayuda.org"
-cp "$ENV_FILE" /opt/venezuelateayuda/.env.prod 2>/dev/null || true
