@@ -48,5 +48,13 @@ jobs:
 
       - name: Verify public API
         run: |
-          curl -sf https://venezuelateayuda.org/api/health | grep -q '"ok":true'
-          curl -sf https://venezuelateayuda.org/api/listings | grep -q '"listings"'
+          for i in $(seq 1 24); do
+            if curl -sf https://venezuelateayuda.org/api/health | grep -q '"ok":true'; then
+              curl -sf https://venezuelateayuda.org/api/listings | grep -q '"listings"'
+              exit 0
+            fi
+            echo "waiting for TLS + app ($i/24)..."
+            sleep 10
+          done
+          echo "::error::health check timed out after 4 minutes"
+          exit 1
