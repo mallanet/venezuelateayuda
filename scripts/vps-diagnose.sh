@@ -53,16 +53,15 @@ console.log('appPassLen=' + (process.env.POSTGRES_PASSWORD?.length ?? 0));
 console.log('appPassHash=' + h(process.env.POSTGRES_PASSWORD));
 console.log('appPgEnv=' + Boolean(process.env.PGPASSWORD));
 " 2>&1 || true
-echo "==> File POSTGRES_PASSWORD hash"
-node -e "
-const c=require('crypto');
-const fs=require('fs');
-const line=fs.readFileSync('$ENV_FILE','utf8').split(/\n/).find(l=>l.startsWith('POSTGRES_PASSWORD='));
-const value=line?.slice('POSTGRES_PASSWORD='.length) ?? '';
-const h=(v)=>c.createHash('sha256').update(v).digest('hex').slice(0,12);
-console.log('filePassLen=' + value.length);
-console.log('filePassHash=' + h(value));
-" 2>&1 || true
+echo "==> File/shell POSTGRES_PASSWORD hash"
+file_pass="$(env_prod_read "$ENV_FILE" POSTGRES_PASSWORD)"
+shell_hash="$(printf '%s' "$POSTGRES_PASSWORD" | sha256sum | cut -c1-12)"
+file_hash="$(printf '%s' "$file_pass" | sha256sum | cut -c1-12)"
+echo "shellPassHash=${shell_hash}"
+echo "filePassHash=${file_hash}"
+
+echo "==> docker inspect app env_file"
+docker inspect venezuelateayuda-app-1 --format '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | rg '^POSTGRES_PASSWORD=|^DATABASE_URL=' | sed 's/=.*$/=<redacted>/' || true
 
 echo "==> App containers"
 docker ps -a --filter name=venezuelateayuda-app --format '{{.Names}} {{.Status}} {{.ID}}' || true
