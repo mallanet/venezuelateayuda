@@ -36,6 +36,20 @@ console.log('host=' + parsed.hostname);
 console.log('passwordLen=' + (parsed.password?.length ?? 0));
 " 2>&1 || true
 
+echo "==> App env keys"
+docker exec venezuelateayuda-app-1 node -e "
+console.log('DATABASE_URL=' + Boolean(process.env.DATABASE_URL));
+console.log('DATABASE_URL_UNPOOLED=' + Boolean(process.env.DATABASE_URL_UNPOOLED));
+" 2>&1 || true
+
+echo "==> Prisma probe (app container)"
+docker exec venezuelateayuda-app-1 node -e "
+const { PrismaClient } = require('@prisma/client');
+const url = process.env.DATABASE_URL;
+const prisma = new PrismaClient({ datasourceUrl: url });
+prisma.helpListing.count().then((n) => console.log('appCount=' + n)).catch((e) => { console.error('appPrismaError=' + e.message); process.exit(1); }).finally(() => prisma.\$disconnect());
+" 2>&1 || true
+
 echo "==> Prisma probe (migrate image)"
 docker compose -f "$ROOT/docker-compose.prod.yml" --env-file "$ENV_FILE" run --rm migrate \
   node -e "
