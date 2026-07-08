@@ -22,6 +22,10 @@ echo "==> Ensuring edge network"
 docker network create "$EDGE_NETWORK" 2>/dev/null || true
 docker network connect "$EDGE_NETWORK" "$CADDY_CONTAINER" 2>/dev/null || true
 
+echo "==> Sync Postgres password with .env.prod"
+docker exec venezuelateayuda-db-1 psql -U vta -d venezuelateayuda -c \
+  "ALTER USER vta WITH PASSWORD '${POSTGRES_PASSWORD}';" 2>/dev/null || true
+
 echo "==> Running database migrations"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm migrate
 
