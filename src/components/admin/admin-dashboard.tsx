@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { signOut } from "next-auth/react";
 import useSWR from "swr";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +61,7 @@ interface AdminData {
 }
 
 export function AdminDashboard() {
+  const router = useRouter();
   const { data, isLoading, mutate } = useSWR<AdminData>("/api/admin", fetchJson);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -112,11 +115,26 @@ export function AdminDashboard() {
 
   return (
     <div className="bg-section-glow mx-auto grid w-full max-w-5xl gap-6 px-4 py-10">
-      <div className="grid gap-1">
-        <span className="font-mono-tokens text-xs font-medium tracking-[0.18em] text-accent uppercase">
-          Administración
-        </span>
-        <h1 className="font-display text-3xl font-semibold text-primary">Panel de administración</h1>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="grid gap-1">
+          <span className="font-mono-tokens text-xs font-medium tracking-[0.18em] text-accent uppercase">
+            Administración
+          </span>
+          <h1 className="font-display text-3xl font-semibold text-primary">
+            Panel de administración
+          </h1>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={async () => {
+            await signOut({ redirect: false });
+            router.replace("/admin/login");
+            router.refresh();
+          }}
+        >
+          Cerrar sesión
+        </Button>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">

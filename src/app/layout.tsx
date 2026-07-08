@@ -4,8 +4,7 @@ import Script from "next/script";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "@/components/ui/sonner";
 import { auth } from "@/lib/auth";
-import { Navbar } from "@/components/navbar";
-import { SiteFooter } from "@/components/site-footer";
+import { SiteChrome } from "@/components/site-chrome";
 import { OG_IMAGE, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_OPEN_GRAPH_IMAGE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -87,11 +86,7 @@ export default async function RootLayout({
           `}
         </Script>
         <SessionProvider session={session}>
-          <Navbar />
-          <main id="contenido-principal" className="flex flex-1 flex-col" tabIndex={-1}>
-            {children}
-          </main>
-          <SiteFooter />
+          <SiteChrome>{children}</SiteChrome>
           <Toaster richColors position="top-center" />
         </SessionProvider>
       </body>

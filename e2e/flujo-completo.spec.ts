@@ -1,7 +1,6 @@
 import { test, expect } from "@playwright/test";
 import {
-  ADMIN_EMAIL,
-  ADMIN_PASSWORD,
+  adminLogin,
   approveUserInDb,
   createListingInDb,
   login,
@@ -34,8 +33,7 @@ test.describe("Flujo completo: publicar, moderar, contactar", () => {
     await approveUserInDb(seekerEmail);
 
     await test.step("el admin aprueba al usuario ayudante desde el panel", async () => {
-      await login(page, ADMIN_EMAIL, ADMIN_PASSWORD);
-      await page.goto("/admin");
+      await adminLogin(page);
       await page.getByTestId(`approve-user-${helperEmail}`).click();
       await expect(page.getByTestId(`approve-user-${helperEmail}`)).toBeHidden();
     });

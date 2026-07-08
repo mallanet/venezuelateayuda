@@ -65,9 +65,6 @@ function UserMenu({ onNavigate }: { onNavigate?: () => void }) {
   if (!user) return null;
 
   const accountLinks: { href: string; label: string }[] = [...ACCOUNT_LINKS];
-  if (user.role === "ADMIN") {
-    accountLinks.push({ href: "/admin", label: "Administración" });
-  }
 
   return (
     <DropdownMenu.Root>
@@ -136,9 +133,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const user = session?.user;
 
-  const mobileLinks = user
-    ? [...PUBLIC_LINKS, ...ACCOUNT_LINKS, ...(user.role === "ADMIN" ? [{ href: "/admin", label: "Administración" }] : [])]
-    : [...PUBLIC_LINKS];
+  const mobileLinks = user ? [...PUBLIC_LINKS, ...ACCOUNT_LINKS] : [...PUBLIC_LINKS];
 
   return (
     <header className="sticky top-0 z-[1100] border-b border-[#EFF3F8] bg-background">

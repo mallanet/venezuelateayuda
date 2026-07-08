@@ -7,7 +7,7 @@ const DATABASE_URL =
 
 export const prisma = new PrismaClient({ datasourceUrl: DATABASE_URL });
 
-export const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@venezuelateayuda.org";
+export const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@mallanet.org";
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin-vta-2026";
 export const TEST_PASSWORD = "password-e2e-123";
 
@@ -54,13 +54,26 @@ export async function approveUserInDb(email: string) {
   await prisma.user.update({ where: { email }, data: { status: "APROBADO" } });
 }
 
-/** Inicia sesión a través del formulario de login. */
+/** Inicia sesión a través del formulario de login público. */
 export async function login(page: Page, email: string, password: string = TEST_PASSWORD) {
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Contraseña").fill(password);
   await page.getByRole("button", { name: "Entrar" }).click();
   await page.waitForURL("**/mapa");
+}
+
+/** Login del panel de administración (ruta separada). */
+export async function adminLogin(
+  page: Page,
+  email: string = ADMIN_EMAIL,
+  password: string = ADMIN_PASSWORD
+) {
+  await page.goto("/admin/login");
+  await page.getByLabel("Usuario").fill(email);
+  await page.getByLabel("Contraseña").fill(password);
+  await page.getByRole("button", { name: "Entrar al panel" }).click();
+  await page.waitForURL("**/admin");
 }
 
 /** Crea una ficha directamente en la base de datos para setup de tests. */

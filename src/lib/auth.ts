@@ -28,11 +28,16 @@ function toAuthJwt(token: JWT): AuthJwt {
   return token as AuthJwt;
 }
 
-export const { handlers, auth } = NextAuth({
+export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
-  pages: { signIn: "/login" },
+  pages: {
+    signIn: "/login",
+  },
   providers: [
+    // Login público del sitio (ayudantes / solicitantes).
     Credentials({
+      id: "credentials",
+      name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Contraseña", type: "password" },
@@ -44,6 +49,7 @@ export const { handlers, auth } = NextAuth({
 
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) return null;
+        if (user.role === "ADMIN") return null;
 
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
@@ -55,6 +61,35 @@ export const { handlers, auth } = NextAuth({
           role: user.role,
           status: user.status,
           emailVerified: user.emailVerified,
+        };
+      },
+    }),
+    // Panel de administración — separado del login público.
+    Credentials({
+      id: "admin-credentials",
+      name: "admin-credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Contraseña", type: "password" },
+      },
+      async authorize(credentials) {
+        const email = String(credentials?.email ?? "").toLowerCase().trim();
+        const password = String(credentials?.password ?? "");
+        if (!email || !password) return null;
+
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user || user.role !== "ADMIN") return null;
+        if (user.status === "SUSPENDIDO") return null;
+
+        const valid = await bcrypt.compare(password, user.passwordHash);
+        if (!valid) return null;
+
+        return {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          status: user.status,
+          emailVerified: user.emailVerified ?? new Date(),
         };
       },
     }),
