@@ -45,6 +45,17 @@ console.log('DATABASE_URL_UNPOOLED=' + Boolean(process.env.DATABASE_URL_UNPOOLED
 echo "==> Prisma client path (app)"
 docker exec venezuelateayuda-app-1 node -e "console.log(require.resolve('@prisma/client'))" 2>&1 || true
 
+echo "==> App containers"
+docker ps -a --filter name=venezuelateayuda-app --format '{{.Names}} {{.Status}} {{.ID}}' || true
+
+echo "==> TCP auth from internal network"
+docker run --rm --network venezuelateayuda_internal -e PGPASSWORD="$POSTGRES_PASSWORD" postgres:16-alpine \
+  psql -h db -U vta -d venezuelateayuda -c 'SELECT 3 AS internal_net_ok;' 2>&1 || true
+
+echo "==> TCP auth sharing app network namespace"
+docker run --rm --network "container:venezuelateayuda-app-1" -e PGPASSWORD="$POSTGRES_PASSWORD" postgres:16-alpine \
+  psql -h db -U vta -d venezuelateayuda -c 'SELECT 4 AS app_net_ok;' 2>&1 || true
+
 echo "==> URL hash (app vs migrate)"
 docker exec venezuelateayuda-app-1 node -e "
 const c=require('crypto');
