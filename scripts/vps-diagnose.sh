@@ -46,7 +46,7 @@ echo "==> Prisma probe (app container)"
 docker exec venezuelateayuda-app-1 node -e "
 const { PrismaClient } = require('@prisma/client');
 const url = process.env.DATABASE_URL;
-const prisma = new PrismaClient({ datasourceUrl: url });
+const prisma = new PrismaClient({ datasources: { db: { url } } });
 prisma.helpListing.count().then((n) => console.log('appCount=' + n)).catch((e) => { console.error('appPrismaError=' + e.message); process.exit(1); }).finally(() => prisma.\$disconnect());
 " 2>&1 || true
 
