@@ -45,7 +45,7 @@ export default function PrivacidadPage() {
       <p>
         Conservamos tus datos mientras tu cuenta esté activa. Puedes solicitar
         la eliminación de tu cuenta y tus datos escribiendo a{" "}
-        <a href="mailto:privacidad@venezuelateayuda.org">privacidad@venezuelateayuda.org</a>.
+        <a href="mailto:privacidad@mallanet.org">privacidad@mallanet.org</a>.
         Podemos conservar registros de moderación cuando exista una obligación
         legal o una disputa abierta.
       </p>

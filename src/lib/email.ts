@@ -10,7 +10,7 @@ function appUrl(): string {
 }
 
 function fromAddress(): string {
-  return process.env.EMAIL_FROM ?? "no-reply@venezuelateayuda.org";
+  return process.env.EMAIL_FROM ?? "no-reply@mallanet.org";
 }
 
 /** True when Resend or SMTP is configured (not console fallback). */

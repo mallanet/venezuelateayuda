@@ -63,7 +63,7 @@ export default function TerminosPage() {
       <h2>7. Contacto</h2>
       <p>
         Para consultas legales o de moderación, escribe a{" "}
-        <a href="mailto:legal@venezuelateayuda.org">legal@venezuelateayuda.org</a>.
+        <a href="mailto:legal@mallanet.org">legal@mallanet.org</a>.
       </p>
     </article>
   );

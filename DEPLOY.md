@@ -24,30 +24,32 @@ bash scripts/vps-setup-edge.sh      # solo edge + conexión de redes
 
 ## Email de verificación
 
+Remitente canónico: **`@mallanet.org`** (dominio verificado en Resend).
 El registro envía el enlace por **Resend** o **SMTP Hostinger**.
 
 ### Opción A — Resend (recomendado)
 
-1. Crea cuenta en https://resend.com y verifica el dominio `venezuelateayuda.org` (DNS SPF/DKIM).
+1. Dominio `mallanet.org` verificado en https://resend.com (DNS SPF/DKIM).
 2. Crea API key y configúrala:
 
 ```bash
 gh secret set VTA_RESEND_API_KEY --repo mallanet/venezuelateayuda --body "re_..."
+gh secret set VTA_EMAIL_FROM --repo mallanet/venezuelateayuda --body "no-reply@mallanet.org"
 # o en el VPS:
-# RESEND_API_KEY=re_... en /opt/venezuelateayuda/.env.prod
+# RESEND_API_KEY=re_... / EMAIL_FROM=no-reply@mallanet.org en /opt/venezuelateayuda/.env.prod
 ```
 
 ### Opción B — SMTP Hostinger
 
-1. En hPanel → Emails → crea `no-reply@venezuelateayuda.org`.
+1. En hPanel → Emails → crea `no-reply@mallanet.org`.
 2. Secrets:
 
 ```bash
 gh secret set VTA_SMTP_HOST --repo mallanet/venezuelateayuda --body smtp.hostinger.com
 gh secret set VTA_SMTP_PORT --repo mallanet/venezuelateayuda --body 465
-gh secret set VTA_SMTP_USERNAME --repo mallanet/venezuelateayuda --body no-reply@venezuelateayuda.org
+gh secret set VTA_SMTP_USERNAME --repo mallanet/venezuelateayuda --body no-reply@mallanet.org
 gh secret set VTA_SMTP_PASSWORD --repo mallanet/venezuelateayuda --body "..."
-gh secret set VTA_SMTP_FROM --repo mallanet/venezuelateayuda --body "Venezuela Te Ayuda <no-reply@venezuelateayuda.org>"
+gh secret set VTA_SMTP_FROM --repo mallanet/venezuelateayuda --body "Venezuela Te Ayuda <no-reply@mallanet.org>"
 ```
 
 Sin proveedor, el enlace solo aparece en logs de `venezuelateayuda-app-1`.

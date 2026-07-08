@@ -18,7 +18,7 @@ jobs:
           EMAIL_FROM: ${{ secrets.VTA_EMAIL_FROM }}
         run: |
           export ADMIN_EMAIL="${ADMIN_EMAIL:-admin@venezuelateayuda.org}"
-          export EMAIL_FROM="${EMAIL_FROM:-no-reply@venezuelateayuda.org}"
+          export EMAIL_FROM="${EMAIL_FROM:-no-reply@mallanet.org}"
           chmod +x scripts/vps-write-env.sh scripts/vps-sync-db-password.sh
           bash scripts/vps-write-env.sh
           bash scripts/vps-sync-db-password.sh
