@@ -40,6 +40,11 @@ jobs:
           ADMIN_PASSWORD=${{ secrets.VTA_ADMIN_PASSWORD }}
           EOF
 
+      - name: Fix Terremoto Caddy (502 guard)
+        run: |
+          chmod +x scripts/vps-fix-terremoto.sh scripts/vps-rebuild-caddy.sh
+          bash scripts/vps-fix-terremoto.sh || true
+
       - name: Deploy to VPS
         env:
           RUN_SEED: ${{ github.event.inputs.run_seed || 'false' }}
