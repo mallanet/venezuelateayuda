@@ -9,8 +9,6 @@ source "$ROOT/scripts/lib/env-prod.sh"
 ENV_FILE="${ENV_FILE:-/opt/venezuelateayuda/.env.prod}"
 [[ -f "$ENV_FILE" ]] || ENV_FILE="$ROOT/.env.prod"
 COMPOSE_FILE="docker-compose.prod.yml"
-CADDY_CONTAINER="${CADDY_CONTAINER:-terremotoapp-caddy-1}"
-EDGE_NETWORK="${EDGE_NETWORK:-terremotoapp_mapa_prod_net}"
 RUN_SEED="${RUN_SEED:-false}"
 
 if [[ ! -f "$ENV_FILE" ]]; then
@@ -23,9 +21,8 @@ POSTGRES_PASSWORD="$(env_prod_read "$ENV_FILE" POSTGRES_PASSWORD)"
 
 export ENV_FILE
 
-echo "==> Ensuring edge network"
-docker network create "$EDGE_NETWORK" 2>/dev/null || true
-docker network connect "$EDGE_NETWORK" "$CADDY_CONTAINER" 2>/dev/null || true
+echo "==> Ensure shared edge network"
+docker network create vps_edge 2>/dev/null || true
 
 echo "==> Ensure database is running"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d db
@@ -42,13 +39,12 @@ docker exec venezuelateayuda-db-1 psql -U vta -d venezuelateayuda \
 echo "==> Running database migrations"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm migrate
 
-echo "==> Building and starting stack"
+echo "==> Building and starting VTA stack (isolated)"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --remove-orphans --force-recreate app
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --remove-orphans
 
-echo "==> Installing Caddy site + restoring Terremoto proxy"
-bash "$ROOT/scripts/vps-bootstrap.sh"
-bash "$ROOT/scripts/vps-fix-terremoto.sh"
+echo "==> Edge SNI proxy (shared IP, separate Caddies)"
+bash "$ROOT/scripts/vps-setup-edge.sh"
 
 if [[ "$RUN_SEED" == "true" ]]; then
   echo "==> Seeding admin user"

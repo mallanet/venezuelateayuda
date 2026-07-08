@@ -49,6 +49,19 @@ services:
         condition: service_completed_successfully
     networks:
       - internal
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: venezuelateayuda-caddy-1
+    restart: unless-stopped
+    volumes:
+      - ./deploy/caddy/Caddyfile.standalone:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+    networks:
+      - internal
       - edge
 
   seed:
@@ -69,26 +82,11 @@ services:
       - internal
     restart: "no"
 
-  caddy:
-    profiles: ["standalone"]
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./deploy/caddy/Caddyfile.standalone:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - app
-    networks:
-      - edge
-
 networks:
   internal:
+    name: vta_internal
   edge:
-    name: terremotoapp_mapa_prod_net
+    name: vps_edge
     external: true
 
 volumes:

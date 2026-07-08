@@ -18,10 +18,12 @@ RUN npx prisma generate
 RUN npm run build
 
 FROM base AS migrate
+RUN addgroup -S nodejs && adduser -S prisma -G nodejs
 COPY --from=deps /app/node_modules ./node_modules
 COPY prisma ./prisma
 COPY src/lib/abroad.ts ./src/lib/abroad.ts
 COPY package.json tsconfig.json ./
+USER prisma
 CMD ["npx", "prisma", "migrate", "deploy"]
 
 FROM node:22-alpine AS runner

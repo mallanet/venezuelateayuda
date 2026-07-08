@@ -42,7 +42,7 @@ jobs:
         env:
           RUN_SEED: ${{ github.event.inputs.run_seed || 'false' }}
         run: |
-          chmod +x scripts/vps-sync-db-password.sh scripts/vps-deploy.sh scripts/vps-bootstrap.sh scripts/vps-fix-terremoto.sh scripts/vps-rebuild-caddy.sh
+          chmod +x scripts/vps-sync-db-password.sh scripts/vps-deploy.sh scripts/vps-setup-edge.sh
           bash scripts/vps-sync-db-password.sh
           bash scripts/vps-deploy.sh
 
