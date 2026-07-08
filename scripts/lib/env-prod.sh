@@ -36,15 +36,15 @@ env_prod_write() {
   db_url="$(env_prod_database_url "${POSTGRES_PASSWORD}")"
   umask 077
   cat >"$dest" <<EOF
-POSTGRES_PASSWORD='$(env_prod_quote "${POSTGRES_PASSWORD}")'
-DATABASE_URL='$(env_prod_quote "${db_url}")'
-DATABASE_URL_UNPOOLED='$(env_prod_quote "${db_url}")'
-AUTH_SECRET='$(env_prod_quote "${AUTH_SECRET}")'
-AUTH_URL='$(env_prod_quote "${AUTH_URL}")'
-NEXT_PUBLIC_APP_URL='$(env_prod_quote "${NEXT_PUBLIC_APP_URL}")'
-EMAIL_FROM='$(env_prod_quote "${EMAIL_FROM}")'
-ADMIN_EMAIL='$(env_prod_quote "${ADMIN_EMAIL}")'
-ADMIN_PASSWORD='$(env_prod_quote "${ADMIN_PASSWORD}")'
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+DATABASE_URL=${db_url}
+DATABASE_URL_UNPOOLED=${db_url}
+AUTH_SECRET=${AUTH_SECRET}
+AUTH_URL=${AUTH_URL}
+NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+EMAIL_FROM=${EMAIL_FROM}
+ADMIN_EMAIL=${ADMIN_EMAIL}
+ADMIN_PASSWORD=${ADMIN_PASSWORD}
 EOF
   chmod 600 "$dest"
 }

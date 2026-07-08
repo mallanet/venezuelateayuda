@@ -45,6 +45,9 @@ console.log('DATABASE_URL_UNPOOLED=' + Boolean(process.env.DATABASE_URL_UNPOOLED
 echo "==> Prisma client path (app)"
 docker exec venezuelateayuda-app-1 node -e "console.log(require.resolve('@prisma/client'))" 2>&1 || true
 
+echo "==> App POSTGRES_PASSWORD length (container env)"
+docker exec venezuelateayuda-app-1 node -e "console.log('appPassLen=' + (process.env.POSTGRES_PASSWORD?.length ?? 0))" 2>&1 || true
+
 echo "==> App containers"
 docker ps -a --filter name=venezuelateayuda-app --format '{{.Names}} {{.Status}} {{.ID}}' || true
 
