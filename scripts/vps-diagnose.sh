@@ -42,6 +42,9 @@ console.log('DATABASE_URL=' + Boolean(process.env.DATABASE_URL));
 console.log('DATABASE_URL_UNPOOLED=' + Boolean(process.env.DATABASE_URL_UNPOOLED));
 " 2>&1 || true
 
+echo "==> Prisma client path (app)"
+docker exec venezuelateayuda-app-1 node -e "console.log(require.resolve('@prisma/client'))" 2>&1 || true
+
 echo "==> Prisma probe (app container)"
 docker exec venezuelateayuda-app-1 node -e "
 const { PrismaClient } = require('@prisma/client');
