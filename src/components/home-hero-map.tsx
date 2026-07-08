@@ -8,6 +8,7 @@ import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ListingCard } from "@/components/listing-card";
+import { DonationLink } from "@/components/donation-link";
 
 const ListingDetailModal = dynamic(
   () => import("@/components/listing-detail-modal").then((mod) => mod.ListingDetailModal),
@@ -134,6 +135,14 @@ export function HomeHeroMap() {
               className="border-destructive/30 text-destructive hover:bg-destructive/5 hover:text-destructive"
             >
               <Link href="/registro">Necesito ayuda</Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="border-[#25D366]/45 text-[#128C7E] hover:bg-[#25D366]/10 hover:text-[#128C7E]"
+            >
+              <DonationLink showIcon={false}>Donar</DonationLink>
             </Button>
           </div>
           <p className="reveal delay-5 text-sm text-muted-foreground">

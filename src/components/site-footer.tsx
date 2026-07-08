@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { Mail, Map, Package, Search } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { DonationLink } from "@/components/donation-link";
 
 const ALLY_GROUPS = [
   {
@@ -94,6 +95,9 @@ export function SiteFooter() {
                 por correo.
               </p>
               <div className="flex flex-wrap items-center gap-4">
+                <DonationLink className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white shadow-soft hover-lift hover:shadow-accent-glow">
+                  Donar por WhatsApp
+                </DonationLink>
                 <a
                   href="https://discord.gg/mallanet"
                   target="_blank"

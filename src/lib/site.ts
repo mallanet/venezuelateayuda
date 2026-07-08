@@ -32,3 +32,7 @@ export const SITE_OPEN_GRAPH_IMAGE = {
   alt: OG_IMAGE_ALT,
   type: "image/png",
 } as const;
+
+/** Donaciones vía WhatsApp (coordinación terremoto). */
+export const DONATION_WHATSAPP_URL =
+  "https://api.whatsapp.com/send/?phone=15559386039&text&type=phone_number&app_absent=0";

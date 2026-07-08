@@ -15,6 +15,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Logotype } from "@/components/logo";
+import { DonationLink } from "@/components/donation-link";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -69,6 +70,16 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+            className="border-[#25D366]/45 text-[#128C7E] hover:bg-[#25D366]/10 hover:text-[#128C7E]"
+          >
+            <DonationLink className="inline-flex items-center gap-1.5">
+              Donar
+            </DonationLink>
+          </Button>
           {user ? (
             <>
               {user.status === "PENDIENTE" && (
@@ -120,6 +131,18 @@ export function Navbar() {
                 );
               })}
               <div className="mt-4 flex flex-col gap-2">
+                <Button
+                  variant="outline"
+                  asChild
+                  className="border-[#25D366]/45 text-[#128C7E] hover:bg-[#25D366]/10 hover:text-[#128C7E]"
+                >
+                  <DonationLink
+                    className="inline-flex items-center justify-center gap-2"
+                    onClick={() => setOpen(false)}
+                  >
+                    Donar por WhatsApp
+                  </DonationLink>
+                </Button>
                 {user ? (
                   <>
                     {user.status === "PENDIENTE" && (

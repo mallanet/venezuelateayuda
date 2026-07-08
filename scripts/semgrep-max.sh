@@ -1,22 +1,13 @@
 #!/usr/bin/env bash
+# semgrep-max.sh — SAST for this repo only. Packs: security-baseline/semgrep.packs (SSOT).
 set -euo pipefail
-
-# Run Semgrep with the maximum open-registry security stack.
-# Every finding at ERROR severity fails the build. Supply-chain (SCA)
-# and Next.js/React-specific rules are included for this stack.
 cd "$(dirname "$0")/.."
-
-exec semgrep \
-  --error \
-  --severity=ERROR \
-  --config=p/security-audit \
-  --config=p/owasp-top-ten \
-  --config=p/secrets \
-  --config=p/trailofbits \
-  --config=p/typescript \
-  --config=p/javascript \
-  --config=p/python \
-  --config=p/supply-chain \
-  --config=p/nextjs \
-  --config=p/react \
-  .
+PACKS="/home/kleosr/Documentos/security-baseline/semgrep.packs"
+export EIO_BACKEND="${EIO_BACKEND:-posix}"
+SEMGREP_JOBS="${SEMGREP_JOBS:-1}"
+CONFIGS=()
+while IFS= read -r line; do
+  [[ -z "$line" || "$line" == \#* ]] && continue
+  CONFIGS+=("--config=$line")
+done < "$PACKS"
+exec semgrep --jobs "$SEMGREP_JOBS" --error --severity=ERROR "${CONFIGS[@]}" .
