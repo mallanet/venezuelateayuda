@@ -47,7 +47,7 @@ jobs:
       - name: Fix DB auth (canonical env)
         run: |
           chmod +x scripts/vps-fix-db.sh
-          ENV_FILE=/opt/venezuelateayuda/.env.prod bash scripts/vps-fix-db.sh
+          bash scripts/vps-fix-db.sh
 
       - name: Deploy to VPS
         env:
