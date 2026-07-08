@@ -44,10 +44,10 @@ jobs:
           EMAIL_FROM: ${{ secrets.VTA_EMAIL_FROM }}
           ADMIN_EMAIL: ${{ secrets.VTA_ADMIN_EMAIL }}
 
-      - name: Fix Terremoto Caddy (502 guard)
+      - name: Fix DB auth (canonical env)
         run: |
-          chmod +x scripts/vps-fix-terremoto.sh scripts/vps-bootstrap.sh
-          bash scripts/vps-fix-terremoto.sh || true
+          chmod +x scripts/vps-fix-db.sh
+          ENV_FILE=/opt/venezuelateayuda/.env.prod bash scripts/vps-fix-db.sh
 
       - name: Deploy to VPS
         env:
