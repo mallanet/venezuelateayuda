@@ -9,6 +9,46 @@ import { getState } from "@/lib/venezuela";
 import { getAvatarUrl } from "@/lib/avatar";
 import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 
+function newVerifyToken() {
+  return {
+    token: crypto.randomBytes(32).toString("hex"),
+    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+  };
+}
+
+async function sendVerificationOrFail(
+  email: string,
+  token: string,
+  opts?: { rollbackUserId?: string }
+): Promise<NextResponse | null> {
+  try {
+    const { sent } = await sendVerificationEmail(email, token);
+    if (!sent && isEmailDeliveryConfigured()) {
+      if (opts?.rollbackUserId) {
+        await prisma.user.delete({ where: { id: opts.rollbackUserId } }).catch(() => undefined);
+      }
+      return apiErrorResponse(
+        ApiErrorCode.INTERNAL,
+        "No se pudo enviar el email de verificación. Intenta de nuevo en unos minutos.",
+        503
+      );
+    }
+  } catch (err) {
+    console.error("[api/register] email failed", err);
+    if (isEmailDeliveryConfigured()) {
+      if (opts?.rollbackUserId) {
+        await prisma.user.delete({ where: { id: opts.rollbackUserId } }).catch(() => undefined);
+      }
+      return apiErrorResponse(
+        ApiErrorCode.INTERNAL,
+        "No se pudo enviar el email de verificación. Intenta de nuevo en unos minutos.",
+        503
+      );
+    }
+  }
+  return null;
+}
+
 export async function POST(req: Request): Promise<NextResponse> {
   const json: unknown = await req.json().catch(() => null);
   const parsed = registerSchema.safeParse(json);
@@ -22,20 +62,81 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   const data = parsed.data;
   const email = data.email.toLowerCase().trim();
-
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return apiErrorResponse(ApiErrorCode.CONFLICT, "Ya existe una cuenta con ese email", 409);
-  }
-
   const passwordHash = await bcrypt.hash(data.password, 12);
   const abroad = isAbroadState(data.state);
   const coords = abroad
     ? abroadMapPosition(email)
     : { lat: getState(data.state)?.lat ?? null, lng: getState(data.state)?.lng ?? null };
-  const token = crypto.randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const profileData = {
+    displayName: data.displayName,
+    avatarUrl: getAvatarUrl(data.displayName, undefined, email),
+    phone: data.phone || null,
+    state: data.state,
+    municipality: data.municipality,
+    lat: coords.lat,
+    lng: coords.lng,
+  };
 
+  const existing = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, emailVerified: true },
+  });
+
+  // Cuenta huérfana (nunca verificó): actualizar datos y reenviar verificación.
+  if (existing && !existing.emailVerified) {
+    try {
+      const { token, expiresAt } = newVerifyToken();
+      await prisma.$transaction(async (tx) => {
+        await tx.user.update({
+          where: { id: existing.id },
+          data: {
+            passwordHash,
+            role: data.role,
+            termsAcceptedAt: new Date(),
+          },
+        });
+        await tx.profile.upsert({
+          where: { userId: existing.id },
+          create: { userId: existing.id, ...profileData },
+          update: profileData,
+        });
+        await tx.verificationToken.deleteMany({
+          where: { userId: existing.id, purpose: "EMAIL_VERIFY" },
+        });
+        await tx.verificationToken.create({
+          data: {
+            token,
+            userId: existing.id,
+            purpose: "EMAIL_VERIFY",
+            expiresAt,
+          },
+        });
+      });
+      const fail = await sendVerificationOrFail(email, token);
+      if (fail) return fail;
+      return NextResponse.json(
+        {
+          ok: true,
+          message: "Reenviamos el email de verificación. Revisa tu bandeja.",
+          resent: true,
+        },
+        { status: 200 }
+      );
+    } catch (err) {
+      console.error("[api/register] reclaim failed", err);
+      return apiErrorResponse(
+        ApiErrorCode.INTERNAL,
+        "No se pudo actualizar la cuenta. Intenta de nuevo.",
+        500
+      );
+    }
+  }
+
+  if (existing) {
+    return apiErrorResponse(ApiErrorCode.CONFLICT, "Ya existe una cuenta con ese email", 409);
+  }
+
+  const { token, expiresAt } = newVerifyToken();
   let userId: string;
   try {
     userId = await prisma.$transaction(async (tx) => {
@@ -45,21 +146,16 @@ export async function POST(req: Request): Promise<NextResponse> {
           passwordHash,
           role: data.role,
           termsAcceptedAt: new Date(),
-          profile: {
-            create: {
-              displayName: data.displayName,
-              avatarUrl: getAvatarUrl(data.displayName, undefined, email),
-              phone: data.phone || null,
-              state: data.state,
-              municipality: data.municipality,
-              lat: coords.lat,
-              lng: coords.lng,
-            },
-          },
+          profile: { create: profileData },
         },
       });
       await tx.verificationToken.create({
-        data: { token, userId: created.id, expiresAt },
+        data: {
+          token,
+          userId: created.id,
+          purpose: "EMAIL_VERIFY",
+          expiresAt,
+        },
       });
       return created.id;
     });
@@ -72,27 +168,8 @@ export async function POST(req: Request): Promise<NextResponse> {
     );
   }
 
-  try {
-    const { sent } = await sendVerificationEmail(email, token);
-    if (!sent && isEmailDeliveryConfigured()) {
-      await prisma.user.delete({ where: { id: userId } }).catch(() => undefined);
-      return apiErrorResponse(
-        ApiErrorCode.INTERNAL,
-        "No se pudo enviar el email de verificación. Intenta de nuevo en unos minutos.",
-        503
-      );
-    }
-  } catch (err) {
-    console.error("[api/register] email failed", err);
-    if (isEmailDeliveryConfigured()) {
-      await prisma.user.delete({ where: { id: userId } }).catch(() => undefined);
-      return apiErrorResponse(
-        ApiErrorCode.INTERNAL,
-        "No se pudo enviar el email de verificación. Intenta de nuevo en unos minutos.",
-        503
-      );
-    }
-  }
+  const fail = await sendVerificationOrFail(email, token, { rollbackUserId: userId });
+  if (fail) return fail;
 
   return NextResponse.json({ ok: true }, { status: 201 });
 }

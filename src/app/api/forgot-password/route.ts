@@ -1,11 +1,11 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sendVerificationEmail } from "@/lib/email";
+import { sendPasswordResetEmail } from "@/lib/email";
 import { emailOnlySchema } from "@/lib/validation";
 import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 
-/** Reenvía el enlace de verificación. Respuesta genérica para no filtrar cuentas. */
+/** Solicita reset de contraseña. Respuesta genérica para no filtrar cuentas. */
 export async function POST(req: Request): Promise<NextResponse> {
   const json: unknown = await req.json().catch(() => null);
   const parsed = emailOnlySchema.safeParse(json);
@@ -20,24 +20,24 @@ export async function POST(req: Request): Promise<NextResponse> {
   const email = parsed.data.email.toLowerCase().trim();
   const user = await prisma.user.findUnique({
     where: { email },
-    select: { id: true, emailVerified: true },
+    select: { id: true },
   });
 
-  if (user && !user.emailVerified) {
+  if (user) {
     const token = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
     await prisma.$transaction([
       prisma.verificationToken.deleteMany({
-        where: { userId: user.id, purpose: "EMAIL_VERIFY" },
+        where: { userId: user.id, purpose: "PASSWORD_RESET" },
       }),
       prisma.verificationToken.create({
-        data: { token, userId: user.id, purpose: "EMAIL_VERIFY", expiresAt },
+        data: { token, userId: user.id, purpose: "PASSWORD_RESET", expiresAt },
       }),
     ]);
     try {
-      await sendVerificationEmail(email, token);
+      await sendPasswordResetEmail(email, token);
     } catch (err) {
-      console.error("[api/resend-verification]", err);
+      console.error("[api/forgot-password]", err);
       return apiErrorResponse(
         ApiErrorCode.INTERNAL,
         "No se pudo enviar el email. Intenta de nuevo en unos minutos.",
@@ -48,6 +48,6 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   return NextResponse.json({
     ok: true,
-    message: "Si la cuenta existe y no está verificada, enviamos un nuevo enlace.",
+    message: "Si la cuenta existe, enviamos un enlace para restablecer la contraseña.",
   });
 }

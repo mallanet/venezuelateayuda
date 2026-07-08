@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,8 +11,39 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function RegistroExitoPage() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleResend(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) {
+      toast.error("Escribe el email con el que te registraste");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data.error ?? "No se pudo reenviar");
+        return;
+      }
+      toast.success("Si la cuenta no está verificada, enviamos un nuevo enlace.");
+    } catch {
+      toast.error("Error de conexión. Intenta de nuevo.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="mx-auto w-full max-w-lg px-4 py-16">
       <Card>
@@ -23,9 +58,28 @@ export default function RegistroExitoPage() {
             activarla — esto nos ayuda a mantener la comunidad segura.
           </p>
           <p>
-            Recibirás acceso completo (publicar fichas y contactar personas)
-            una vez que tu cuenta sea aprobada.
+            Si no llegó el correo, revisa spam o reenvíalo aquí. También puedes{" "}
+            <Link href="/recuperar" className="font-medium text-accent link-underline">
+              recuperar tu contraseña
+            </Link>{" "}
+            (eso también verifica el email).
           </p>
+          <form onSubmit={handleResend} className="grid gap-3 rounded-xl border border-border/60 p-4">
+            <Label htmlFor="resend-email" className="text-foreground">
+              Reenviar verificación
+            </Label>
+            <Input
+              id="resend-email"
+              type="email"
+              placeholder="tu@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <Button type="submit" variant="outline" disabled={loading}>
+              {loading ? "Enviando..." : "Reenviar email"}
+            </Button>
+          </form>
           <Button asChild className="justify-self-start">
             <Link href="/login">Ir a iniciar sesión</Link>
           </Button>

@@ -22,11 +22,15 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     const verified = searchParams.get("verified");
     if (verified === "ok") toast.success("Email verificado correctamente. Ya puedes iniciar sesión.");
-    if (verified === "expired") toast.error("El enlace de verificación expiró. Regístrate de nuevo o contacta soporte.");
+    if (verified === "expired") {
+      toast.error("El enlace expiró. Usa «Reenviar verificación» o recupera tu contraseña.");
+    }
     if (verified === "error") toast.error("Enlace de verificación inválido.");
   }, [searchParams]);
 
@@ -52,6 +56,31 @@ function LoginForm() {
       toast.error("Error de conexión. Intenta de nuevo.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleResend() {
+    if (!email.trim()) {
+      toast.error("Escribe tu email primero");
+      return;
+    }
+    setResending(true);
+    try {
+      const res = await fetch("/api/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data.error ?? "No se pudo reenviar");
+        return;
+      }
+      toast.success("Si la cuenta no está verificada, enviamos un nuevo enlace.");
+    } catch {
+      toast.error("Error de conexión. Intenta de nuevo.");
+    } finally {
+      setResending(false);
     }
   }
 
@@ -82,11 +111,21 @@ function LoginForm() {
                 type="email"
                 placeholder="tu@email.com"
                 className="focus-visible:ring-accent"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <div className="flex items-center justify-between gap-2">
+                <Label htmlFor="password">Contraseña</Label>
+                <Link
+                  href="/recuperar"
+                  className="text-xs font-medium text-accent underline-offset-2 link-underline"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
               <Input
                 id="password"
                 name="password"
@@ -98,6 +137,15 @@ function LoginForm() {
             </div>
             <Button type="submit" disabled={loading} className="w-full cursor-pointer shadow-soft">
               {loading ? "Entrando..." : "Entrar"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={resending}
+              onClick={handleResend}
+              className="w-full"
+            >
+              {resending ? "Enviando..." : "Reenviar verificación"}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               ¿No tienes cuenta?{" "}

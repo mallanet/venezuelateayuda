@@ -58,7 +58,11 @@ export default function RegistroPage() {
         toast.error(data.error ?? "No se pudo completar el registro");
         return;
       }
-      toast.success("Cuenta creada. Revisa tu email para verificarla.");
+      toast.success(
+        data.resent
+          ? "Reenviamos el email de verificación. Revisa tu bandeja."
+          : "Cuenta creada. Revisa tu email para verificarla."
+      );
       router.push("/registro/exito");
     } catch {
       toast.error("Error de conexión. Intenta de nuevo.");

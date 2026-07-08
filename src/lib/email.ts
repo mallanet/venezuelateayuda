@@ -93,3 +93,12 @@ export async function sendVerificationEmail(to: string, token: string): Promise<
     `Hola, gracias por registrarte en Venezuela Te Ayuda.\n\nVerifica tu email haciendo clic en el siguiente enlace:\n${url}\n\nEl enlace expira en 24 horas. Si no creaste esta cuenta, ignora este mensaje.`
   );
 }
+
+export async function sendPasswordResetEmail(to: string, token: string): Promise<SendEmailResult> {
+  const url = `${appUrl()}/recuperar/${token}`;
+  return sendEmail(
+    to,
+    "Restablece tu contraseña — Venezuela Te Ayuda",
+    `Hola,\n\nRecibimos una solicitud para restablecer la contraseña de tu cuenta en Venezuela Te Ayuda.\n\nUsa este enlace (válido 1 hora):\n${url}\n\nSi no pediste este cambio, ignora este mensaje.`
+  );
+}

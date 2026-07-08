@@ -42,7 +42,7 @@ test.describe("Registro y verificación de cuenta", () => {
     await expect(page.getByTestId("account-status")).toContainText("En revisión");
   });
 
-  test("no se puede registrar dos veces el mismo email", async ({ request }) => {
+  test("no se puede registrar dos veces el mismo email verificado", async ({ request }) => {
     const email = uniqueEmail("duplicado");
     const payload = {
       email,
@@ -58,7 +58,47 @@ test.describe("Registro y verificación de cuenta", () => {
     const first = await request.post("/api/register", { data: payload });
     expect(first.status()).toBe(201);
 
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { email },
+      include: { verificationTokens: true },
+    });
+    const token = user.verificationTokens[0]?.token;
+    expect(token).toBeTruthy();
+    await request.get(`/api/verify-email?token=${token}`);
+
     const second = await request.post("/api/register", { data: payload });
     expect(second.status()).toBe(409);
+  });
+
+  test("permite re-registrar un email no verificado y reenvía el enlace", async ({ request }) => {
+    const email = uniqueEmail("huerfano");
+    const payload = {
+      email,
+      password: TEST_PASSWORD,
+      role: "AYUDANTE",
+      displayName: "Cuenta Huerfana",
+      phone: "",
+      state: "Miranda",
+      municipality: "Chacao",
+      acceptTerms: true,
+    };
+
+    const first = await request.post("/api/register", { data: payload });
+    expect(first.status()).toBe(201);
+
+    const second = await request.post("/api/register", {
+      data: { ...payload, displayName: "Cuenta Recuperada", password: "password-nueva-123" },
+    });
+    expect(second.status()).toBe(200);
+    const body = await second.json();
+    expect(body.resent).toBe(true);
+
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { email },
+      include: { verificationTokens: true, profile: true },
+    });
+    expect(user.emailVerified).toBeNull();
+    expect(user.profile?.displayName).toBe("Cuenta Recuperada");
+    expect(user.verificationTokens.length).toBeGreaterThan(0);
   });
 });

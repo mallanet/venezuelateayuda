@@ -11,7 +11,11 @@ export async function GET(req: Request) {
   }
 
   const record = await prisma.verificationToken.findUnique({ where: { token } });
-  if (!record || record.expiresAt < new Date()) {
+  if (
+    !record ||
+    record.purpose !== "EMAIL_VERIFY" ||
+    record.expiresAt < new Date()
+  ) {
     return NextResponse.redirect(`${appUrl}/login?verified=expired`);
   }
 
@@ -20,7 +24,9 @@ export async function GET(req: Request) {
       where: { id: record.userId },
       data: { emailVerified: new Date() },
     }),
-    prisma.verificationToken.deleteMany({ where: { userId: record.userId } }),
+    prisma.verificationToken.deleteMany({
+      where: { userId: record.userId, purpose: "EMAIL_VERIFY" },
+    }),
   ]);
 
   return NextResponse.redirect(`${appUrl}/login?verified=ok`);
