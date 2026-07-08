@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
-import { Menu } from "lucide-react";
+import { ChevronDown, Menu, User } from "lucide-react";
+import { DropdownMenu } from "radix-ui";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -18,13 +19,116 @@ import { Logotype } from "@/components/logo";
 import { DonationLink } from "@/components/donation-link";
 import { cn } from "@/lib/utils";
 
-const NAV_LINKS = [
+const PUBLIC_LINKS = [
   { href: "/mapa", label: "Mapa de ayuda" },
   { href: "/profesionales", label: "Profesionales" },
-  { href: "/ayuda/nueva", label: "Publicar ficha", authOnly: true },
-  { href: "/mensajes", label: "Mensajes", authOnly: true },
-  { href: "/perfil", label: "Mi perfil", authOnly: true },
-];
+] as const;
+
+const ACCOUNT_LINKS = [
+  { href: "/ayuda/nueva", label: "Publicar ficha" },
+  { href: "/mensajes", label: "Mensajes" },
+  { href: "/perfil", label: "Mi perfil" },
+] as const;
+
+function NavLink({
+  href,
+  label,
+  active,
+  onClick,
+  className,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+  onClick?: () => void;
+  className?: string;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className={cn(
+        "border-b-2 border-transparent px-0 py-1 text-base font-semibold text-primary transition-[border-color,color] duration-[var(--motion-duration-base)] ease-[var(--motion-ease-out)] hover:border-[var(--mallanet-blue-200)] hover:text-[var(--mallanet-blue-800)] hover:no-underline focus-visible:shadow-[0_0_0_3px_rgba(24,116,199,0.35)]",
+        active && "border-[var(--mallanet-blue-400)]",
+        className
+      )}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function UserMenu({ onNavigate }: { onNavigate?: () => void }) {
+  const { data: session } = useSession();
+  const pathname = usePathname();
+  const user = session?.user;
+  if (!user) return null;
+
+  const accountLinks: { href: string; label: string }[] = [...ACCOUNT_LINKS];
+  if (user.role === "ADMIN") {
+    accountLinks.push({ href: "/admin", label: "Administración" });
+  }
+
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="max-w-[min(220px,32vw)] gap-1.5"
+          aria-label="Menú de cuenta"
+        >
+          <User className="size-4 shrink-0" aria-hidden />
+          <span className="truncate">{user.email}</span>
+          <ChevronDown className="size-3.5 shrink-0 opacity-60" aria-hidden />
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          align="end"
+          sideOffset={8}
+          className="z-[1300] min-w-[220px] rounded-xl border border-border/60 bg-popover p-1.5 text-popover-foreground shadow-elevated"
+        >
+          <DropdownMenu.Label className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+            {user.email}
+          </DropdownMenu.Label>
+          {user.status === "PENDIENTE" && (
+            <div className="px-2 pb-2">
+              <Badge variant="secondary" className="bg-accent/10 text-accent-foreground">
+                Cuenta en revisión
+              </Badge>
+            </div>
+          )}
+          <DropdownMenu.Separator className="my-1 h-px bg-border" />
+          {accountLinks.map((link) => (
+            <DropdownMenu.Item key={link.href} asChild>
+              <Link
+                href={link.href}
+                onClick={onNavigate}
+                className={cn(
+                  "flex cursor-pointer select-none items-center rounded-lg px-2 py-2 text-sm font-medium outline-none transition-colors hover:bg-muted focus:bg-muted",
+                  pathname === link.href && "bg-muted text-primary"
+                )}
+              >
+                {link.label}
+              </Link>
+            </DropdownMenu.Item>
+          ))}
+          <DropdownMenu.Separator className="my-1 h-px bg-border" />
+          <DropdownMenu.Item
+            className="flex cursor-pointer select-none items-center rounded-lg px-2 py-2 text-sm font-medium text-destructive outline-none transition-colors hover:bg-destructive/10 focus:bg-destructive/10"
+            onSelect={() => {
+              onNavigate?.();
+              signOut({ callbackUrl: "/" });
+            }}
+          >
+            Cerrar sesión
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  );
+}
 
 export function Navbar() {
   const { data: session } = useSession();
@@ -32,10 +136,9 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const user = session?.user;
 
-  const links = NAV_LINKS.filter((l) => !l.authOnly || user);
-  if (user?.role === "ADMIN") {
-    links.push({ href: "/admin", label: "Administración" });
-  }
+  const mobileLinks = user
+    ? [...PUBLIC_LINKS, ...ACCOUNT_LINKS, ...(user.role === "ADMIN" ? [{ href: "/admin", label: "Administración" }] : [])]
+    : [...PUBLIC_LINKS];
 
   return (
     <header className="sticky top-0 z-[1100] border-b border-[#EFF3F8] bg-background">
@@ -45,51 +148,34 @@ export function Navbar() {
       >
         Saltar al contenido
       </a>
-      <div className="mx-auto flex min-h-[68px] max-w-[1120px] items-center justify-between gap-4 px-6">
+      <div className="mx-auto flex h-[68px] max-w-[1120px] flex-nowrap items-center justify-between gap-3 px-4 sm:gap-4 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center gap-2.5 no-underline hover:opacity-90">
           <Logotype size={42} />
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex" aria-label="Principal">
-          {links.map((link) => {
-            const active = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "border-b-2 border-transparent px-0 py-1 text-base font-semibold text-primary transition-[border-color,color] duration-[var(--motion-duration-base)] ease-[var(--motion-ease-out)] hover:border-[var(--mallanet-blue-200)] hover:text-[var(--mallanet-blue-800)] hover:no-underline focus-visible:shadow-[0_0_0_3px_rgba(24,116,199,0.35)]",
-                  active && "border-[var(--mallanet-blue-400)]"
-                )}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-5 md:flex lg:gap-6" aria-label="Principal">
+          {PUBLIC_LINKS.map((link) => (
+            <NavLink
+              key={link.href}
+              href={link.href}
+              label={link.label}
+              active={pathname === link.href}
+              className="whitespace-nowrap"
+            />
+          ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden shrink-0 items-center gap-2 md:flex">
           <Button
             variant="outline"
             size="sm"
             asChild
             className="border-[#25D366]/45 text-[#128C7E] hover:bg-[#25D366]/10 hover:text-[#128C7E]"
           >
-            <DonationLink className="inline-flex items-center gap-1.5">
-              Donar
-            </DonationLink>
+            <DonationLink className="inline-flex items-center gap-1.5">Donar</DonationLink>
           </Button>
           {user ? (
-            <>
-              {user.status === "PENDIENTE" && (
-                <Badge variant="secondary" className="bg-accent/10 text-accent-foreground">
-                  Cuenta en revisión
-                </Badge>
-              )}
-              <Button variant="outline" size="sm" onClick={() => signOut({ callbackUrl: "/" })}>
-                Cerrar sesión
-              </Button>
-            </>
+            <UserMenu />
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>
@@ -108,12 +194,15 @@ export function Navbar() {
               <Menu className="size-4.5" strokeWidth={2} aria-hidden />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[calc(100vw-3rem)] md:w-72 z-[1200]">
+          <SheetContent side="right" className="z-[1200] w-[calc(100vw-3rem)] md:w-72">
             <SheetHeader>
               <SheetTitle>Menú</SheetTitle>
+              {user ? (
+                <p className="truncate text-left text-sm text-muted-foreground">{user.email}</p>
+              ) : null}
             </SheetHeader>
             <nav className="flex flex-col gap-1 px-4" aria-label="Menú móvil">
-              {links.map((link) => {
+              {mobileLinks.map((link) => {
                 const active = pathname === link.href;
                 return (
                   <Link
