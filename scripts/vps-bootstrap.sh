@@ -1,21 +1,20 @@
 #!/usr/bin/env bash
-# Registers venezuelateayuda.org in persistent /docker/caddy/Caddyfile.prod and rebuilds Caddy.
+# Ensure venezuelateayuda.org is in the shared Caddyfile (no docker run rebuild).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CADDY_DIR="${CADDY_DIR:-/docker/caddy}"
-PROXY_NETWORK="${PROXY_NETWORK:-terremotoapp_mapa_prod_net}"
 SITE_FILE="$ROOT/deploy/caddy/venezuelateayuda.caddy"
 CADDYFILE="$CADDY_DIR/Caddyfile.prod"
+MALLANET_CADDY="${MALLANET_CADDY:-/opt/mallanet/Caddyfile.prod}"
 
 sudo mkdir -p "$CADDY_DIR"
 
 if [[ ! -f "$CADDYFILE" ]]; then
-  echo "==> Seeding Caddyfile from running container or /opt/mallanet"
   if docker exec terremotoapp-caddy-1 test -f /etc/caddy/Caddyfile 2>/dev/null; then
     docker exec terremotoapp-caddy-1 cat /etc/caddy/Caddyfile | sudo tee "$CADDYFILE" >/dev/null
-  elif [[ -f /opt/mallanet/Caddyfile.prod ]]; then
-    sudo cp /opt/mallanet/Caddyfile.prod "$CADDYFILE"
+  elif [[ -f "$MALLANET_CADDY" ]]; then
+    sudo cp "$MALLANET_CADDY" "$CADDYFILE"
   else
     echo "No base Caddyfile found"
     exit 1
@@ -27,14 +26,5 @@ if ! sudo grep -q 'venezuelateayuda.org' "$CADDYFILE"; then
   sudo tee -a "$CADDYFILE" < "$SITE_FILE" >/dev/null
 fi
 
-if [[ ! -f "$CADDY_DIR/Dockerfile" ]]; then
-  sudo tee "$CADDY_DIR/Dockerfile" >/dev/null <<'EOF'
-FROM caddy:2-alpine
-COPY Caddyfile.prod /etc/caddy/Caddyfile
-EOF
-fi
-
-echo "==> Rebuilding Caddy from persistent config"
-bash "$ROOT/scripts/vps-rebuild-caddy.sh"
-
-echo "Bootstrap done."
+sudo cp "$CADDYFILE" "$MALLANET_CADDY" 2>/dev/null || true
+echo "Caddyfile updated (reload via vps-fix-terremoto.sh)."

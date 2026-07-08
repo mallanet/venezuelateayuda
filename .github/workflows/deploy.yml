@@ -42,12 +42,12 @@ jobs:
 
       - name: Fix Terremoto Caddy (502 guard)
         run: |
-          chmod +x scripts/vps-fix-terremoto.sh scripts/vps-rebuild-caddy.sh
+          chmod +x scripts/vps-fix-terremoto.sh scripts/vps-bootstrap.sh
           bash scripts/vps-fix-terremoto.sh || true
 
       - name: Deploy to VPS
         env:
           RUN_SEED: ${{ github.event.inputs.run_seed || 'false' }}
         run: |
-          chmod +x scripts/vps-deploy.sh scripts/vps-bootstrap.sh
+          chmod +x scripts/vps-deploy.sh scripts/vps-bootstrap.sh scripts/vps-fix-terremoto.sh
           bash scripts/vps-deploy.sh

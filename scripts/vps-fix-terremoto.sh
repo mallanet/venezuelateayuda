@@ -51,7 +51,11 @@ env_args=()
 
 docker rm -f terremotoapp-caddy-1 2>/dev/null || true
 docker compose -f "$COMPOSE_FILE" "${env_args[@]}" -p terremotoapp up -d \
-  valkey db backend worker frontend admin caddy
+  valkey db backend worker frontend admin caddy || {
+  echo "WARN: compose up failed — trying docker start fallback"
+  docker start terremotoapp-valkey-1 terremotoapp-db-1 terremotoapp-backend-1 \
+    terremotoapp-worker-1 terremotoapp-frontend-1 terremotoapp-admin-1 terremotoapp-caddy-1 2>/dev/null || true
+}
 
 echo "==> Status"
 docker ps --filter "name=terremotoapp-" --format "table {{.Names}}\t{{.Status}}"

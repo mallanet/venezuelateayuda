@@ -26,8 +26,9 @@ echo "==> Building and starting stack"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --remove-orphans
 
-echo "==> Installing Caddy site"
+echo "==> Installing Caddy site + restoring Terremoto proxy"
 bash "$ROOT/scripts/vps-bootstrap.sh"
+bash "$ROOT/scripts/vps-fix-terremoto.sh"
 
 if [[ "$RUN_SEED" == "true" ]]; then
   echo "==> Seeding admin user"
