@@ -31,14 +31,15 @@ while read -r line; do
   fi
 done < <(docker ps --format '{{.ID}} {{.Names}}')
 
-echo "==> Validate HAProxy config"
-docker run --rm -v "$EDGE_DIR/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro" \
-  haproxy:2.9-alpine -c -f /usr/local/etc/haproxy/haproxy.cfg
-
 echo "==> Start edge HAProxy"
 docker compose -f "$EDGE_DIR/docker-compose.yml" up -d --force-recreate
 
 sleep 3
+if ! docker ps --filter name=vps-edge-haproxy --filter status=running -q | grep -q .; then
+  echo "ERROR: edge HAProxy failed to start"
+  docker logs vps-edge-haproxy 2>&1 | tail -30 || true
+  exit 1
+fi
 docker ps --filter name=vps-edge --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
 echo "Edge proxy ready."
