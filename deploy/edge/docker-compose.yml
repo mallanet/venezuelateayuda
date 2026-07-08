@@ -10,6 +10,7 @@ services:
       - "443:443"
     volumes:
       - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    command: ["haproxy", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]
     networks:
       - vps_edge
 
