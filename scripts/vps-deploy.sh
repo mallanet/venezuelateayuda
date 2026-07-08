@@ -41,7 +41,8 @@ docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" rm -sf migrate 2>/dev/n
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm migrate
 
 echo "==> Building and starting VTA stack (isolated)"
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build
+# Include seed profile so admin upsert image is rebuilt (profiles are skipped otherwise).
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" --profile seed build
 docker rm -f venezuelateayuda-caddy-1 2>/dev/null || true
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --remove-orphans
 
@@ -50,7 +51,7 @@ bash "$ROOT/scripts/vps-setup-edge.sh"
 
 # Always upsert admin from ADMIN_EMAIL / ADMIN_PASSWORD (no demos unless SEED_DEMOS=true).
 echo "==> Ensure admin user in database"
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" --profile seed run --rm seed
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" --profile seed run --rm --build seed
 
 echo "==> Status"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps

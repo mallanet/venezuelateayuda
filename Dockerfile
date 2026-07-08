@@ -23,6 +23,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY prisma ./prisma
 COPY src/lib/abroad.ts ./src/lib/abroad.ts
 COPY package.json tsconfig.json ./
+# seed.ts lives under prisma/; keep stage usable for migrate + seed profile
 RUN chown -R prisma:nodejs /app
 USER prisma
 CMD ["npx", "prisma", "migrate", "deploy"]

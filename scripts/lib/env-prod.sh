@@ -2,7 +2,8 @@
 # Safe read/write for .env.prod (passwords may contain shell metacharacters).
 
 env_prod_quote() {
-  printf '%s' "$1" | sed "s/'/'\\\\''/g"
+  # Single-quote for docker compose / shell-safe .env values.
+  printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
 }
 
 env_prod_encode_password() {
@@ -37,21 +38,21 @@ env_prod_write() {
   db_url="$(env_prod_database_url "${POSTGRES_PASSWORD}")"
   umask 077
   cat >"$dest" <<EOF
-POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-DATABASE_URL=${db_url}
-DATABASE_URL_UNPOOLED=${db_url}
-AUTH_SECRET=${AUTH_SECRET}
-AUTH_URL=${AUTH_URL}
-NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
-EMAIL_FROM=${EMAIL_FROM}
-ADMIN_EMAIL=${ADMIN_EMAIL}
-ADMIN_PASSWORD=${ADMIN_PASSWORD}
-RESEND_API_KEY=${RESEND_API_KEY:-}
-SMTP_HOST=${SMTP_HOST:-}
-SMTP_PORT=${SMTP_PORT:-465}
-SMTP_USERNAME=${SMTP_USERNAME:-}
-SMTP_PASSWORD=${SMTP_PASSWORD:-}
-SMTP_FROM=${SMTP_FROM:-}
+POSTGRES_PASSWORD=$(env_prod_quote "$POSTGRES_PASSWORD")
+DATABASE_URL=$(env_prod_quote "$db_url")
+DATABASE_URL_UNPOOLED=$(env_prod_quote "$db_url")
+AUTH_SECRET=$(env_prod_quote "$AUTH_SECRET")
+AUTH_URL=$(env_prod_quote "$AUTH_URL")
+NEXT_PUBLIC_APP_URL=$(env_prod_quote "$NEXT_PUBLIC_APP_URL")
+EMAIL_FROM=$(env_prod_quote "$EMAIL_FROM")
+ADMIN_EMAIL=$(env_prod_quote "$ADMIN_EMAIL")
+ADMIN_PASSWORD=$(env_prod_quote "$ADMIN_PASSWORD")
+RESEND_API_KEY=$(env_prod_quote "${RESEND_API_KEY:-}")
+SMTP_HOST=$(env_prod_quote "${SMTP_HOST:-}")
+SMTP_PORT=$(env_prod_quote "${SMTP_PORT:-465}")
+SMTP_USERNAME=$(env_prod_quote "${SMTP_USERNAME:-}")
+SMTP_PASSWORD=$(env_prod_quote "${SMTP_PASSWORD:-}")
+SMTP_FROM=$(env_prod_quote "${SMTP_FROM:-}")
 EOF
   chmod 600 "$dest"
 }

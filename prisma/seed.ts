@@ -337,10 +337,14 @@ const REAL_VOLUNTEERS: DemoListing[] = [
 ];
 
 async function ensureAdmin() {
-  const email = (process.env.ADMIN_EMAIL ?? "admin@venezuelateayuda.org").toLowerCase().trim();
+  const email = (process.env.ADMIN_EMAIL ?? "admin@mallanet.org").toLowerCase().trim();
   const password = process.env.ADMIN_PASSWORD;
   if (!password) {
     throw new Error("ADMIN_PASSWORD is required to create/update the admin user");
+  }
+  // Guard against truncated env values (e.g. unquoted ';' in .env).
+  if (password.length < 8) {
+    throw new Error("ADMIN_PASSWORD looks truncated; quote it in .env.prod");
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
@@ -356,7 +360,9 @@ async function ensureAdmin() {
         emailVerified: existing.emailVerified ?? new Date(),
       },
     });
-    console.log(`Admin actualizado: ${email}`);
+    const ok = await bcrypt.compare(password, passwordHash);
+    if (!ok) throw new Error("Admin password hash self-check failed");
+    console.log(`Admin password refreshed for ${email} (len=${password.length})`);
     return;
   }
 
@@ -378,7 +384,7 @@ async function ensureAdmin() {
       },
     },
   });
-  console.log(`Admin creado: ${email}`);
+  console.log(`Admin created for ${email} (len=${password.length})`);
 }
 
 async function seedDemoListings() {
