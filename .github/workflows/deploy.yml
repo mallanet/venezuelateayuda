@@ -39,7 +39,7 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.VTA_SMTP_PASSWORD }}
           SMTP_FROM: ${{ secrets.VTA_SMTP_FROM }}
         run: |
-          export ADMIN_EMAIL="${ADMIN_EMAIL:-admin@venezuelateayuda.org}"
+          export ADMIN_EMAIL="${ADMIN_EMAIL:-admin@mallanet.org}"
           export EMAIL_FROM="${EMAIL_FROM:-no-reply@mallanet.org}"
           export RESEND_API_KEY="${RESEND_API_KEY:-}"
           export SMTP_HOST="${SMTP_HOST:-}"

@@ -21,6 +21,15 @@ interface AdminData {
     createdAt: string;
     profile: { displayName: string; state: string; municipality: string; phone: string | null } | null;
   }[];
+  recentRegistrations: {
+    id: string;
+    email: string;
+    role: Role;
+    status: string;
+    emailVerified: string | null;
+    createdAt: string;
+    profile: { displayName: string; state: string; municipality: string; phone: string | null } | null;
+  }[];
   pendingListings: {
     id: string;
     type: ListingType;
@@ -151,6 +160,13 @@ export function AdminDashboard() {
             className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
           >
             Denuncias ({data.openReports.length})
+          </TabsTrigger>
+          <TabsTrigger
+            value="registros"
+            data-testid="tab-registros"
+            className="rounded-lg data-[state=active]:bg-accent data-[state=active]:text-accent-foreground"
+          >
+            Registros ({data.recentRegistrations?.length ?? 0})
           </TabsTrigger>
         </TabsList>
 
@@ -389,6 +405,94 @@ export function AdminDashboard() {
                           Descartar
                         </Button>
                       </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="registros">
+          <Card className="border-border/60 shadow-sm">
+            <CardHeader className="border-b border-border/40 pb-4">
+              <CardTitle className="font-display text-lg font-semibold text-primary">
+                Últimos registros
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                API:{" "}
+                <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
+                  GET /api/admin/registrations?status=ALL
+                </code>
+              </p>
+            </CardHeader>
+            <CardContent className="pt-6">
+              {!data.recentRegistrations?.length ? (
+                <p className="text-sm text-muted-foreground">Aún no hay registros.</p>
+              ) : (
+                <ul className="grid gap-3" data-testid="recent-registrations">
+                  {data.recentRegistrations.map((user) => (
+                    <li
+                      key={user.id}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card p-4"
+                    >
+                      <div className="grid gap-1">
+                        <span className="font-heading font-medium text-foreground">
+                          {user.profile?.displayName ?? "(sin perfil)"}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {user.email} · {user.role === "AYUDANTE" ? "Ayudante" : "Solicitante"} ·{" "}
+                          {user.profile?.municipality}, {user.profile?.state}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(user.createdAt).toLocaleString("es-VE")}
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="secondary">{user.status}</Badge>
+                          {user.emailVerified ? (
+                            <Badge variant="outline" className="border-accent/40 text-accent">
+                              Email verificado
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant="destructive"
+                              className="bg-destructive/10 text-destructive"
+                            >
+                              Email sin verificar
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      {user.status === "PENDIENTE" && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            disabled={busyId === user.id}
+                            className="rounded-lg bg-primary text-primary-foreground shadow-soft hover:bg-primary/90"
+                            onClick={() =>
+                              runAction({ action: "aprobar_usuario", userId: user.id }, user.id)
+                            }
+                          >
+                            Aprobar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            disabled={busyId === user.id}
+                            className="rounded-lg"
+                            onClick={() => {
+                              const reason = promptReason("Motivo del rechazo:");
+                              if (reason)
+                                runAction(
+                                  { action: "rechazar_usuario", userId: user.id, reason },
+                                  user.id
+                                );
+                            }}
+                          >
+                            Rechazar
+                          </Button>
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>

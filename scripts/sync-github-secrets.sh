@@ -18,7 +18,7 @@ source "$ENV_FILE"
 gh secret set VTA_POSTGRES_PASSWORD --repo "$REPO" --body "$POSTGRES_PASSWORD"
 gh secret set VTA_AUTH_SECRET --repo "$REPO" --body "$AUTH_SECRET"
 gh secret set VTA_ADMIN_PASSWORD --repo "$REPO" --body "$ADMIN_PASSWORD"
-gh secret set VTA_ADMIN_EMAIL --repo "$REPO" --body "${ADMIN_EMAIL:-admin@venezuelateayuda.org}"
+gh secret set VTA_ADMIN_EMAIL --repo "$REPO" --body "${ADMIN_EMAIL:-admin@mallanet.org}"
 gh secret set VTA_EMAIL_FROM --repo "$REPO" --body "${EMAIL_FROM:-no-reply@mallanet.org}"
 
 if [[ -n "${RESEND_API_KEY:-}" ]]; then

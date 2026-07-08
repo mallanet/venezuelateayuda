@@ -337,27 +337,41 @@ const REAL_VOLUNTEERS: DemoListing[] = [
 ];
 
 async function ensureAdmin() {
-  const email = process.env.ADMIN_EMAIL ?? "admin@venezuelateayuda.org";
-  const password = process.env.ADMIN_PASSWORD ?? "admin-vta-2026";
+  const email = (process.env.ADMIN_EMAIL ?? "admin@venezuelateayuda.org").toLowerCase().trim();
+  const password = process.env.ADMIN_PASSWORD;
+  if (!password) {
+    throw new Error("ADMIN_PASSWORD is required to create/update the admin user");
+  }
 
+  const passwordHash = await bcrypt.hash(password, 12);
   const existing = await prisma.user.findUnique({ where: { email } });
+
   if (existing) {
-    console.log(`Admin ${email} ya existe.`);
+    await prisma.user.update({
+      where: { id: existing.id },
+      data: {
+        passwordHash,
+        role: "ADMIN",
+        status: "APROBADO",
+        emailVerified: existing.emailVerified ?? new Date(),
+      },
+    });
+    console.log(`Admin actualizado: ${email}`);
     return;
   }
 
   await prisma.user.create({
     data: {
       email,
-      passwordHash: await bcrypt.hash(password, 12),
+      passwordHash,
       role: "ADMIN",
       status: "APROBADO",
       emailVerified: new Date(),
       termsAcceptedAt: new Date(),
       profile: {
         create: {
-          displayName: "Equipo de Moderación",
-          avatarUrl: avatarUrl("Equipo VTA"),
+          displayName: "Equipo Mallanet",
+          avatarUrl: avatarUrl("Equipo Mallanet"),
           state: "Distrito Capital",
           municipality: "Libertador",
         },

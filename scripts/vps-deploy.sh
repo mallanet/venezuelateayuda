@@ -48,10 +48,9 @@ docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --remove-orphans
 echo "==> Edge SNI proxy (shared IP, separate Caddies)"
 bash "$ROOT/scripts/vps-setup-edge.sh"
 
-if [[ "$RUN_SEED" == "true" ]]; then
-  echo "==> Seeding admin user"
-  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" --profile seed run --rm seed
-fi
+# Always upsert admin from ADMIN_EMAIL / ADMIN_PASSWORD (no demos unless SEED_DEMOS=true).
+echo "==> Ensure admin user in database"
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" --profile seed run --rm seed
 
 echo "==> Status"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" ps
