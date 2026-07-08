@@ -22,6 +22,10 @@ jobs:
           chmod +x scripts/vps-write-env.sh scripts/vps-sync-db-password.sh
           bash scripts/vps-write-env.sh
           bash scripts/vps-sync-db-password.sh
+      - name: Diagnose
+        run: |
+          chmod +x scripts/vps-diagnose.sh
+          bash scripts/vps-diagnose.sh
       - name: Verify public API
         run: |
           curl -sf https://venezuelateayuda.org/api/health | grep -q '"ok":true'
