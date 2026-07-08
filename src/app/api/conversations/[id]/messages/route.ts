@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session-guards";
 import { messageSchema } from "@/lib/validation";
+import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 
 async function getConversationForUser(conversationId: string, userId: string) {
   const conversation = await prisma.conversation.findUnique({
@@ -17,14 +18,17 @@ async function getConversationForUser(conversationId: string, userId: string) {
   return conversation;
 }
 
-export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
+export async function GET(
+  _req: Request,
+  ctx: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   const { id } = await ctx.params;
   const { user, error } = await getSessionUser();
   if (error) return error;
 
   const conversation = await getConversationForUser(id, user.id);
   if (!conversation) {
-    return NextResponse.json({ error: "Conversación no encontrada" }, { status: 404 });
+    return apiErrorResponse(ApiErrorCode.NOT_FOUND, "Conversación no encontrada", 404);
   }
 
   const messages = await prisma.message.findMany({
@@ -33,7 +37,6 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
     take: 200,
   });
 
-  // Marca como leídos los mensajes recibidos.
   await prisma.message.updateMany({
     where: { conversationId: id, senderId: { not: user.id }, readAt: null },
     data: { readAt: new Date() },
@@ -58,22 +61,26 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
   });
 }
 
-export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
+export async function POST(
+  req: Request,
+  ctx: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
   const { id } = await ctx.params;
   const { user, error } = await getSessionUser({ requireApproved: true });
   if (error) return error;
 
   const conversation = await getConversationForUser(id, user.id);
   if (!conversation) {
-    return NextResponse.json({ error: "Conversación no encontrada" }, { status: 404 });
+    return apiErrorResponse(ApiErrorCode.NOT_FOUND, "Conversación no encontrada", 404);
   }
 
-  const json = await req.json().catch(() => null);
+  const json: unknown = await req.json().catch(() => null);
   const parsed = messageSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Mensaje inválido" },
-      { status: 400 }
+    return apiErrorResponse(
+      ApiErrorCode.VALIDATION,
+      parsed.error.issues[0]?.message ?? "Mensaje inválido",
+      400
     );
   }
 

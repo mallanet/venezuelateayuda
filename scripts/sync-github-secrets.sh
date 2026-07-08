@@ -21,4 +21,15 @@ gh secret set VTA_ADMIN_PASSWORD --repo "$REPO" --body "$ADMIN_PASSWORD"
 gh secret set VTA_ADMIN_EMAIL --repo "$REPO" --body "${ADMIN_EMAIL:-admin@venezuelateayuda.org}"
 gh secret set VTA_EMAIL_FROM --repo "$REPO" --body "${EMAIL_FROM:-no-reply@venezuelateayuda.org}"
 
+if [[ -n "${RESEND_API_KEY:-}" ]]; then
+  gh secret set VTA_RESEND_API_KEY --repo "$REPO" --body "$RESEND_API_KEY"
+fi
+if [[ -n "${SMTP_HOST:-}" ]]; then
+  gh secret set VTA_SMTP_HOST --repo "$REPO" --body "$SMTP_HOST"
+  gh secret set VTA_SMTP_PORT --repo "$REPO" --body "${SMTP_PORT:-465}"
+  gh secret set VTA_SMTP_USERNAME --repo "$REPO" --body "${SMTP_USERNAME:-}"
+  gh secret set VTA_SMTP_PASSWORD --repo "$REPO" --body "${SMTP_PASSWORD:-}"
+  gh secret set VTA_SMTP_FROM --repo "$REPO" --body "${SMTP_FROM:-}"
+fi
+
 echo "GitHub secrets synced for $REPO"

@@ -41,7 +41,9 @@ function LoginForm() {
         redirect: false,
       });
       if (res?.error) {
-        toast.error("Email o contraseña incorrectos");
+        toast.error(
+          "No se pudo iniciar sesión. Revisa email/contraseña o verifica tu correo primero."
+        );
         return;
       }
       router.push("/mapa");

@@ -32,9 +32,21 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.VTA_ADMIN_PASSWORD }}
           ADMIN_EMAIL: ${{ secrets.VTA_ADMIN_EMAIL }}
           EMAIL_FROM: ${{ secrets.VTA_EMAIL_FROM }}
+          RESEND_API_KEY: ${{ secrets.VTA_RESEND_API_KEY }}
+          SMTP_HOST: ${{ secrets.VTA_SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.VTA_SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.VTA_SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.VTA_SMTP_PASSWORD }}
+          SMTP_FROM: ${{ secrets.VTA_SMTP_FROM }}
         run: |
           export ADMIN_EMAIL="${ADMIN_EMAIL:-admin@venezuelateayuda.org}"
           export EMAIL_FROM="${EMAIL_FROM:-no-reply@venezuelateayuda.org}"
+          export RESEND_API_KEY="${RESEND_API_KEY:-}"
+          export SMTP_HOST="${SMTP_HOST:-}"
+          export SMTP_PORT="${SMTP_PORT:-465}"
+          export SMTP_USERNAME="${SMTP_USERNAME:-}"
+          export SMTP_PASSWORD="${SMTP_PASSWORD:-}"
+          export SMTP_FROM="${SMTP_FROM:-}"
           chmod +x scripts/vps-write-env.sh
           bash scripts/vps-write-env.sh
 

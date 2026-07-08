@@ -17,6 +17,12 @@ AUTH_URL="${AUTH_URL:-https://venezuelateayuda.org}"
 NEXT_PUBLIC_APP_URL="${NEXT_PUBLIC_APP_URL:-https://venezuelateayuda.org}"
 EMAIL_FROM="${EMAIL_FROM:-no-reply@venezuelateayuda.org}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@venezuelateayuda.org}"
+RESEND_API_KEY="${RESEND_API_KEY:-}"
+SMTP_HOST="${SMTP_HOST:-}"
+SMTP_PORT="${SMTP_PORT:-465}"
+SMTP_USERNAME="${SMTP_USERNAME:-}"
+SMTP_PASSWORD="${SMTP_PASSWORD:-}"
+SMTP_FROM="${SMTP_FROM:-}"
 
 write_dest() {
   local dest="$1"

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getAdminUser } from "@/lib/session-guards";
 import { purgeDemoUsers } from "@/lib/purge-demo-users";
+import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 
 const actionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("aprobar_usuario"), userId: z.string() }),
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
   const json = await req.json().catch(() => null);
   const parsed = actionSchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Acción inválida" }, { status: 400 });
+    return apiErrorResponse(ApiErrorCode.VALIDATION, "Acción inválida", 400);
   }
 
   const data = parsed.data;
@@ -51,7 +52,6 @@ export async function POST(req: Request) {
     }
     case "suspender_usuario": {
       await prisma.user.update({ where: { id: data.userId }, data: { status: "SUSPENDIDO" } });
-      // Retira del mapa las fichas del usuario suspendido.
       await prisma.helpListing.updateMany({
         where: { userId: data.userId, status: "APROBADA" },
         data: { status: "CERRADA" },
