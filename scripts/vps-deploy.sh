@@ -42,6 +42,7 @@ docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm migrate
 
 echo "==> Building and starting VTA stack (isolated)"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build
+docker rm -f venezuelateayuda-caddy-1 2>/dev/null || true
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --remove-orphans
 
 echo "==> Edge SNI proxy (shared IP, separate Caddies)"

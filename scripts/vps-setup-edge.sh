@@ -32,8 +32,9 @@ while read -r line; do
 done < <(docker ps --format '{{.ID}} {{.Names}}')
 
 echo "==> Validate HAProxy config"
-docker run --rm -v "$EDGE_DIR/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro" \
-  haproxy:2.9-alpine haproxy -c -f /usr/local/etc/haproxy/haproxy.cfg
+docker run --rm --entrypoint haproxy \
+  -v "$EDGE_DIR/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro" \
+  haproxy:2.9-alpine -c -f /usr/local/etc/haproxy/haproxy.cfg
 
 echo "==> Start edge HAProxy"
 docker compose -f "$EDGE_DIR/docker-compose.yml" up -d --force-recreate

@@ -51,11 +51,12 @@ services:
       - internal
 
   caddy:
-    image: caddy:2-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
     container_name: venezuelateayuda-caddy-1
     restart: unless-stopped
     volumes:
-      - ./deploy/caddy/Caddyfile.standalone:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:

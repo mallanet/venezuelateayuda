@@ -1,0 +1,2 @@
+FROM caddy:2-alpine
+COPY deploy/caddy/Caddyfile.standalone /etc/caddy/Caddyfile
