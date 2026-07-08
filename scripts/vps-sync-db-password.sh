@@ -4,14 +4,15 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+# shellcheck source=scripts/lib/env-prod.sh
+source "$ROOT/scripts/lib/env-prod.sh"
 
 ENV_FILE="${ENV_FILE:-$ROOT/.env.prod}"
 [[ -f "$ENV_FILE" ]] || ENV_FILE="/opt/venezuelateayuda/.env.prod"
 [[ -f "$ENV_FILE" ]] || { echo "Missing .env.prod"; exit 1; }
 
-# shellcheck disable=SC1090
-set -a && source "$ENV_FILE" && set +a
-[[ -n "${POSTGRES_PASSWORD:-}" ]] || { echo "POSTGRES_PASSWORD empty"; exit 1; }
+POSTGRES_PASSWORD="$(env_prod_read "$ENV_FILE" POSTGRES_PASSWORD)"
+[[ -n "$POSTGRES_PASSWORD" ]] || { echo "POSTGRES_PASSWORD empty"; exit 1; }
 
 COMPOSE_FILE="docker-compose.prod.yml"
 DB_CONTAINER="${DB_CONTAINER:-venezuelateayuda-db-1}"
@@ -24,14 +25,15 @@ for _ in $(seq 1 40); do
 done
 
 echo "==> Sync Postgres password"
+escaped="$(printf '%s' "$POSTGRES_PASSWORD" | sed "s/'/''/g")"
 docker exec "$DB_CONTAINER" psql -U vta -d venezuelateayuda \
-  -c "ALTER USER vta WITH PASSWORD \$\$${POSTGRES_PASSWORD}\$\$;"
+  -c "ALTER USER vta WITH PASSWORD '${escaped}';"
 
 echo "==> Migrate + recreate app with fresh env"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm migrate
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --force-recreate app
 
-sleep 6
+sleep 8
 docker exec venezuelateayuda-app-1 wget -qO- "http://127.0.0.1:3000/api/health" || true
 echo
 echo "Password sync done."

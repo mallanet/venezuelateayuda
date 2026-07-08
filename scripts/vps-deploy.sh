@@ -3,6 +3,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+# shellcheck source=scripts/lib/env-prod.sh
+source "$ROOT/scripts/lib/env-prod.sh"
 
 ENV_FILE="${ENV_FILE:-.env.prod}"
 [[ -f "$ENV_FILE" ]] || ENV_FILE="/opt/venezuelateayuda/.env.prod"
@@ -16,8 +18,8 @@ if [[ ! -f "$ENV_FILE" ]]; then
   exit 1
 fi
 
-# shellcheck disable=SC1090
-set -a && source "$ENV_FILE" && set +a
+POSTGRES_PASSWORD="$(env_prod_read "$ENV_FILE" POSTGRES_PASSWORD)"
+[[ -n "$POSTGRES_PASSWORD" ]] || { echo "POSTGRES_PASSWORD empty"; exit 1; }
 
 echo "==> Ensuring edge network"
 docker network create "$EDGE_NETWORK" 2>/dev/null || true
@@ -31,8 +33,9 @@ for _ in $(seq 1 30); do
 done
 
 echo "==> Sync Postgres password with .env.prod"
+escaped="$(printf '%s' "$POSTGRES_PASSWORD" | sed "s/'/''/g")"
 docker exec venezuelateayuda-db-1 psql -U vta -d venezuelateayuda \
-  -c "ALTER USER vta WITH PASSWORD \$\$${POSTGRES_PASSWORD}\$\$;"
+  -c "ALTER USER vta WITH PASSWORD '${escaped}';"
 
 echo "==> Running database migrations"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm migrate
