@@ -37,6 +37,7 @@ docker exec venezuelateayuda-db-1 psql -U vta -d venezuelateayuda \
   -c "ALTER USER vta WITH PASSWORD '${escaped}';"
 
 echo "==> Running database migrations"
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" rm -sf migrate 2>/dev/null || true
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm migrate
 
 echo "==> Building and starting VTA stack (isolated)"

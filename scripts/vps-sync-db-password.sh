@@ -32,8 +32,9 @@ docker exec "$DB_CONTAINER" psql -U vta -d venezuelateayuda \
 export ENV_FILE
 
 echo "==> Migrate + recreate app with fresh env"
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" rm -sf migrate 2>/dev/null || true
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm migrate
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --force-recreate app
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --force-recreate --no-deps app
 
 sleep 8
 docker exec venezuelateayuda-app-1 wget -qO- "http://127.0.0.1:3000/api/health" || true

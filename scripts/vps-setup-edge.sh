@@ -11,24 +11,29 @@ echo "==> Ensure edge network"
 docker network create "$EDGE_NET" 2>/dev/null || true
 
 echo "==> Install edge config to $EDGE_DIR"
-sudo mkdir -p "$EDGE_DIR"
-sudo cp "$EDGE_SRC/haproxy.cfg" "$EDGE_DIR/haproxy.cfg"
-sudo cp "$EDGE_SRC/docker-compose.yml" "$EDGE_DIR/docker-compose.yml"
+mkdir -p "$EDGE_DIR"
+cp "$EDGE_SRC/haproxy.cfg" "$EDGE_DIR/haproxy.cfg"
+cp "$EDGE_SRC/docker-compose.yml" "$EDGE_DIR/docker-compose.yml"
 
 echo "==> Connect project Caddies to $EDGE_NET"
 for c in terremotoapp-caddy-1 venezuelateayuda-caddy-1; do
   docker network connect "$EDGE_NET" "$c" 2>/dev/null || true
 done
 
-echo "==> Stop duplicate host bindings on :80/:443 (not edge)"
+echo "==> Free host ports 80/443 for edge (stop non-edge publishers)"
 while read -r line; do
   id="${line%% *}"
   name="${line#* }"
   [[ "$name" == *edge-haproxy* || "$name" == *vps-edge* ]] && continue
   if docker port "$id" 80/tcp >/dev/null 2>&1 || docker port "$id" 443/tcp >/dev/null 2>&1; then
-    echo "WARN: $name still publishes 80/443 — recreate via compose without host ports"
+    echo "Stopping $name — was publishing 80/443"
+    docker stop "$id" || true
   fi
 done < <(docker ps --format '{{.ID}} {{.Names}}')
+
+echo "==> Validate HAProxy config"
+docker run --rm -v "$EDGE_DIR/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro" \
+  haproxy:2.9-alpine haproxy -c -f /usr/local/etc/haproxy/haproxy.cfg
 
 echo "==> Start edge HAProxy"
 docker compose -f "$EDGE_DIR/docker-compose.yml" up -d --force-recreate

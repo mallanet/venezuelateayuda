@@ -1,0 +1,2014 @@
+Finding 1/35 (id c27824489305a274df8be54ff44415ca3517aa88)
+Rule: Credentials in MongoDB Connection String
+Group 1: user
+Group 2: pass
+Group 3: localhost:27017
+
+    Match 1/1 (id fe502cfc37caaceb0199fc787c00ebc5e3da3b05)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/keyv/README.md
+    Blob: 294a30efb22c3c35cfa87b5b3a8de7ab629a967e (15631 bytes, text/markdown, unknown charset)
+    Lines: 58:24-58:59
+
+        ection string if applicable. Keyv will automatically load the correct storage adapter.
+
+        ```js
+        const Keyv = require('keyv');
+
+        // One of the following
+        const keyv = new Keyv();
+        const keyv = new Keyv('redis://user:pass@localhost:6379');
+        const keyv = new Keyv('mongodb://user:pass@localhost:27017/dbname');
+        const keyv = new Keyv('sqlite://path/to/database.sqlite');
+        const keyv = new Keyv('postgresql://user:pass@localhost:5432/dbname');
+        const keyv = new Keyv('mysql://user:pass@localhost:3306/dbname');
+        const keyv = new Keyv('etcd://localhost:2379');
+
+        /
+
+
+Finding 2/35 (id 06bdec45096268adeed38fc0b774ecd9313399dc)
+Rule: Credentials in MongoDB Connection String
+Group 1: username
+Group 2: password
+Group 3: host:1234
+Showing 3/14 matches:
+
+    Match 1/14 (id bb07daeabdbbb7775cc48f221461382f2151b878)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v4/classic/tests/template-literal.test.ts
+    Blob: 05557a3ec609d3e3718921bf6abcbd7f7673f935 (35892 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 655:27-655:64
+
+        b://host:1234/defaultauthdb?authSource=admin&connectTimeoutMS=300000");
+          connectionString.parse("mongodb://host:1234/?authSource=admin");
+          connectionString.parse("mongodb://host:1234/?authSource=admin&connectTimeoutMS=300000");
+          connectionString.parse("mongodb://username:password@host:1234");
+          connectionString.parse("mongodb://username:password@host:1234/");
+          connectionString.parse("mongodb://username:password@host:1234/defaultauthdb");
+          connectionString.parse("mongodb://username:password@host:1234/defaultauthdb?authSource=admin");
+          conn
+
+    Match 2/14 (id 7a3d51b41259ecebfee06d97a08332cef1863aff)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v4/classic/tests/template-literal.test.ts
+    Blob: 05557a3ec609d3e3718921bf6abcbd7f7673f935 (35892 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 656:27-656:64
+
+        0");
+          connectionString.parse("mongodb://host:1234/?authSource=admin");
+          connectionString.parse("mongodb://host:1234/?authSource=admin&connectTimeoutMS=300000");
+          connectionString.parse("mongodb://username:password@host:1234");
+          connectionString.parse("mongodb://username:password@host:1234/");
+          connectionString.parse("mongodb://username:password@host:1234/defaultauthdb");
+          connectionString.parse("mongodb://username:password@host:1234/defaultauthdb?authSource=admin");
+          connectionString.parse(
+            "mongodb://username:password@host:1234/defa
+
+    Match 3/14 (id 4e63c6269aee4a9fdb7d5da17b9c6d36008e5db3)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v4/classic/tests/template-literal.test.ts
+    Blob: 05557a3ec609d3e3718921bf6abcbd7f7673f935 (35892 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 657:27-657:64
+
+        ");
+          connectionString.parse("mongodb://host:1234/?authSource=admin&connectTimeoutMS=300000");
+          connectionString.parse("mongodb://username:password@host:1234");
+          connectionString.parse("mongodb://username:password@host:1234/");
+          connectionString.parse("mongodb://username:password@host:1234/defaultauthdb");
+          connectionString.parse("mongodb://username:password@host:1234/defaultauthdb?authSource=admin");
+          connectionString.parse(
+            "mongodb://username:password@host:1234/defaultauthdb?authSource=admin&connectTimeoutMS=300000"
+          );
+          connectio
+
+
+Finding 3/35 (id 09cba561b08e69b0660f099ec57672fdcf6e02df)
+Rule: Credentials in PostgreSQL Connection URI
+Group 1: login
+Group 2: password
+Group 3: localhost:5432
+
+    Match 1/2 (id a78af3b735fe036f2be5d14e1bf0271f4e82f185)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/prisma/build/index.js
+    Blob: 790c257376036bd27d6c3af8cedd0d2d8d93f254 (2809306 bytes, text/javascript, unknown charset)
+    Lines: 3684:15-3684:57
+
+        tatus
+
+          Specify a schema
+          ${me("$")} prisma migrate status --schema=./schema.prisma
+
+          Compare the database schema from two databases and render the diff as a SQL script
+          ${me("$")} prisma migrate diff \\
+            --from-url "$DATABASE_URL" \\
+            --to-url "postgresql://login:password@localhost:5432/db" \\
+            --script
+        `);async parse(r,n){let i=Ye(r,{"--help":Boolean,"-h":"--help","--config":String,"--preview-feature":Boolean,"--telemetry-information":String});if(qe(i))return this.help(i.message);if(i._.length===0||i["--help"])return this.help();let a
+
+    Match 2/2 (id 3dd7d2b8c3b9d803a88d58d245391cb7a93ac204)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/prisma/build/index.js
+    Blob: 790c257376036bd27d6c3af8cedd0d2d8d93f254 (2809306 bytes, text/javascript, unknown charset)
+    Lines: 3859:15-3859:57
+
+        entation for more information ${Ze("https://pris.ly/d/migrate-diff")}
+
+        ${L1e}
+        ${H("Examples")}
+         
+          From database to database as summary
+            e.g. compare two live databases
+          ${me("$")} prisma migrate diff \\
+            --from-url "$DATABASE_URL" \\
+            --to-url "postgresql://login:password@localhost:5432/db2"
+          
+          From a live database to a Prisma datamodel
+            e.g. roll forward after a migration failed in the middle
+          ${me("$")} prisma migrate diff \\
+            --shadow-database-url "$SHADOW_DB" \\
+            --from-url "$PROD_DB" \\
+            --to-schema-datamodel=next_data
+
+
+Finding 4/35 (id 4946d4077edc1ce2fc46b3b257b7032d917e03ba)
+Rule: Credentials in PostgreSQL Connection URI
+Group 1: postgres
+Group 2: pass
+Group 3: db.ref.supabase.co:5432
+
+    Match 1/1 (id 65bd611aa4dd1723b8b1f17fbecfa71f7995f558)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@dotenvx/dotenvx/src/lib/helpers/kits/sample.js
+    Blob: f98b9fbdaa3d4aca3bfa2504d87db0150b896663 (881 bytes, text/javascript, unknown charset)
+    Lines: 7:15-7:65
+
+        const SAMPLE_ENV_KIT = `
+        HELLO="Dotenvx"
+
+        # ── Hosting ──────────────────────────────────────
+        AWS_ACCESS_KEY_ID="xxxx"
+        AWS_SECRET_ACCESS_KEY="xxxx"
+        DATABASE_URL="postgresql://postgres:pass@db.ref.supabase.co:5432/postgres"
+        VERCEL_TOKEN="vcp_xxxx"
+
+        # ── AI ───────────────────────────────────────────
+        OPENAI_API_KEY="sk-xxxx"
+        ANTHROPIC_API_KEY="sk-ant-xxxx"
+
+        # ── Infrastructu
+
+
+Finding 5/35 (id 1aa094196524483d2b0c40adca81a6ef058f6a9b)
+Rule: Credentials in PostgreSQL Connection URI
+Group 1: user
+Group 2: pass
+Group 3: host:5432
+
+    Match 1/2 (id a7da04b56299820b4eef6e0d4c16e5d81e59191f)
+    File: /home/kleosr/Documentos/venezuelateayuda/.env.example
+    Git repo: /home/kleosr/Documentos/venezuelateayuda/.git
+    Commit: first seen in 36bda75cc5506ed8a3503bd547005d4c9cedf853
+
+        Author:     kleosr <noreply@github.com>
+        Date:       2026-07-06
+        Summary:    fix: unblock Vercel deploy with build and CI fixes
+        Path:       .env.example
+
+    Blob: 2b6ccea1a2bac25995f0d3d34335e8d8601097c5 (794 bytes, unknown type, unknown charset)
+    Lines: 2:15-2:47
+
+        # Base de datos (Neon/Supabase/Vercel Postgres — usar URL pooled en DATABASE_URL)
+        DATABASE_URL="postgresql://user:pass@host:5432/db?sslmode=require"
+        DATABASE_URL_UNPOOLED="postgresql://user:pass@host:5432/db?sslmode=require"
+
+        # Auth (NextAuth v5) — generar con: openssl rand -hex 32
+        AUTH_SECRET="genera-uno-con-openssl-rand-hex-32"
+        # En Vercel: URL pública del sitio (sin barra fina
+
+    Match 2/2 (id 825cdc19a3e74d72a8f13e03b67adb4648fcd5f8)
+    File: /home/kleosr/Documentos/venezuelateayuda/.env.example
+    Git repo: /home/kleosr/Documentos/venezuelateayuda/.git
+    Commit: first seen in 36bda75cc5506ed8a3503bd547005d4c9cedf853
+
+        Author:     kleosr <noreply@github.com>
+        Date:       2026-07-06
+        Summary:    fix: unblock Vercel deploy with build and CI fixes
+        Path:       .env.example
+
+    Blob: 2b6ccea1a2bac25995f0d3d34335e8d8601097c5 (794 bytes, unknown type, unknown charset)
+    Lines: 3:24-3:56
+
+        # Base de datos (Neon/Supabase/Vercel Postgres — usar URL pooled en DATABASE_URL)
+        DATABASE_URL="postgresql://user:pass@host:5432/db?sslmode=require"
+        DATABASE_URL_UNPOOLED="postgresql://user:pass@host:5432/db?sslmode=require"
+
+        # Auth (NextAuth v5) — generar con: openssl rand -hex 32
+        AUTH_SECRET="genera-uno-con-openssl-rand-hex-32"
+        # En Vercel: URL pública del sitio (sin barra final)
+        AUTH_URL="https://tu-dominio.vercel.app"
+        NEXT_PUBLIC_APP_URL="https://tu-
+
+
+Finding 6/35 (id d3750c78568e0bf7b075e9e5a9dda6b7c2ccca9c)
+Rule: Credentials in PostgreSQL Connection URI
+Group 1: user
+Group 2: pass
+Group 3: localhost:5432
+
+    Match 1/1 (id a4da86bbb94e693c795807f27fb54a0e1c57426a)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/keyv/README.md
+    Blob: 294a30efb22c3c35cfa87b5b3a8de7ab629a967e (15631 bytes, text/markdown, unknown charset)
+    Lines: 60:24-60:61
+
+        One of the following
+        const keyv = new Keyv();
+        const keyv = new Keyv('redis://user:pass@localhost:6379');
+        const keyv = new Keyv('mongodb://user:pass@localhost:27017/dbname');
+        const keyv = new Keyv('sqlite://path/to/database.sqlite');
+        const keyv = new Keyv('postgresql://user:pass@localhost:5432/dbname');
+        const keyv = new Keyv('mysql://user:pass@localhost:3306/dbname');
+        const keyv = new Keyv('etcd://localhost:2379');
+
+        // Handle DB connection errors
+        keyv.on('error', err => console.log('Connection Error', err));
+
+        await keyv.set('foo', 'expires in 1 
+
+
+Finding 7/35 (id 36e13c9998708b24a07ed08eca7758134c52de61)
+Rule: Credentials in PostgreSQL Connection URI
+Group 1: vta
+Group 2: vta_dev
+Group 3: localhost:5433
+Showing 3/7 matches:
+
+    Match 1/7 (id 8901c429098358f098abc2e9a90425c392cc8cf1)
+    Git repo: /home/kleosr/Documentos/venezuelateayuda/.git
+    Commit: first seen in 2cd616fe023e4de4fd14df77240c2fda724f2034
+
+        Author:     Christian Mock <christianmock@MacBook-Pro-de-Christian.local>
+        Date:       2026-07-06
+        Summary:    fix(home): quitar imagen del hero y restaurar texto visible
+        Path:       .env.example
+
+    Blob: bb2488b69e3fdee88542f8759a7251a9b25659d8 (571 bytes, unknown type, unknown charset)
+    Lines: 1:15-1:54
+
+        DATABASE_URL="postgresql://vta:vta_dev@localhost:5433/venezuelateayuda"
+        DATABASE_URL_UNPOOLED="postgresql://vta:vta_dev@localhost:5433/venezuelateayuda"
+        AUTH_SECRET="genera-uno-con: openssl rand -hex 32"
+        AUTH_URL="http://localhost:3000"
+        NEXT_PUBLIC_APP_URL="http://localhost:3000"
+        EMAIL_FROM="no-reply@venezuel
+
+    Match 2/7 (id 328959d05d06dfe6abf1bfb3550f0ea05c2b5132)
+    Git repo: /home/kleosr/Documentos/venezuelateayuda/.git
+    Commit: first seen in 2cd616fe023e4de4fd14df77240c2fda724f2034
+
+        Author:     Christian Mock <christianmock@MacBook-Pro-de-Christian.local>
+        Date:       2026-07-06
+        Summary:    fix(home): quitar imagen del hero y restaurar texto visible
+        Path:       .env.example
+
+    Blob: bb2488b69e3fdee88542f8759a7251a9b25659d8 (571 bytes, unknown type, unknown charset)
+    Lines: 2:24-2:63
+
+        DATABASE_URL="postgresql://vta:vta_dev@localhost:5433/venezuelateayuda"
+        DATABASE_URL_UNPOOLED="postgresql://vta:vta_dev@localhost:5433/venezuelateayuda"
+        AUTH_SECRET="genera-uno-con: openssl rand -hex 32"
+        AUTH_URL="http://localhost:3000"
+        NEXT_PUBLIC_APP_URL="http://localhost:3000"
+        EMAIL_FROM="no-reply@venezuelateayuda.org"
+        # WhatsApp de contacto (formato internacional sin +, ej. 5842412345
+
+    Match 3/7 (id 79707cd2cd384e506475ecfd6a32df8e3b3ebbf9)
+    File: /home/kleosr/Documentos/venezuelateayuda/.env
+    File: /home/kleosr/Documentos/venezuelateayuda/.env.local
+    Blob: bc4f5e1fe57df54147f7678fd84727aef81b5b4c (354 bytes, unknown type, unknown charset)
+    Lines: 1:15-1:54
+
+        DATABASE_URL="postgresql://vta:vta_dev@localhost:5433/venezuelateayuda"
+        DATABASE_URL_UNPOOLED="postgresql://vta:vta_dev@localhost:5433/venezuelateayuda"
+
+        AUTH_SECRET="068b40314b5ca13f44ab5d6ca944b1ccd6034163aea8477f9fb1a8be9ff8a132"
+        AUTH_URL="http://localhost:3000"
+        NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+
+
+Finding 8/35 (id 456870bf42a3799f0525d18e9f885c0a4abfbed7)
+Rule: Generic Password
+Group: 1.2.1
+
+    Match 1/1 (id 20a065d287e56da2108172b075339e7862672367)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/express/package.json
+    Blob: 8f358830d97f07e22bd7a38982080e9fbc4fc6a7 (2731 bytes, application/json, unknown charset)
+    Lines: 78:13-78:30
+
+        ssion": "2.1.1",
+            "ejs": "^3.1.10",
+            "eslint": "8.47.0",
+            "express-session": "^1.18.1",
+            "hbs": "4.2.0",
+            "marked": "^15.0.3",
+            "method-override": "3.0.0",
+            "mocha": "^10.7.3",
+            "morgan": "1.10.1",
+            "nyc": "^17.1.0",
+            "pbkdf2-password": "1.2.1",
+            "supertest": "^6.3.0",
+            "vhost": "~3.0.2"
+          },
+          "engines": {
+            "node": ">= 18"
+          },
+          "files": [
+            "LICENSE",
+            "Readme.md",
+            "index.js",
+            "lib/"
+          ],
+          "scripts": {
+            "lint": "eslint .",
+            "lint:fix": "eslint . --fix",
+            "test"
+
+
+Finding 9/35 (id 584110b9fd4b4fd04a17bc28a0d22e12d2b807d4)
+Rule: Generic Password
+Group: [type=password]
+
+    Match 1/1 (id a8ca66442966aeede81a7b6e95d440e99aca6831)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/next/dist/compiled/node-html-parser/index.js
+    Blob: 5a6986e2f9dc072d368e8ada1e36133f9bd7b54b (204346 bytes, text/javascript, unknown charset)
+    Lines: 1:11980-1:12005
+
+        required:":is(input, select, textarea)[required]",optional:":is(input, select, textarea):not([required])",selected:"option:is([selected], select:not([multiple]):not(:has(> option[selected])) > :first-of-type)",checkbox:"[type=checkbox]",file:"[type=file]",password:"[type=password]",radio:"[type=radio]",reset:"[type=reset]",image:"[type=image]",submit:"[type=submit]",parent:":not(:empty)",header:":is(h1, h2, h3, h4, h5, h6)",button:":is(button, input[type=button])",input:":is(input, textarea, select, button)",text:"input:is(:not([typ
+
+
+Finding 10/35 (id 28b9ca65cdede092ef468b83fc52f3836dbdb2bc)
+Rule: Generic Password
+Group: cambia-esta-clave
+Showing 3/4 matches:
+
+    Match 1/4 (id e08d4083446e632e001f9cfe389617480805b57a)
+    File: /home/kleosr/Documentos/venezuelateayuda/.env.example
+    Git repo: /home/kleosr/Documentos/venezuelateayuda/.git
+    Commit: first seen in 36bda75cc5506ed8a3503bd547005d4c9cedf853
+
+        Author:     kleosr <noreply@github.com>
+        Date:       2026-07-06
+        Summary:    fix: unblock Vercel deploy with build and CI fixes
+        Path:       .env.example
+
+    Blob: 2b6ccea1a2bac25995f0d3d34335e8d8601097c5 (794 bytes, unknown type, unknown charset)
+    Lines: 18:9-18:36
+
+        zuelateayuda.org"
+
+        # WhatsApp de contacto (formato internacional sin +, ej. 584241234567)
+        # NEXT_PUBLIC_WHATSAPP_NUMBER="584241234567"
+
+        # Credenciales del admin creado por `npm run seed` (solo desarrollo)
+        # ADMIN_EMAIL="admin@venezuelateayuda.org"
+        # ADMIN_PASSWORD="cambia-esta-clave"
+
+
+    Match 2/4 (id 254519a02d6fab29c8fe0238dbfbba86a57bc37b)
+    Git repo: /home/kleosr/Documentos/venezuelateayuda/.git
+    Commit: first seen in 2cd616fe023e4de4fd14df77240c2fda724f2034
+
+        Author:     Christian Mock <christianmock@MacBook-Pro-de-Christian.local>
+        Date:       2026-07-06
+        Summary:    fix(home): quitar imagen del hero y restaurar texto visible
+        Path:       .env.example
+
+    Blob: bb2488b69e3fdee88542f8759a7251a9b25659d8 (571 bytes, unknown type, unknown charset)
+    Lines: 11:9-11:36
+
+        _FROM="no-reply@venezuelateayuda.org"
+        # WhatsApp de contacto (formato internacional sin +, ej. 584241234567)
+        # NEXT_PUBLIC_WHATSAPP_NUMBER="584241234567"
+        # Credenciales del admin creado por `npm run seed`
+        # ADMIN_EMAIL="admin@venezuelateayuda.org"
+        # ADMIN_PASSWORD="cambia-esta-clave"
+
+
+    Match 3/4 (id 41494b0186c421556019c1643eaafb787bb1a019)
+    Git repo: /home/kleosr/Documentos/venezuelateayuda/.git
+    Commit: first seen in f569706869c8528f776bf2ac82595137b7c57d18
+
+        Author:     Christian Mock <christianmock@MacBook-Pro-de-Christian.local>
+        Date:       2026-07-06
+        Summary:    Initial commit: Venezuela Te Ayuda platform.
+        Path:       .env.example
+
+    Blob: d51790123a32202341461d735edfdcc1fc728218 (374 bytes, unknown type, unknown charset)
+    Lines: 8:9-8:36
+
+        ra-uno-con: openssl rand -hex 32"
+        AUTH_URL="http://localhost:3000"
+        NEXT_PUBLIC_APP_URL="http://localhost:3000"
+        EMAIL_FROM="no-reply@venezuelateayuda.org"
+        # Credenciales del admin creado por `npm run seed`
+        # ADMIN_EMAIL="admin@venezuelateayuda.org"
+        # ADMIN_PASSWORD="cambia-esta-clave"
+
+
+
+Finding 11/35 (id cb1e00ffb5e611d3e6c91a1f3e5d688a60990c19)
+Rule: Generic Password
+Group: aaaaaaaa
+
+    Match 1/3 (id 131f83639595b2b9be6678e67216d6782bf3883a)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/shadcn/node_modules/zod/src/v3/tests/refine.test.ts
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v3/tests/refine.test.ts
+    Blob: 55c27fea501d4b6763c0f700cf7c36eaee953b1d (8172 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 40:7-40:26
+
+          password: z.string(),
+              confirmPassword: z.string(),
+            })
+            .refine((data) => data.password === data.confirmPassword, "Both password and confirmation must match");
+
+          expect(() =>
+            validationSchema.parse({
+              email: "aaaa@gmail.com",
+              password: "aaaaaaaa",
+              confirmPassword: "bbbbbbbb",
+            })
+          ).toThrow();
+        });
+
+        test("refinement type guard", () => {
+          const validationSchema = z.object({
+            a: z.string().refine((s): s is "a" => s === "a"),
+          });
+          type Input = z.input<typeof validationSchema>;
+          type 
+
+    Match 2/3 (id 4c2e60feae54017f531b1c7f0acfb625f3b8e3fd)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v4/classic/tests/refine.test.ts
+    Blob: a23e13036ae61ef47198d2e87c52daf22bb6bfc7 (17409 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 66:7-66:26
+
+        : z.string(),
+                confirmPassword: z.string(),
+              })
+              .refine((data) => data.password === data.confirmPassword, "Both password and confirmation must match");
+
+            const result = validationSchema.safeParse({
+              email: "aaaa@gmail.com",
+              password: "aaaaaaaa",
+              confirmPassword: "bbbbbbbb",
+            });
+
+            expect(result.success).toEqual(false);
+            if (!result.success) {
+              expect(result.error.issues[0].message).toEqual("Both password and confirmation must match");
+            }
+          });
+        });
+
+        describe("async refineme
+
+    Match 3/3 (id 6cd404c03ae3f23cb2ff0a361712f9077575c46a)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/shadcn/node_modules/zod/src/v4/classic/tests/refine.test.ts
+    Blob: a528b2a72a7a3c92aa44ffe9bea11ce2d85a5697 (14774 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 66:7-66:26
+
+        : z.string(),
+                confirmPassword: z.string(),
+              })
+              .refine((data) => data.password === data.confirmPassword, "Both password and confirmation must match");
+
+            const result = validationSchema.safeParse({
+              email: "aaaa@gmail.com",
+              password: "aaaaaaaa",
+              confirmPassword: "bbbbbbbb",
+            });
+
+            expect(result.success).toEqual(false);
+            if (!result.success) {
+              expect(result.error.issues[0].message).toEqual("Both password and confirmation must match");
+            }
+          });
+        });
+
+        describe("async refineme
+
+
+Finding 12/35 (id 3c2b890782fa3e811938bb65151aa0701be72728)
+Rule: Generic Password
+Group: asdfg
+Showing 3/4 matches:
+
+    Match 1/4 (id a87ba3744f9651a91adb92dde1e6b3c9413fe87b)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v4/classic/tests/refine.test.ts
+    Blob: a23e13036ae61ef47198d2e87c52daf22bb6bfc7 (17409 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 581:14-581:30
+
+        ed": "object",
+                "code": "invalid_type",
+                "path": [],
+                "message": "Invalid input: expected object, received null"
+              }
+            ]],
+              "success": false,
+            }
+          `);
+          expect(
+            schema.safeParse({
+              password: "asdf",
+              confirmPassword: "asdfg",
+              other: "qwer",
+            })
+          ).toMatchInlineSnapshot(`
+            {
+              "error": [ZodError: [
+              {
+                "origin": "string",
+                "code": "too_small",
+                "minimum": 8,
+                "inclusive": true,
+                "path": [
+                  "password"
+                ],
+
+
+    Match 2/4 (id e72c5aba31f3744960d632baee729718685cdce6)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v4/classic/tests/refine.test.ts
+    Blob: a23e13036ae61ef47198d2e87c52daf22bb6bfc7 (17409 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 605:14-605:30
+
+        ive": true,
+                "path": [
+                  "password"
+                ],
+                "message": "Too small: expected string to have >=8 characters"
+              }
+            ]],
+              "success": false,
+            }
+          `);
+
+          expect(
+            schema.safeParse({
+              password: "asdf",
+              confirmPassword: "asdfg",
+              other: 1234,
+            })
+          ).toMatchInlineSnapshot(`
+            {
+              "error": [ZodError: [
+              {
+                "origin": "string",
+                "code": "too_small",
+                "minimum": 8,
+                "inclusive": true,
+                "path": [
+                  "password"
+                ],
+          
+
+    Match 3/4 (id 1742a8a8553323e0e2581cf905c73102dd053651)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/shadcn/node_modules/zod/src/v4/classic/tests/refine.test.ts
+    Blob: a528b2a72a7a3c92aa44ffe9bea11ce2d85a5697 (14774 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 480:14-480:30
+
+        ed": "object",
+                "code": "invalid_type",
+                "path": [],
+                "message": "Invalid input: expected object, received null"
+              }
+            ]],
+              "success": false,
+            }
+          `);
+          expect(
+            schema.safeParse({
+              password: "asdf",
+              confirmPassword: "asdfg",
+              other: "qwer",
+            })
+          ).toMatchInlineSnapshot(`
+            {
+              "error": [ZodError: [
+              {
+                "origin": "string",
+                "code": "too_small",
+                "minimum": 8,
+                "inclusive": true,
+                "path": [
+                  "password"
+                ],
+
+
+
+Finding 13/35 (id 370645e6212ee51e0d2334aacb727ead6981ea70)
+Rule: Generic Password
+Group: bbbbbbbb
+
+    Match 1/3 (id 872f1684797a8cf76553f2a162a93b695011e7d9)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/shadcn/node_modules/zod/src/v3/tests/refine.test.ts
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v3/tests/refine.test.ts
+    Blob: 55c27fea501d4b6763c0f700cf7c36eaee953b1d (8172 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 41:14-41:33
+
+        rmPassword: z.string(),
+            })
+            .refine((data) => data.password === data.confirmPassword, "Both password and confirmation must match");
+
+          expect(() =>
+            validationSchema.parse({
+              email: "aaaa@gmail.com",
+              password: "aaaaaaaa",
+              confirmPassword: "bbbbbbbb",
+            })
+          ).toThrow();
+        });
+
+        test("refinement type guard", () => {
+          const validationSchema = z.object({
+            a: z.string().refine((s): s is "a" => s === "a"),
+          });
+          type Input = z.input<typeof validationSchema>;
+          type Schema = z.infer<typeof validationS
+
+    Match 2/3 (id e7b4ae2cf914b9836d5d9d8c90f9326896d96c9f)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v4/classic/tests/refine.test.ts
+    Blob: a23e13036ae61ef47198d2e87c52daf22bb6bfc7 (17409 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 67:14-67:33
+
+        rd: z.string(),
+              })
+              .refine((data) => data.password === data.confirmPassword, "Both password and confirmation must match");
+
+            const result = validationSchema.safeParse({
+              email: "aaaa@gmail.com",
+              password: "aaaaaaaa",
+              confirmPassword: "bbbbbbbb",
+            });
+
+            expect(result.success).toEqual(false);
+            if (!result.success) {
+              expect(result.error.issues[0].message).toEqual("Both password and confirmation must match");
+            }
+          });
+        });
+
+        describe("async refinements", () => {
+          test("should suppor
+
+    Match 3/3 (id 7a11c4b97a715222deab60bdee3575e23657308c)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/shadcn/node_modules/zod/src/v4/classic/tests/refine.test.ts
+    Blob: a528b2a72a7a3c92aa44ffe9bea11ce2d85a5697 (14774 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 67:14-67:33
+
+        rd: z.string(),
+              })
+              .refine((data) => data.password === data.confirmPassword, "Both password and confirmation must match");
+
+            const result = validationSchema.safeParse({
+              email: "aaaa@gmail.com",
+              password: "aaaaaaaa",
+              confirmPassword: "bbbbbbbb",
+            });
+
+            expect(result.success).toEqual(false);
+            if (!result.success) {
+              expect(result.error.issues[0].message).toEqual("Both password and confirmation must match");
+            }
+          });
+        });
+
+        describe("async refinements", () => {
+          test("should suppor
+
+
+Finding 14/35 (id d3f6f6362186d22feed07b83fcbdee787f759c9e)
+Rule: Generic Password
+Group: demo-vta-2026
+
+    Match 1/2 (id 16a5590d63e31e1894f85eb5902d96183fe33300)
+    File: /home/kleosr/Documentos/venezuelateayuda/prisma/seed.ts
+    Git repo: /home/kleosr/Documentos/venezuelateayuda/.git
+    Commit: first seen in 72b328290a58b9acade031d5d03c545301276117
+
+        Author:     Christian Mock <christianmock@MacBook-Pro-de-Christian.local>
+        Date:       2026-07-06
+        Summary:    feat: OG social preview, Calma y limpieza de datos demo
+        Path:       prisma/seed.ts
+
+    Blob: a3709e3b3a1151a1b2010edad7fb8736811cfc90 (18150 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 14:12-14:37
+
+        tegory,
+          type HelpModality,
+          type ListingType,
+          type QuantityUnit,
+          type Role,
+        } from "@prisma/client";
+        import bcrypt from "bcryptjs";
+        import { ABROAD_STATE, abroadMapPosition } from "../src/lib/abroad";
+
+        const prisma = new PrismaClient();
+
+        const DEMO_PASSWORD = "demo-vta-2026";
+        const DEMO_MARKER_EMAIL = "demo-seed@venezuelateayuda.org";
+
+        function avatarUrl(displayName: string): string {
+          const name = encodeURIComponent(displayName.trim() || "Usuario");
+          return `https://ui-avatars.com/api/?name=${name}&background=0d9488&color=
+
+    Match 2/2 (id c29f99d14a48d8f436cac70ecc2d779cf5572567)
+    Git repo: /home/kleosr/Documentos/venezuelateayuda/.git
+    Commit: first seen in 79e680985d9d92750406d757294d3c2e944df62f
+
+        Author:     Christian Mock <christianmock@MacBook-Pro-de-Christian.local>
+        Date:       2026-07-06
+        Summary:    feat: logo, analytics, footer y mejoras del mapa de ayuda
+        Path:       prisma/seed.ts
+
+    Blob: f99f91aa644d3632d0869429894d63008d7b4505 (10696 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 13:12-13:37
+
+        import {
+          PrismaClient,
+          type Category,
+          type HelpModality,
+          type ListingType,
+          type QuantityUnit,
+          type Role,
+        } from "@prisma/client";
+        import bcrypt from "bcryptjs";
+
+        const prisma = new PrismaClient();
+
+        const DEMO_PASSWORD = "demo-vta-2026";
+        const DEMO_MARKER_EMAIL = "demo-seed@venezuelateayuda.org";
+
+        function avatarUrl(displayName: string): string {
+          const name = encodeURIComponent(displayName.trim() || "Usuario");
+          return `https://ui-avatars.com/api/?name=${name}&background=0d9488&color=
+
+
+Finding 15/35 (id d0e640256634791f2027f214e0cd964c2d55d9d2)
+Rule: Generic Password
+Group: different
+
+    Match 1/2 (id 1a4108f2cc90247dd760520fa2dddbe799b5ed1c)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v4/classic/tests/refine.test.ts
+    Blob: a23e13036ae61ef47198d2e87c52daf22bb6bfc7 (17409 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 104:16-104:36
+
+        expect(validationSchema.parseAsync(validData)).resolves.toEqual(validData);
+
+            // Should fail with non-matching passwords
+            await expect(
+              validationSchema.parseAsync({
+                email: "aaaa@gmail.com",
+                password: "password",
+                confirmPassword: "different",
+              })
+            ).rejects.toThrow();
+          });
+        });
+
+        describe("early termination options", () => {
+          test("should abort early with continue: false", () => {
+            const schema = z
+              .string()
+              .superRefine((val, ctx) => {
+                if (val.length < 2) {
+           
+
+    Match 2/2 (id d85ffc324c2c03c856228b29e430dd1d1d0ea6a7)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/shadcn/node_modules/zod/src/v4/classic/tests/refine.test.ts
+    Blob: a528b2a72a7a3c92aa44ffe9bea11ce2d85a5697 (14774 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 104:16-104:36
+
+        expect(validationSchema.parseAsync(validData)).resolves.toEqual(validData);
+
+            // Should fail with non-matching passwords
+            await expect(
+              validationSchema.parseAsync({
+                email: "aaaa@gmail.com",
+                password: "password",
+                confirmPassword: "different",
+              })
+            ).rejects.toThrow();
+          });
+        });
+
+        describe("early termination options", () => {
+          test("should abort early with continue: false", () => {
+            const schema = z
+              .string()
+              .superRefine((val, ctx) => {
+                if (val.length < 2) {
+           
+
+
+Finding 16/35 (id 87058391beabcde53272d71be00cc53c94f1bbad)
+Rule: Generic Password
+Group: string
+
+    Match 1/1 (id c98866ebbc2f8938df1d312dd0f44d52f75f1c52)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/playwright-core/lib/coreBundle.js
+    Blob: 7d8468fd89fd4d292eade471c36e757c23cbec44 (3352341 bytes, text/javascript, unknown charset)
+    Lines: 70326:36-70326:54
+
+        ber",
+              "browser.launchOptions.tracesDir": "string",
+              "browser.launchOptions.proxy.server": "string",
+              "browser.launchOptions.proxy.bypass": "string",
+              "browser.launchOptions.proxy.username": "string",
+              "browser.launchOptions.proxy.password": "string",
+              // browser.contextOptions
+              "browser.contextOptions.acceptDownloads": "boolean",
+              "browser.contextOptions.baseURL": "string",
+              "browser.contextOptions.bypassCSP": "boolean",
+              "browser.contextOptions.colorScheme": "string",
+              
+
+
+Finding 17/35 (id 55115808c4e60a17ee35ee1b3061bd7b1b9569da)
+Rule: Generic Password
+Group: password
+Showing 3/8 matches:
+
+    Match 1/8 (id f99ff885103b90bcbcc65dedb90449d1fa075383)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/shadcn/node_modules/zod/src/v3/tests/refine.test.ts
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v3/tests/refine.test.ts
+    Blob: 55c27fea501d4b6763c0f700cf7c36eaee953b1d (8172 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 74:5-74:24
+
+        assword: z.string(),
+            })
+            .refine(
+              (data) => Promise.resolve().then(() => data.password === data.confirmPassword),
+              "Both password and confirmation must match"
+            );
+
+          await validationSchema.parseAsync({
+            email: "aaaa@gmail.com",
+            password: "password",
+            confirmPassword: "password",
+          });
+        });
+
+        test("custom path", async () => {
+          const result = await z
+            .object({
+              password: z.string(),
+              confirm: z.string(),
+            })
+            .refine((data) => data.confirm === data.password, { path: ["confirm"] }
+
+    Match 2/8 (id c0a636efd302720ddf11ff1fa30252c618682f37)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/shadcn/node_modules/zod/src/v3/tests/refine.test.ts
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v3/tests/refine.test.ts
+    Blob: 55c27fea501d4b6763c0f700cf7c36eaee953b1d (8172 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 75:12-75:31
+
+        refine(
+              (data) => Promise.resolve().then(() => data.password === data.confirmPassword),
+              "Both password and confirmation must match"
+            );
+
+          await validationSchema.parseAsync({
+            email: "aaaa@gmail.com",
+            password: "password",
+            confirmPassword: "password",
+          });
+        });
+
+        test("custom path", async () => {
+          const result = await z
+            .object({
+              password: z.string(),
+              confirm: z.string(),
+            })
+            .refine((data) => data.confirm === data.password, { path: ["confirm"] })
+            .spa({ password: "asdf", co
+
+    Match 3/8 (id 530e8c71ba9ce2b43ecd4f022a35c447be8fbe02)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v4/classic/tests/refine.test.ts
+    Blob: a23e13036ae61ef47198d2e87c52daf22bb6bfc7 (17409 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 93:7-93:26
+
+        (
+                (data) => Promise.resolve().then(() => data.password === data.confirmPassword),
+                "Both password and confirmation must match"
+              );
+
+            // Should pass with matching passwords
+            const validData = {
+              email: "aaaa@gmail.com",
+              password: "password",
+              confirmPassword: "password",
+            };
+
+            await expect(validationSchema.parseAsync(validData)).resolves.toEqual(validData);
+
+            // Should fail with non-matching passwords
+            await expect(
+              validationSchema.parseAsync({
+                email: "aaaa@gm
+
+
+Finding 18/35 (id f49c898f0f5836edd720a8009fd656aa58219d69)
+Rule: Generic Password
+Group: password-e2e-123
+
+    Match 1/3 (id 1e30d3f8effa81d2333b327b0895b6ff1bfe4960)
+    Git repo: /home/kleosr/Documentos/venezuelateayuda/.git
+    Commit: first seen in f569706869c8528f776bf2ac82595137b7c57d18
+
+        Author:     Christian Mock <christianmock@MacBook-Pro-de-Christian.local>
+        Date:       2026-07-06
+        Summary:    Initial commit: Venezuela Te Ayuda platform.
+        Path:       e2e/flujo-completo.spec.ts
+
+    Blob: 066ea5ba9d8d35cbb267c562d38f45626f00540e (7412 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 143:22-143:49
+
+        ail = uniqueEmail("pendiente");
+            await registerAndVerifyUser(request, {
+              email,
+              role: "AYUDANTE",
+              displayName: "Pedro Pendiente",
+            });
+
+            const loginRes = await request.post("/api/auth/callback/credentials", {
+              form: { email, password: "password-e2e-123" },
+            });
+            expect(loginRes.status()).toBeLessThan(500);
+
+            const res = await request.post("/api/listings", {
+              data: {
+                type: "OFREZCO",
+                title: "Ficha que no debería crearse",
+                description: "Descripción suficientemente la
+
+    Match 2/3 (id 8d681c13f5148be81783ec1e7d7259f4ec5c5a80)
+    File: /home/kleosr/Documentos/venezuelateayuda/e2e/flujo-completo.spec.ts
+    Git repo: /home/kleosr/Documentos/venezuelateayuda/.git
+    Commit: first seen in 79e680985d9d92750406d757294d3c2e944df62f
+
+        Author:     Christian Mock <christianmock@MacBook-Pro-de-Christian.local>
+        Date:       2026-07-06
+        Summary:    feat: logo, analytics, footer y mejoras del mapa de ayuda
+        Path:       e2e/flujo-completo.spec.ts
+
+    Blob: 8d3f894872518499f280ba275b20937b8fdca617 (7884 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 148:22-148:49
+
+        ail = uniqueEmail("pendiente");
+            await registerAndVerifyUser(request, {
+              email,
+              role: "AYUDANTE",
+              displayName: "Pedro Pendiente",
+            });
+
+            const loginRes = await request.post("/api/auth/callback/credentials", {
+              form: { email, password: "password-e2e-123" },
+            });
+            expect(loginRes.status()).toBeLessThan(500);
+
+            const res = await request.post("/api/listings", {
+              data: {
+                type: "OFREZCO",
+                title: "Ficha que no debería crearse",
+                description: "Descripción suficientemente la
+
+    Match 3/3 (id 1ed5575d38293a99544b822ba022e48709cccbe3)
+    File: /home/kleosr/Documentos/venezuelateayuda/e2e/helpers.ts
+    Git repo: /home/kleosr/Documentos/venezuelateayuda/.git
+    Commit: first seen in f569706869c8528f776bf2ac82595137b7c57d18
+
+        Author:     Christian Mock <christianmock@MacBook-Pro-de-Christian.local>
+        Date:       2026-07-06
+        Summary:    Initial commit: Venezuela Te Ayuda platform.
+        Path:       e2e/helpers.ts
+
+    Blob: dd69f0921829b0cd20864ae42e6326df5dacd66a (3040 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 12:19-12:47
+
+
+
+        export const prisma = new PrismaClient({ datasourceUrl: DATABASE_URL });
+
+        export const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@venezuelateayuda.org";
+        export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin-vta-2026";
+        export const TEST_PASSWORD = "password-e2e-123";
+
+        /** Genera un email único para aislar los tests que corren en paralelo. */
+        export function uniqueEmail(prefix: string): string {
+          return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@e2e.test`;
+        }
+
+        /**
+         * Registra un usuario vía A
+
+
+Finding 19/35 (id 1751ba22b6785d9633d5810e550b4c3894a0099b)
+Rule: Generic Password
+Group: peanuts
+
+    Match 1/2 (id 96ad1e9d0db553f2522f088b19e56a2a476498b9)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/shadcn/node_modules/zod/src/v3/tests/error.test.ts
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v3/tests/error.test.ts
+    Blob: 5caaa6d81b34049f0c3467872905b60b1b60438d (16812 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 220:5-220:23
+
+        ail"]);
+          }
+        });
+
+        test("custom path", () => {
+          const schema = z
+            .object({
+              password: z.string(),
+              confirm: z.string(),
+            })
+            .refine((val) => val.confirm === val.password, { path: ["confirm"] });
+
+          const result = schema.safeParse({
+            password: "peanuts",
+            confirm: "qeanuts",
+          });
+
+          expect(result.success).toEqual(false);
+          if (!result.success) {
+            // nested errors
+            const error = result.error.format();
+            expect(error._errors).toEqual([]);
+            expect(error.password?._errors).toEqual(undefined);
+
+
+    Match 2/2 (id d127b08f23d04ecc0a4f284422a30181b4974abd)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/shadcn/node_modules/zod/src/v4/classic/tests/error.test.ts
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v4/classic/tests/error.test.ts
+    Blob: d884b7e46b4ee3f03a5920a11f412d9c8d8a3a3b (19502 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 285:5-285:23
+
+            }
+          `);
+        });
+
+        test("custom path", () => {
+          const schema = z
+            .object({
+              password: z.string(),
+              confirm: z.string(),
+            })
+            .refine((val) => val.confirm === val.password, { path: ["confirm"] });
+
+          const result = schema.safeParse({
+            password: "peanuts",
+            confirm: "qeanuts",
+          });
+
+          expect(result.success).toBe(false);
+          const error = result.error!.format();
+          expect(error._errors).toEqual([]);
+          expect(error.password?._errors).toEqual(undefined);
+          expect(error.confirm?._errors).toEqual(["Invalid inp
+
+
+Finding 20/35 (id abf3bc6d413a8c85202848a2d23474759eba1f80)
+Rule: Generic Password
+Group: ******
+
+    Match 1/1 (id 62ec872a10cf7809c648e7fb59f0efe71c811500)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/stringify-object/readme.md
+    Blob: 47edc4008e6cf1f2a4200ebee30f4963b39f57be (2781 bytes, text/markdown, unknown charset)
+    Lines: 116:2-116:19
+
+        ;
+
+        const pretty = stringifyObject(object, {
+        	transform: (object, property, originalResult) => {
+        		if (property === 'password') {
+        			return originalResult.replace(/\w/g, '*');
+        		}
+
+        		return originalResult;
+        	}
+        });
+
+        console.log(pretty);
+        /*
+        {
+        	user: 'becky',
+        	password: '******'
+        }
+        */
+        ```
+
+        ##### inlineCharacterLimit
+
+        Type: `number`
+
+        When set, will inline values up to `inlineCharacterLimit` length for the sake of more terse output.
+
+        For example, given the example at the top of the README:
+
+        ```js
+        import stringifyObject from 'stringi
+
+
+Finding 21/35 (id 076bfdbd0539d3af2c7c2275373574ed609b0d8d)
+Rule: Generic Password
+Group: 1234567
+
+    Match 1/1 (id 6f036e3974249d95394567b619013326185ef453)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/enquirer/README.md
+    Blob: c95153faafad2280d95cb93a09ee020bd5a9caea (56250 bytes, text/markdown, unknown charset)
+    Lines: 1436:3-1436:21
+
+        rd === this.options.password) {
+            return true;
+          }
+          return false;
+        }
+
+        const CustomAuthPrompt = AuthPrompt.create(authenticate);
+
+        const prompt = new CustomAuthPrompt({
+          name: 'password',
+          message: 'Please enter your password',
+          username: 'rajat-sr',
+          password: '1234567',
+          choices: [
+            { name: 'username', message: 'username' },
+            { name: 'password', message: 'password' }
+          ]
+        });
+
+        prompt
+          .run()
+          .then(answer => console.log('Authenticated?', answer))
+          .catch(console.error);
+        ```
+
+        #### Related prompts
+
+        - [BasicAuth P
+
+
+Finding 22/35 (id 4878d7d9a5ac12d626685ceda5db1b688199967f)
+Rule: Generic Password
+Group: ahotproject
+
+    Match 1/2 (id 641fd01845329cb5aaba35213f2f863f3b1a5cef)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/hono/dist/types/middleware/basic-auth/index.d.ts
+    Blob: db53047a8044fe6495abe9b2cd2eb81aebac7d1b (2557 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 46:8-46:30
+
+        leware handler function.
+         * @throws {HTTPException} If neither "username and password" nor "verifyUser" options are provided.
+         *
+         * @example
+         * ```ts
+         * const app = new Hono()
+         *
+         * app.use(
+         *   '/auth/*',
+         *   basicAuth({
+         *     username: 'hono',
+         *     password: 'ahotproject',
+         *   })
+         * )
+         *
+         * app.get('/auth/page', (c) => {
+         *   return c.text('You are authorized')
+         * })
+         * ```
+         *
+         * @example
+         * ```ts
+         * // With onAuthSuccess callback
+         * app.use(
+         *   '/auth/*',
+         *   basicAuth({
+         *     username: 'hono',
+         *     password: 'ahot
+
+    Match 2/2 (id 768d33894627e20188a9a989b8728b9f3f34cc13)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/hono/dist/types/middleware/basic-auth/index.d.ts
+    Blob: db53047a8044fe6495abe9b2cd2eb81aebac7d1b (2557 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 62:8-62:30
+
+        : 'ahotproject',
+         *   })
+         * )
+         *
+         * app.get('/auth/page', (c) => {
+         *   return c.text('You are authorized')
+         * })
+         * ```
+         *
+         * @example
+         * ```ts
+         * // With onAuthSuccess callback
+         * app.use(
+         *   '/auth/*',
+         *   basicAuth({
+         *     username: 'hono',
+         *     password: 'ahotproject',
+         *     onAuthSuccess: (c, username) => {
+         *       c.set('user', { name: username, role: 'admin' })
+         *       console.log(`User ${username} authenticated`)
+         *     },
+         *   })
+         * )
+         * ```
+         */
+        export declare const basicAuth: (options: BasicAuthOptions, ...use
+
+
+Finding 23/35 (id 43748f4feb0faf64db320aa8e54381698c2e6fd3)
+Rule: Generic Password
+Group: secret
+
+    Match 1/1 (id cc9806762c9b103231f4f9d775a3a91b087ba878)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/stringify-object/readme.md
+    Blob: 47edc4008e6cf1f2a4200ebee30f4963b39f57be (2781 bytes, text/markdown, unknown charset)
+    Lines: 99:2-99:19
+
+        turn an alternate string in this case, otherwise returning the `originalResult`.
+
+        Here's an example that uses the `transform` option to mask fields named "password":
+
+        ```js
+        import stringifyObject from 'stringify-object';
+
+        const object = {
+        	user: 'becky',
+        	password: 'secret'
+        };
+
+        const pretty = stringifyObject(object, {
+        	transform: (object, property, originalResult) => {
+        		if (property === 'password') {
+        			return originalResult.replace(/\w/g, '*');
+        		}
+
+        		return originalResult;
+        	}
+        });
+
+        console.log(pretty);
+        /*
+        {
+        	user: 'becky',
+
+
+Finding 24/35 (id 57be8dc6b71d6c526388a5519d278c6e566fa767)
+Rule: Generic Password
+Group: password
+
+    Match 1/2 (id a657a97c97634a2cab8d32751c8bce383c3ffd0d)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/undici/docs/docs/api/Socks5ProxyAgent.md
+    Blob: 3ef0f852f27a97933dd1d83f0b78673b99600bb0 (8786 bytes, text/markdown, unknown charset)
+    Lines: 100:6-100:25
+
+        ci'
+
+        // Authentication via URL
+        const socks5Proxy = new Socks5ProxyAgent('socks5://username:password@localhost:1080')
+
+        // Or authentication via options
+        // const socks5Proxy = new Socks5ProxyAgent('socks5://localhost:1080', {
+        //   username: 'username',
+        //   password: 'password'
+        // })
+
+        setGlobalDispatcher(socks5Proxy)
+
+        const { statusCode, body } = await request('http://localhost:3000/foo')
+
+        console.log('response received', statusCode) // response received 200
+
+        for await (const data of body) {
+          console.log('data', data.toString('
+
+    Match 2/2 (id b4037bef71921d3260ccd663eb51596935460361)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/playwright/types/test.d.ts
+    Blob: c2037da8f806ba6f92c298f9e50bfe77d6592162 (374132 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 7778:12-7778:31
+
+         for each test.
+           *
+           * **Usage**
+           *
+           * ```js
+           * import { test, expect } from '@playwright/test';
+           *
+           * test('basic test', async ({ request }) => {
+           *   await request.post('/signin', {
+           *     data: {
+           *       username: 'user',
+           *       password: 'password'
+           *     }
+           *   });
+           *   // ...
+           * });
+           * ```
+           *
+           */
+          request: APIRequestContext;
+        }
+
+        type ExcludeProps<A, B> = {
+          [K in Exclude<keyof A, keyof B>]: A[K];
+        };
+        type CustomProperties<T> = ExcludeProps<T, PlaywrightTestOptions & PlaywrightWorkerO
+
+
+Finding 25/35 (id 4105d3eefeb6610336efaa200a53c55232613c81)
+Rule: Generic Password
+Group: s3cr3t
+Showing 3/4 matches:
+
+    Match 1/4 (id 468a1bb616323bf92efc9aa7c0f52b39be363326)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/playwright/types/test.d.ts
+    Blob: c2037da8f806ba6f92c298f9e50bfe77d6592162 (374132 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 6312:47-6312:64
+
+
+           *       return await target.call(this, ...args);
+           *     }, { box: true });
+           *   };
+           * }
+           *
+           * class LoginPage {
+           *   constructor(readonly page: Page) {}
+           *
+           *   @step
+           *   async login() {
+           *     const account = { username: 'Alice', password: 's3cr3t' };
+           *     await this.page.getByLabel('Username or email address').fill(account.username);
+           *     await this.page.getByLabel('Password').fill(account.password);
+           *     await this.page.getByRole('button', { name: 'Sign in' }).click();
+           *     await e
+
+    Match 2/4 (id 82483c8a607f8c313e0c476edb2cfa6e05c12ede)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/playwright/types/test.d.ts
+    Blob: c2037da8f806ba6f92c298f9e50bfe77d6592162 (374132 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 6334:47-6334:64
+
+        ally see the error pointing to the exact action that failed. For
+           * example, consider the following login step:
+           *
+           * ```js
+           * async function login(page) {
+           *   await test.step('login', async () => {
+           *     const account = { username: 'Alice', password: 's3cr3t' };
+           *     await page.getByLabel('Username or email address').fill(account.username);
+           *     await page.getByLabel('Password').fill(account.password);
+           *     await page.getByRole('button', { name: 'Sign in' }).click();
+           *     await expect(page.getB
+
+    Match 3/4 (id 94c7e3bf335cb74f08058913026e1465ab77a613)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/playwright/types/test.d.ts
+    Blob: c2037da8f806ba6f92c298f9e50bfe77d6592162 (374132 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 6471:49-6471:66
+
+        wait target.call(this, ...args);
+             *     }, { box: true });
+             *   };
+             * }
+             *
+             * class LoginPage {
+             *   constructor(readonly page: Page) {}
+             *
+             *   @step
+             *   async login() {
+             *     const account = { username: 'Alice', password: 's3cr3t' };
+             *     await this.page.getByLabel('Username or email address').fill(account.username);
+             *     await this.page.getByLabel('Password').fill(account.password);
+             *     await this.page.getByRole('button', { name: 'Sign in' }).click();
+             *    
+
+
+Finding 26/35 (id 947140a3aa116c10610b996be0ed39e3fdce2f89)
+Rule: Generic Secret
+Group: 068b40314b5ca13f44ab5d6ca944b1ccd6034163aea8477f9fb1a8be9ff8a132
+
+    Match 1/3 (id 4649983ae4109a7134b3b3d63d03b86050bf0ec9)
+    File: /home/kleosr/Documentos/venezuelateayuda/.next/dev/cache/turbopack/v16.2.10/00002420.sst
+    Blob: 45d31fe71863fffe05a58196fb107b521fbfd17e (31993 bytes, application/vnd.ms-pki.certstore, unknown charset)
+    Lines: 173:61-173:131
+
+        7ea0f3\u{1d}'\u{0}�\u{5}ENABLED_FEATURES\u{2}{}�\u{0}!OPq�/--max-old-��\u{1}-size=13809 --en�"\u{12}-g\u{f}�\u{1}-maps\u{4}PORT\u{4}3000\u{15}�\u{0}\u{4}�\u{0}pORIGIN\u{15}�	1://�\u{5}Phost:,\u{0}\u{1f}\u{1d}V	\u{0}\u{2}G\u{5}gARGS\u{0}\u{12}�\u{4}�noproxy\u{0}\u{1a}\u{14}\u{0} upb3@_notF,5r\u{0}\u{14}{\u{0}pOCESSEDx\u{1}`\u{4}true0	@BASE|
+        �8postgresql://vta:vta_dev@�\u{0}M543324\u{18}\u{15}F\u{0}�_UNPOOLEDO\u{0}&\u{11}m\u{10}�=SECRET@068b40314b5ca13f44ab5d6ca944b1ccd6034163aea8477f9fb1a8be9ff8a132\u{8}AUTH�\u{0}\u{f}j\u{1}\u{3}\u{3};\u{2}�UBLIC_APP*\u{0}\u{7} 
+        EE\u{6}�\u{0}_FROM\u{1d}no-reply@\u{18}\u{f}\u{0}��\u{e}RUST_MIN�\u{2}�CK\u{7}8388608�\u{0}�L�\u{2}0FINm\u{2}!V\u{1}�\u{1}"\u{1f}pA)R.env.�\u{2}	�\u{0}?\u{1}\u{17}"(\u{2}\u{2}$"\u{11}9\u{0}\u{5}\u{8} \u{2}Q\u{0}\u{14}\u{15}\u{18}\u{0}\u{0}Q\u{0}\u{5}A\u{3}\u{2}\u{1c}\u{0}\u{18}\u{1a}\u{1c}\u{0}\u{3}\u{1a}\u{2} BUk\u{f}TR\u{1}"Tz*("\u{14}(\u{0}\u{1}\u{4}\u{3}\u{0}�\u{0}\u{10}�>\u{4}�\u{3}("\u{1d}$\u{0}\u{3}L\u{0}\u{7}�\u{3}X\u{3}"1"\u{18}#\u{0}\u{1}�\u{0}\u{3}�\u{3}?\u{1}\u{2}"\u{1d}\u{0}\u{0}pMINIMAL\u{1d}\u{0}\u{18}(:\u{0}\u{3}]\u{0}\u{0}�\u{1}�NAV_FAIL!\u{10}QING\u{1}\u{5}T\u{f}\u{1f})0\u{0}\u{5}�
+
+    Match 2/3 (id 34259c94d738a483bc57cb957c374fd0e3f653c5)
+    File: /home/kleosr/Documentos/venezuelateayuda/.next/dev/cache/turbopack/v16.2.10/00002431.sst
+    Blob: a240c50fe9c71fc57c3099eeca8e1d617f4293d3 (6294976 bytes, application/vnd.ms-pki.certstore, unknown charset)
+    Lines: 52363:61-52363:131
+
+        7ea0f3\u{1d}'\u{0}�\u{5}ENABLED_FEATURES\u{2}{}�\u{0}!OPq�/--max-old-��\u{1}-size=13809 --en�"\u{12}-g\u{f}�\u{1}-maps\u{4}PORT\u{4}3000\u{15}�\u{0}\u{4}�\u{0}pORIGIN\u{15}�	1://�\u{5}Phost:,\u{0}\u{1f}\u{1d}V	\u{0}\u{2}G\u{5}gARGS\u{0}\u{12}�\u{4}�noproxy\u{0}\u{1a}\u{14}\u{0} upb3@_notF,5r\u{0}\u{14}{\u{0}pOCESSEDx\u{1}`\u{4}true0	@BASE|
+        �8postgresql://vta:vta_dev@�\u{0}M543324\u{18}\u{15}F\u{0}�_UNPOOLEDO\u{0}&\u{11}m\u{10}�=SECRET@068b40314b5ca13f44ab5d6ca944b1ccd6034163aea8477f9fb1a8be9ff8a132\u{8}AUTH�\u{0}\u{f}j\u{1}\u{3}\u{3};\u{2}�UBLIC_APP*\u{0}\u{7} 
+        EE\u{6}�\u{0}_FROM\u{1d}no-reply@\u{18}\u{f}\u{0}��\u{e}RUST_MIN�\u{2}�CK\u{7}8388608�\u{0}�L�\u{2}0FINm\u{2}!V\u{1}�\u{1}"\u{1f}pA)R.env.�\u{2}	�\u{0}?\u{1}\u{17}"(\u{2}\u{2}$"\u{11}9\u{0}\u{5}\u{8} \u{2}Q\u{0}\u{14}\u{15}\u{18}\u{0}\u{0}Q\u{0}\u{5}A\u{3}\u{2}\u{1c}\u{0}\u{18}\u{1a}\u{1c}\u{0}\u{3}\u{1a}\u{2} BUk\u{f}TR\u{1}"Tz*("\u{14}(\u{0}\u{1}\u{4}\u{3}\u{0}�\u{0}\u{10}�>\u{4}�\u{3}("\u{1d}$\u{0}\u{3}L\u{0}\u{7}�\u{3}X\u{3}"1"\u{18}#\u{0}\u{1}�\u{0}\u{3}�\u{3}?\u{1}\u{2}"\u{1d}\u{0}\u{0}pMINIMAL\u{1d}\u{0}\u{18}(:\u{0}\u{3}]\u{0}\u{0}�\u{1}�NAV_FAIL!\u{10}QING\u{1}\u{5}T\u{f}\u{1f})0\u{0}\u{5}�
+
+    Match 3/3 (id 7ff298a4fce50daf4c7bf688c423e5cab2949422)
+    File: /home/kleosr/Documentos/venezuelateayuda/.env
+    File: /home/kleosr/Documentos/venezuelateayuda/.env.local
+    Blob: bc4f5e1fe57df54147f7678fd84727aef81b5b4c (354 bytes, unknown type, unknown charset)
+    Lines: 4:6-4:77
+
+        DATABASE_URL="postgresql://vta:vta_dev@localhost:5433/venezuelateayuda"
+        DATABASE_URL_UNPOOLED="postgresql://vta:vta_dev@localhost:5433/venezuelateayuda"
+
+        AUTH_SECRET="068b40314b5ca13f44ab5d6ca944b1ccd6034163aea8477f9fb1a8be9ff8a132"
+        AUTH_URL="http://localhost:3000"
+        NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+        EMAIL_FROM="no-reply@venezuelateayuda.org"
+
+
+
+Finding 27/35 (id c11d450d6de574865f2559e2be46467e1980ee0b)
+Rule: Generic Secret
+Group: AuthenticationExtensionsPRFOutputs
+
+    Match 1/1 (id f05d27cd35f7977a6d1ecb9b14beea32637b6ad7)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@ts-morph/common/dist/ts-morph-common.js
+    Blob: b9499f950c14d75b23c5c98bf127bf947bd6c406 (1989129 bytes, text/javascript, unknown charset)
+    Lines: 1089:3462-1089:3516
+
+        lean;hmacCreateSecret?:boolean;minPinLength?:boolean;prf?:AuthenticationExtensionsPRFInputs;}interface AuthenticationExtensionsClientInputsJSON{}interface AuthenticationExtensionsClientOutputs{appid?:boolean;credProps?:CredentialPropertiesOutput;hmacCreateSecret?:boolean;prf?:AuthenticationExtensionsPRFOutputs;}interface AuthenticationExtensionsPRFInputs{eval?:AuthenticationExtensionsPRFValues;evalByCredential?:Record<string,AuthenticationExtensionsPRFValues>;}interface AuthenticationExtensionsPRFOutputs{enabled?:boolean;results?:AuthenticationExtensionsPRFValu
+
+
+Finding 28/35 (id 849df2a269ebac2f0d78de38ec630428448c3bf9)
+Rule: Generic Username and Password
+Group 1: myuser
+Group 2: mypassword
+
+    Match 1/1 (id 83f3113ca2c9b23b99d868565b2f9e9ab7ee7e4a)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/next/dist/docs/01-app/02-guides/environment-variables.md
+    Blob: b6a8d96f2fab1a9bdeb8676f5efc140bd53f6661 (11491 bytes, text/markdown, unknown charset)
+    Lines: 22:4-24:0
+
+        tignore`. You almost never want to commit these files to your repository.
+
+        ## Loading Environment Variables
+
+        Next.js has built-in support for loading environment variables from `.env*` files into `process.env`.
+
+        ```txt filename=".env"
+        DB_HOST=localhost
+        DB_USER=myuser
+        DB_PASS=mypassword
+        ```
+
+        <PagesOnly>
+
+        This loads `process.env.DB_HOST`, `process.env.DB_USER`, and `process.env.DB_PASS` into the Node.js environment automatically allowing you to use them in [Next.js data fetching methods](/docs/pages/building-your-application/data-fetching)
+
+
+Finding 29/35 (id ca6e81d34aec192f140d5c054c80d602b3b5971a)
+Rule: Google OAuth Client Secret
+Group: EVENTBRITE_CLIENT_SECRET
+
+    Match 1/3 (id 899b52751ec02463f3e5a8232902b2226e549403)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/providers/eventbrite.js
+    Blob: 08791746aa3c86464a88e1432861c4b15481727c (3360 bytes, text/javascript, unknown charset)
+    Lines: 28:63-28:101
+
+        ion
+         * ```ts
+         * import { Auth } from "@auth/core"
+         * import Eventbrite from "@auth/core/providers/eventbrite"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [Eventbrite({ clientId: EVENTBRITE_CLIENT_ID, clientSecret: EVENTBRITE_CLIENT_SECRET })],
+         * })
+         * ```
+         *
+         * ### Resources
+         *
+         * - [Eventbrite OAuth documentation](https://www.eventbrite.com/platform/api#/introduction/authentication)
+         * - [Eventbrite App Management](https://www.eventbrite.com/account-settings/apps)
+         * - [Learn more about O
+
+    Match 2/3 (id 43bb5554648e848daf4a9bada2e7a3f0331ba2a7)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/src/providers/eventbrite.ts
+    Blob: 3598338062c68b2d546844baa98eeb2345870369 (3687 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 43:63-43:101
+
+        ion
+         * ```ts
+         * import { Auth } from "@auth/core"
+         * import Eventbrite from "@auth/core/providers/eventbrite"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [Eventbrite({ clientId: EVENTBRITE_CLIENT_ID, clientSecret: EVENTBRITE_CLIENT_SECRET })],
+         * })
+         * ```
+         *
+         * ### Resources
+         *
+         * - [Eventbrite OAuth documentation](https://www.eventbrite.com/platform/api#/introduction/authentication)
+         * - [Eventbrite App Management](https://www.eventbrite.com/account-settings/apps)
+         * - [Learn more about O
+
+    Match 3/3 (id 8d56879edb81ab287c1533d51a60f0b9b5dd85f8)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/providers/eventbrite.d.ts
+    Blob: e59b30f1035788088230b37156627dacf067128d (2974 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 44:63-44:101
+
+        ion
+         * ```ts
+         * import { Auth } from "@auth/core"
+         * import Eventbrite from "@auth/core/providers/eventbrite"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [Eventbrite({ clientId: EVENTBRITE_CLIENT_ID, clientSecret: EVENTBRITE_CLIENT_SECRET })],
+         * })
+         * ```
+         *
+         * ### Resources
+         *
+         * - [Eventbrite OAuth documentation](https://www.eventbrite.com/platform/api#/introduction/authentication)
+         * - [Eventbrite App Management](https://www.eventbrite.com/account-settings/apps)
+         * - [Learn more about O
+
+
+Finding 30/35 (id d56420133dd7309ff401d84e5fa407ae0eadbf40)
+Rule: Google OAuth Client Secret
+Group: FOURSQUARE_CLIENT_SECRET
+
+    Match 1/3 (id 97ae3118d002cb24c15486f3d063fa266fa550e5)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/providers/foursquare.d.ts
+    Blob: 5bb3530aaf6f31847c5a618b273f331c73fedf09 (2497 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 32:10-32:48
+
+        uth } from "@auth/core"
+         * import FourSquare from "@auth/core/providers/foursquare"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [
+         *     FourSquare({
+         *       clientId: FOURSQUARE_CLIENT_ID,
+         *       clientSecret: FOURSQUARE_CLIENT_SECRET,
+         *     }),
+         *   ],
+         * })
+         * ```
+         *
+         * ### Resources
+         *
+         *  - [FourSquare OAuth documentation](https://docs.foursquare.com/developer/reference/authentication)
+         *
+         * ### Notes
+         *
+         * By default, Auth.js assumes that the FourSquare provider is
+         * based on the
+
+    Match 2/3 (id fd6c8f5aa7edee48710872c06f4b7070b1fa019c)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/providers/foursquare.js
+    Blob: b410a94c7ef9b7a88c7b0f8ace14d1b4f87b2b0e (3081 bytes, text/javascript, unknown charset)
+    Lines: 21:10-21:48
+
+        uth } from "@auth/core"
+         * import FourSquare from "@auth/core/providers/foursquare"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [
+         *     FourSquare({
+         *       clientId: FOURSQUARE_CLIENT_ID,
+         *       clientSecret: FOURSQUARE_CLIENT_SECRET,
+         *     }),
+         *   ],
+         * })
+         * ```
+         *
+         * ### Resources
+         *
+         *  - [FourSquare OAuth documentation](https://docs.foursquare.com/developer/reference/authentication)
+         *
+         * ### Notes
+         *
+         * By default, Auth.js assumes that the FourSquare provider is
+         * based on the
+
+    Match 3/3 (id a168cca333472afb2335060973468dfc68b91e98)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/src/providers/foursquare.ts
+    Blob: f5806afcdf725a83b9e13ff5a45861c6d096a166 (3450 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 33:10-33:48
+
+        uth } from "@auth/core"
+         * import FourSquare from "@auth/core/providers/foursquare"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [
+         *     FourSquare({
+         *       clientId: FOURSQUARE_CLIENT_ID,
+         *       clientSecret: FOURSQUARE_CLIENT_SECRET,
+         *     }),
+         *   ],
+         * })
+         * ```
+         *
+         * ### Resources
+         *
+         *  - [FourSquare OAuth documentation](https://docs.foursquare.com/developer/reference/authentication)
+         *
+         * ### Notes
+         *
+         * By default, Auth.js assumes that the FourSquare provider is
+         * based on the
+
+
+Finding 31/35 (id cce4cbd70702d3d2a8f0b51e6f0b1876a61132a9)
+Rule: Google OAuth Client Secret
+Group: FRESHBOOKS_CLIENT_SECRET
+
+    Match 1/3 (id aa73b736f71797b367d1805c3f7d87993653504b)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/providers/freshbooks.js
+    Blob: 214f83068e6c0ba1f54ce933a0f7075ec0e2b02d (2427 bytes, text/javascript, unknown charset)
+    Lines: 21:10-21:48
+
+        uth } from "@auth/core"
+         * import FreshBooks from "@auth/core/providers/freshbooks"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [
+         *     FreshBooks({
+         *       clientId: FRESHBOOKS_CLIENT_ID,
+         *       clientSecret: FRESHBOOKS_CLIENT_SECRET,
+         *     }),
+         *   ],
+         * })
+         * ```
+         *
+         * ### Resources
+         *
+         *  - [FreshBooks OAuth documentation](https://www.freshbooks.com/api/authenticating-with-oauth-2-0-on-the-new-freshbooks-api
+        )
+         *
+         * ### Notes
+         *
+         * By default, Auth.js assumes that the FreshBooks pr
+
+    Match 2/3 (id e3f2aa938da9263d363e721fd9d99cb981307451)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/providers/freshbooks.d.ts
+    Blob: 397ef3915fde8533bd9e58fd0e5d482019d051d1 (2316 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 32:10-32:48
+
+        uth } from "@auth/core"
+         * import FreshBooks from "@auth/core/providers/freshbooks"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [
+         *     FreshBooks({
+         *       clientId: FRESHBOOKS_CLIENT_ID,
+         *       clientSecret: FRESHBOOKS_CLIENT_SECRET,
+         *     }),
+         *   ],
+         * })
+         * ```
+         *
+         * ### Resources
+         *
+         *  - [FreshBooks OAuth documentation](https://www.freshbooks.com/api/authenticating-with-oauth-2-0-on-the-new-freshbooks-api
+        )
+         *
+         * ### Notes
+         *
+         * By default, Auth.js assumes that the FreshBooks pr
+
+    Match 3/3 (id 2c907180dc08847d55d17eb01ab19edc0f2c8f68)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/src/providers/freshbooks.ts
+    Blob: 96c6441cb826c115d9607169886673e615972a99 (2869 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 33:10-33:48
+
+        uth } from "@auth/core"
+         * import FreshBooks from "@auth/core/providers/freshbooks"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [
+         *     FreshBooks({
+         *       clientId: FRESHBOOKS_CLIENT_ID,
+         *       clientSecret: FRESHBOOKS_CLIENT_SECRET,
+         *     }),
+         *   ],
+         * })
+         * ```
+         *
+         * ### Resources
+         *
+         *  - [FreshBooks OAuth documentation](https://www.freshbooks.com/api/authenticating-with-oauth-2-0-on-the-new-freshbooks-api
+        )
+         *
+         * ### Notes
+         *
+         * By default, Auth.js assumes that the FreshBooks pr
+
+
+Finding 32/35 (id aa081e070334e61fcbee3ed2e797d2287d73250e)
+Rule: Google OAuth Client Secret
+Group: FUSIONAUTH_CLIENT_SECRET
+
+    Match 1/3 (id bce1debea680c59f2160eff15520e0c17693c55f)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/providers/fusionauth.js
+    Blob: 17609108e0de422592edd5d7a48d1ac7339edc70 (9880 bytes, text/javascript, unknown charset)
+    Lines: 21:10-21:48
+
+        uth } from "@auth/core"
+         * import FusionAuth from "@auth/core/providers/fusionauth"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [
+         *     FusionAuth({
+         *       clientId: FUSIONAUTH_CLIENT_ID,
+         *       clientSecret: FUSIONAUTH_CLIENT_SECRET,
+         *       tenantId: FUSIONAUTH_TENANT_ID,
+         *       issuer: FUSIONAUTH_ISSUER,
+         *     }),
+         *   ],
+         * })
+         * ```
+         * :::warning
+         * If you're using multi-tenancy, you need to pass in the tenantId option to apply the proper theme.
+         * :::
+         *
+         * ### Resources
+         *
+         
+
+    Match 2/3 (id 83417e5d91941f6e538d28690c116661275a11fa)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/providers/fusionauth.d.ts
+    Blob: 6b02fc9a60813a7e0a1eec7ce13c8b847262ec60 (9045 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 57:10-57:48
+
+        uth } from "@auth/core"
+         * import FusionAuth from "@auth/core/providers/fusionauth"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [
+         *     FusionAuth({
+         *       clientId: FUSIONAUTH_CLIENT_ID,
+         *       clientSecret: FUSIONAUTH_CLIENT_SECRET,
+         *       tenantId: FUSIONAUTH_TENANT_ID,
+         *       issuer: FUSIONAUTH_ISSUER,
+         *     }),
+         *   ],
+         * })
+         * ```
+         * :::warning
+         * If you're using multi-tenancy, you need to pass in the tenantId option to apply the proper theme.
+         * :::
+         *
+         * ### Resources
+         *
+         
+
+    Match 3/3 (id ef415b48cc31f2766a549c3a17f009289efa59ae)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/src/providers/fusionauth.ts
+    Blob: e1ff198a6d326f2e5af69b79ebdc3a5416ed9d04 (10769 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 59:10-59:48
+
+        uth } from "@auth/core"
+         * import FusionAuth from "@auth/core/providers/fusionauth"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [
+         *     FusionAuth({
+         *       clientId: FUSIONAUTH_CLIENT_ID,
+         *       clientSecret: FUSIONAUTH_CLIENT_SECRET,
+         *       tenantId: FUSIONAUTH_TENANT_ID,
+         *       issuer: FUSIONAUTH_ISSUER,
+         *     }),
+         *   ],
+         * })
+         * ```
+         * :::warning
+         * If you're using multi-tenancy, you need to pass in the tenantId option to apply the proper theme.
+         * :::
+         *
+         * ### Resources
+         *
+         
+
+
+Finding 33/35 (id 56bd427ac3c64bb74a162f078301d67842662c49)
+Rule: Google OAuth Client Secret
+Group: MATTERMOST_CLIENT_SECRET
+
+    Match 1/3 (id ed1286dc02a1beb528c9cbcc32a67837d9199711)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/providers/mattermost.d.ts
+    Blob: 028a39f3af4e41199f75ff48b8b405db77a636f9 (5333 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 88:10-88:48
+
+        uth } from "@auth/core"
+         * import Mattermost from "@auth/core/providers/mattermost"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [
+         *     Mattermost({
+         *       clientId: MATTERMOST_CLIENT_ID,
+         *       clientSecret: MATTERMOST_CLIENT_SECRET,
+         *       issuer: MATTERMOST_ISSUER, // The base url of your Mattermost instance. e.g `https://my-cool-server.cloud.mattermost.com`
+         *     }),
+         *   ],
+         * })
+         * ```
+         *
+         * ### Resources
+         *
+         *  - [Mattermost OAuth documentation](https://example.com)
+         *
+         * ###
+
+    Match 2/3 (id 47be8e368f2a8be142043bf6c648bd51e81755fc)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/providers/mattermost.js
+    Blob: 0b2a715c875736bb2ae41645d4ef281292bbca6c (2800 bytes, text/javascript, unknown charset)
+    Lines: 21:10-21:48
+
+        uth } from "@auth/core"
+         * import Mattermost from "@auth/core/providers/mattermost"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [
+         *     Mattermost({
+         *       clientId: MATTERMOST_CLIENT_ID,
+         *       clientSecret: MATTERMOST_CLIENT_SECRET,
+         *       issuer: MATTERMOST_ISSUER, // The base url of your Mattermost instance. e.g `https://my-cool-server.cloud.mattermost.com`
+         *     }),
+         *   ],
+         * })
+         * ```
+         *
+         * ### Resources
+         *
+         *  - [Mattermost OAuth documentation](https://example.com)
+         *
+         * ###
+
+    Match 3/3 (id c32e250b6ae69c4de04379a18bdb10e7999dd518)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@auth/core/src/providers/mattermost.ts
+    Blob: fc578ec4bab7caa83d8ccb7e5e318cbac0ad910a (5689 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 89:10-89:48
+
+        uth } from "@auth/core"
+         * import Mattermost from "@auth/core/providers/mattermost"
+         *
+         * const request = new Request(origin)
+         * const response = await Auth(request, {
+         *   providers: [
+         *     Mattermost({
+         *       clientId: MATTERMOST_CLIENT_ID,
+         *       clientSecret: MATTERMOST_CLIENT_SECRET,
+         *       issuer: MATTERMOST_ISSUER, // The base url of your Mattermost instance. e.g `https://my-cool-server.cloud.mattermost.com`
+         *     }),
+         *   ],
+         * })
+         * ```
+         *
+         * ### Resources
+         *
+         *  - [Mattermost OAuth documentation](https://example.com)
+         *
+         * ###
+
+
+Finding 34/35 (id 0095294bd813eaf6daa85b0ca01e66a4eb1c0dce)
+Rule: JSON Web Token (base64url-encoded)
+Group: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+Showing 3/4 matches:
+
+    Match 1/4 (id e10c8e49b98f41a54bb974e72affb96b6e30f092)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/shadcn/node_modules/zod/src/v4/mini/tests/string.test.ts
+    Blob: 3aabc383a70269fbacabbfada4c9aaf83b90157c (11223 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 289:8-289:163
+
+          expect(() => z.parse(a, "+12345")).toThrow();
+          expect(() => z.parse(a, "hello")).toThrow();
+          // wrong type
+          expect(() => z.parse(a, 123)).toThrow();
+        });
+
+        test("z.jwt", () => {
+          const a = z.jwt();
+          // valid jwt
+          expect(
+            z.parse(
+              a,
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            )
+          ).toEqual(
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          );
+          // invalid jwt
+          expect(() => z.parse(a, "invalid.jwt.token")).toTh
+
+    Match 2/4 (id a6934bf98b4c5946c4321da67b1554369ad0b755)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/shadcn/node_modules/zod/src/v4/mini/tests/string.test.ts
+    Blob: 3aabc383a70269fbacabbfada4c9aaf83b90157c (11223 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 292:6-292:161
+
+          const a = z.jwt();
+          // valid jwt
+          expect(
+            z.parse(
+              a,
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            )
+          ).toEqual(
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          );
+          // invalid jwt
+          expect(() => z.parse(a, "invalid.jwt.token")).toThrow();
+          expect(() => z.parse(a, "hello")).toThrow();
+          // wrong type
+          expect(() => z.parse(a, 123)).toThrow();
+        });
+
+
+    Match 3/4 (id fdf552b665fc11322af5c8f4f5a1df0893bb36ee)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/zod/src/v4/mini/tests/string.test.ts
+    Blob: 55cbd860a12a4c11c7732eb063078105eaa23359 (13433 bytes, video/vnd.dlna.mpeg-tts, unknown charset)
+    Lines: 326:8-326:163
+
+          expect(() => z.parse(a, "+12345")).toThrow();
+          expect(() => z.parse(a, "hello")).toThrow();
+          // wrong type
+          expect(() => z.parse(a, 123)).toThrow();
+        });
+
+        test("z.jwt", () => {
+          const a = z.jwt();
+          // valid jwt
+          expect(
+            z.parse(
+              a,
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+            )
+          ).toEqual(
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          );
+          // invalid jwt
+          expect(() => z.parse(a, "invalid.jwt.token")).toTh
+
+
+Finding 35/35 (id e267114a07a4096eee4340f71d5f8f6b819c60f0)
+Rule: PEM-Encoded Private Key
+Group:
+
+    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+                            
+
+
+    Match 1/1 (id f767958ef2cd449f91d6a87b09c5bc1b4a58d53f)
+    File: /home/kleosr/Documentos/venezuelateayuda/node_modules/@dotenvx/dotenvx/src/cli/examples.js
+    Blob: d3e928f526b58c14c70d4a13f37581a95e6c8f72 (1538 bytes, text/javascript, unknown charset)
+    Lines: 86:25-88:57
+
+         gitignore
+          ▣ ignored .env* (.gitignore)
+          \`\`\`
+          `
+        }
+
+        const set = function () {
+          return `
+        Examples:
+
+          \`\`\`
+          $ dotenvx set KEY value
+          $ dotenvx set KEY "value with spaces"
+          $ dotenvx set KEY -- "---value with a dash---"
+          $ dotenvx set KEY -- "-----BEGIN OPENSSH PRIVATE KEY-----
+                                b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+                                -----END OPENSSH PRIVATE KEY-----"
+          \`\`\`
+          `
+        }
+
+        module.exports = {
+          run,
+          precommit,
+          prebuild,
+          gitignore,
+          set
+        }
+
+
+
