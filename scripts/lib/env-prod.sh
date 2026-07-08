@@ -11,7 +11,8 @@ env_prod_encode_password() {
 
 env_prod_database_url() {
   local password="$1"
-  printf 'postgresql://vta:%s@db:5432/venezuelateayuda' "$(env_prod_encode_password "$password")"
+  local host="${POSTGRES_HOST:-venezuelateayuda-db-1}"
+  printf 'postgresql://vta:%s@%s:5432/venezuelateayuda' "$(env_prod_encode_password "$password")" "$host"
 }
 
 env_prod_read() {

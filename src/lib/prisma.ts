@@ -6,8 +6,9 @@ declare global {
 
 function databaseUrl(): string | undefined {
   const password = process.env.POSTGRES_PASSWORD;
+  const host = process.env.POSTGRES_HOST ?? "venezuelateayuda-db-1";
   if (password) {
-    return `postgresql://vta:${encodeURIComponent(password)}@db:5432/venezuelateayuda`;
+    return `postgresql://vta:${encodeURIComponent(password)}@${host}:5432/venezuelateayuda`;
   }
   return process.env.DATABASE_URL;
 }
