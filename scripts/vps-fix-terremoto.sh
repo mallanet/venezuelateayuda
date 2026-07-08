@@ -1,36 +1,19 @@
 #!/usr/bin/env bash
-# Fix Terremoto 502: restore compose-managed Caddy and restart app stack.
+# Fix Terremoto 502: start app containers + Caddy with mounted config.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CADDYFILE="${CADDYFILE:-/docker/caddy/Caddyfile.prod}"
-COMPOSE_DIR="${TERREMOTO_COMPOSE_DIR:-/opt/mallanet}"
-COMPOSE_FILE="${COMPOSE_DIR}/docker-compose.prod.yml"
+MALLANET_CADDY="${MALLANET_CADDY:-/opt/mallanet/Caddyfile.prod}"
 
-for candidate in \
-  "${COMPOSE_DIR}/.prod.env" \
-  "/tmp/runner/work/Terremotoapp/Terremotoapp/.prod.env"; do
-  [[ -f "$candidate" ]] && ENV_FILE="$candidate" && break
+echo "==> Start Terremoto containers"
+for c in terremotoapp-valkey-1 terremotoapp-db-1 terremotoapp-backend-1 \
+  terremotoapp-worker-1 terremotoapp-frontend-1 terremotoapp-admin-1; do
+  docker start "$c" 2>/dev/null || true
 done
-ENV_FILE="${ENV_FILE:-}"
-
-echo "==> Start stopped Terremoto containers"
-mapfile -t stopped < <(docker ps -a --filter "name=terremotoapp-" --filter "status=exited" --format '{{.Names}}' || true)
-for c in "${stopped[@]}"; do
-  [[ -z "$c" || "$c" == *"migrate"* ]] && continue
-  docker start "$c" || true
-done
-
-if [[ ! -f "$COMPOSE_FILE" ]]; then
-  echo "Missing $COMPOSE_FILE"
-  exit 1
-fi
 
 if [[ -f "$CADDYFILE" ]]; then
-  echo "==> Sync Caddyfile to Terremoto compose"
-  cp "$CADDYFILE" "${COMPOSE_DIR}/Caddyfile.prod"
-  # Compose aliases work when Caddy is managed by compose; keep container names as fallback.
-  python3 - "${COMPOSE_DIR}/Caddyfile.prod" <<'PY'
+  python3 - "$CADDYFILE" <<'PY'
 import pathlib, sys
 path = pathlib.Path(sys.argv[1])
 text = path.read_text()
@@ -42,27 +25,16 @@ for old, new in {
     text = text.replace(old, new)
 path.write_text(text)
 PY
-  cp "${COMPOSE_DIR}/Caddyfile.prod" "$CADDYFILE"
+  cp "$CADDYFILE" "$MALLANET_CADDY" 2>/dev/null || true
 fi
 
-echo "==> Recreate Terremoto stack (compose-managed Caddy)"
-env_args=()
-[[ -n "$ENV_FILE" && -f "$ENV_FILE" ]] && env_args=(--env-file "$ENV_FILE")
-
-docker rm -f terremotoapp-caddy-1 2>/dev/null || true
-docker compose -f "$COMPOSE_FILE" "${env_args[@]}" -p terremotoapp up -d \
-  valkey db backend worker frontend admin caddy || {
-  echo "WARN: compose up failed — trying docker start fallback"
-  docker start terremotoapp-valkey-1 terremotoapp-db-1 terremotoapp-backend-1 \
-    terremotoapp-worker-1 terremotoapp-frontend-1 terremotoapp-admin-1 terremotoapp-caddy-1 2>/dev/null || true
-}
+bash "$ROOT/scripts/vps-bootstrap.sh" 2>/dev/null || true
+bash "$ROOT/scripts/vps-rebuild-caddy.sh"
 
 echo "==> Status"
 docker ps --filter "name=terremotoapp-" --format "table {{.Names}}\t{{.Status}}"
 
-sleep 4
-echo "==> Health"
+sleep 3
 curl -sfI -H 'Host: terremotovenezuela.app' http://127.0.0.1/ | head -1 || echo "WARN: terremoto failing"
-curl -sfI -H 'Host: api.terremotovenezuela.app' http://127.0.0.1/ | head -1 || echo "WARN: api failing"
 curl -sfI -H 'Host: venezuelateayuda.org' http://127.0.0.1/ | head -1 || echo "WARN: vta failing"
 echo "Terremoto fix finished."

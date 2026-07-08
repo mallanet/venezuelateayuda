@@ -27,4 +27,4 @@ if ! sudo grep -q 'venezuelateayuda.org' "$CADDYFILE"; then
 fi
 
 sudo cp "$CADDYFILE" "$MALLANET_CADDY" 2>/dev/null || true
-echo "Caddyfile updated (reload via vps-fix-terremoto.sh)."
+echo "Caddyfile updated."
