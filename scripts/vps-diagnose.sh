@@ -45,6 +45,29 @@ console.log('DATABASE_URL_UNPOOLED=' + Boolean(process.env.DATABASE_URL_UNPOOLED
 echo "==> Prisma client path (app)"
 docker exec venezuelateayuda-app-1 node -e "console.log(require.resolve('@prisma/client'))" 2>&1 || true
 
+echo "==> URL hash (app vs migrate)"
+docker exec venezuelateayuda-app-1 node -e "
+const c=require('crypto');
+const h=(v)=>c.createHash('sha256').update(v||'').digest('hex').slice(0,12);
+console.log('appDbUrl='+h(process.env.DATABASE_URL));
+console.log('appPgPass='+h(process.env.POSTGRES_PASSWORD));
+" 2>&1 || true
+docker compose -f "$ROOT/docker-compose.prod.yml" --env-file "$ENV_FILE" run --rm migrate node -e "
+const c=require('crypto');
+const h=(v)=>c.createHash('sha256').update(v||'').digest('hex').slice(0,12);
+console.log('migrateDbUrl='+h(process.env.DATABASE_URL));
+console.log('migratePgPass='+h(process.env.POSTGRES_PASSWORD));
+" 2>&1 || true
+
+echo "==> Prisma probe (app container, POSTGRES_PASSWORD url)"
+docker exec venezuelateayuda-app-1 node -e "
+const { PrismaClient } = require('@prisma/client');
+const pass = process.env.POSTGRES_PASSWORD;
+const url = 'postgresql://vta:' + encodeURIComponent(pass) + '@db:5432/venezuelateayuda';
+const prisma = new PrismaClient({ datasources: { db: { url } } });
+prisma.helpListing.count().then((n) => console.log('appCountFromPass=' + n)).catch((e) => { console.error('appPassPrismaError=' + e.message); process.exit(1); }).finally(() => prisma.\$disconnect());
+" 2>&1 || true
+
 echo "==> Prisma probe (app container)"
 docker exec venezuelateayuda-app-1 node -e "
 const { PrismaClient } = require('@prisma/client');

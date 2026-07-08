@@ -4,8 +4,15 @@ declare global {
   var prismaClient: PrismaClient | undefined;
 }
 
+function databaseUrl(): string | undefined {
+  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
+  const password = process.env.POSTGRES_PASSWORD;
+  if (!password) return undefined;
+  return `postgresql://vta:${encodeURIComponent(password)}@db:5432/venezuelateayuda`;
+}
+
 function createPrismaClient(): PrismaClient {
-  const url = process.env.DATABASE_URL;
+  const url = databaseUrl();
   return url
     ? new PrismaClient({ datasources: { db: { url } } })
     : new PrismaClient();
