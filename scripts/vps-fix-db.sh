@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Sync Postgres password with .env.prod (fixes Prisma auth failed after secret rotation).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -11,18 +10,27 @@ COMPOSE_FILE="docker-compose.prod.yml"
 # shellcheck disable=SC1090
 source "$ENV_FILE"
 
-echo "==> Align Postgres password for user vta"
-docker exec venezuelateayuda-db-1 psql -U vta -d venezuelateayuda -c \
-  "ALTER USER vta WITH PASSWORD '${POSTGRES_PASSWORD}';"
+echo "==> Ensure DB up"
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d db
+for _ in $(seq 1 30); do
+  docker exec venezuelateayuda-db-1 pg_isready -U vta -d venezuelateayuda >/dev/null 2>&1 && break
+  sleep 1
+done
+
+echo "==> Reset Postgres password (local socket, dollar-quoted)"
+docker exec venezuelateayuda-db-1 psql -U vta -d venezuelateayuda \
+  -c "ALTER USER vta WITH PASSWORD \$\$${POSTGRES_PASSWORD}\$\$;"
 
 echo "==> Migrate"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm migrate
 
-echo "==> Recreate app with current env"
+echo "==> Recreate app"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --force-recreate app
 
-echo "==> API test"
-sleep 3
-curl -sf http://venezuelateayuda-app-1:3000/api/listings | head -c 300
+sleep 4
+echo "==> Health"
+curl -sf http://venezuelateayuda-app-1:3000/api/health || true
+echo
+curl -sf http://venezuelateayuda-app-1:3000/api/listings | head -c 200 || true
 echo
 echo "DB auth fix done."

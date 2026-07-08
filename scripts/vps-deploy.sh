@@ -30,8 +30,8 @@ for _ in $(seq 1 30); do
 done
 
 echo "==> Sync Postgres password with .env.prod"
-docker exec venezuelateayuda-db-1 psql -U vta -d venezuelateayuda -c \
-  "ALTER USER vta WITH PASSWORD '${POSTGRES_PASSWORD}';"
+docker exec venezuelateayuda-db-1 psql -U vta -d venezuelateayuda \
+  -c "ALTER USER vta WITH PASSWORD \$\$${POSTGRES_PASSWORD}\$\$;"
 
 echo "==> Running database migrations"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm migrate
