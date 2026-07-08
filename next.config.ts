@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  output: process.env.DOCKER_BUILD === "1" ? undefined : "standalone",
   serverExternalPackages: ["@prisma/client", "prisma"],
   images: {
     remotePatterns: [
