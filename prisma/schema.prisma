@@ -55,6 +55,7 @@ enum QuantityUnit {
   FAMILIA
   HORA
   SESION
+  PROYECTO
 }
 
 enum ReportStatus {

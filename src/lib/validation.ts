@@ -73,7 +73,7 @@ export const listingSchema = z
     lat: z.number().min(-90).max(90),
     lng: z.number().min(-180).max(180),
     quantity: z.number().int().min(1, "La cantidad debe ser al menos 1").max(9999),
-    quantityUnit: z.enum(["KIT", "UNIDAD", "PERSONA", "FAMILIA", "HORA", "SESION"]),
+    quantityUnit: z.enum(["KIT", "UNIDAD", "PERSONA", "FAMILIA", "HORA", "SESION", "PROYECTO"]),
     modality: z.enum(["PRESENCIAL", "ONLINE"]),
   })
   .superRefine((data, ctx) => {

@@ -12,6 +12,7 @@ export const QUANTITY_UNITS = [
   "FAMILIA",
   "HORA",
   "SESION",
+  "PROYECTO",
 ] as const satisfies readonly QuantityUnit[];
 
 const UNIT_FORMS: Record<QuantityUnit, { one: string; other: string }> = {
@@ -21,6 +22,7 @@ const UNIT_FORMS: Record<QuantityUnit, { one: string; other: string }> = {
   FAMILIA: { one: "familia", other: "familias" },
   HORA: { one: "hora", other: "horas" },
   SESION: { one: "sesión", other: "sesiones" },
+  PROYECTO: { one: "proyecto", other: "proyectos" },
 };
 
 export const QUANTITY_UNIT_LABELS: Record<QuantityUnit, string> = {
@@ -30,6 +32,7 @@ export const QUANTITY_UNIT_LABELS: Record<QuantityUnit, string> = {
   FAMILIA: "Familia",
   HORA: "Hora",
   SESION: "Sesión",
+  PROYECTO: "Proyecto",
 };
 
 /** Texto legible: "1 kit", "3 familias". */
