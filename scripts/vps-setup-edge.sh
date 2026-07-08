@@ -13,9 +13,10 @@ docker network create "$EDGE_NET" 2>/dev/null || true
 echo "==> Install edge config to $EDGE_DIR"
 mkdir -p "$EDGE_DIR"
 # Docker may have autocreated haproxy.cfg as a directory on first failed mount.
-rm -rf "$EDGE_DIR/haproxy.cfg" "$EDGE_DIR/docker-compose.yml"
+rm -rf "$EDGE_DIR/haproxy.cfg" "$EDGE_DIR/docker-compose.yml" "$EDGE_DIR/Dockerfile"
 cp "$EDGE_SRC/haproxy.cfg" "$EDGE_DIR/haproxy.cfg"
 cp "$EDGE_SRC/docker-compose.yml" "$EDGE_DIR/docker-compose.yml"
+cp "$EDGE_SRC/Dockerfile" "$EDGE_DIR/Dockerfile"
 test -f "$EDGE_DIR/haproxy.cfg" || { echo "haproxy.cfg missing after copy"; exit 1; }
 
 echo "==> Connect project Caddies to $EDGE_NET"
@@ -35,6 +36,8 @@ while read -r line; do
 done < <(docker ps --format '{{.ID}} {{.Names}}')
 
 echo "==> Start edge HAProxy"
+docker rm -f vps-edge-haproxy 2>/dev/null || true
+docker compose -f "$EDGE_DIR/docker-compose.yml" build --no-cache
 docker compose -f "$EDGE_DIR/docker-compose.yml" up -d --force-recreate
 
 sleep 3

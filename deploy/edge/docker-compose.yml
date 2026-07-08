@@ -2,15 +2,13 @@ name: vps-edge
 
 services:
   haproxy:
-    image: haproxy:2.9-alpine
+    build: .
+    image: vps-edge-haproxy:local
     container_name: vps-edge-haproxy
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
-    command: ["haproxy", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]
     networks:
       - vps_edge
 
