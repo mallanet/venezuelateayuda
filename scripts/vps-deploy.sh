@@ -4,7 +4,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-ENV_FILE="${ENV_FILE:-.env.prod}"
+ENV_FILE="${ENV_FILE:-/opt/venezuelateayuda/.env.prod}"
+[[ -f "$ENV_FILE" ]] || ENV_FILE=".env.prod"
 COMPOSE_FILE="docker-compose.prod.yml"
 CADDY_CONTAINER="${CADDY_CONTAINER:-terremotoapp-caddy-1}"
 EDGE_NETWORK="${EDGE_NETWORK:-terremotoapp_mapa_prod_net}"

@@ -3,7 +3,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-ENV_FILE="${ENV_FILE:-.env.prod}"
+ENV_FILE="${ENV_FILE:-/opt/venezuelateayuda/.env.prod}"
+[[ -f "$ENV_FILE" ]] || ENV_FILE="${ENV_FILE:-.env.prod}"
 COMPOSE_FILE="docker-compose.prod.yml"
 
 [[ -f "$ENV_FILE" ]] || { echo "Missing $ENV_FILE"; exit 1; }
