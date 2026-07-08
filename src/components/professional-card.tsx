@@ -31,6 +31,7 @@ export function ProfessionalCard({ professional, selected }: ProfessionalCardPro
           src={professional.avatarUrl}
           alt={`Foto de ${professional.displayName}`}
           fill
+          unoptimized
           className="object-cover"
           sizes="(max-width:768px) 50vw, 25vw"
         />

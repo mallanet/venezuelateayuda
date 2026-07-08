@@ -43,6 +43,7 @@ export function ListingCard({ listing, selected, onSelect, compact, distanceKm }
           src={listing.authorAvatarUrl}
           alt={`Foto de ${listing.authorName}`}
           fill
+          unoptimized
           className={cn("object-cover transition-transform duration-[var(--motion-duration-slow)] ease-[var(--motion-ease-out)] group-hover:scale-[1.04]", compact ? "rounded-full" : "")}
           sizes={compact ? "64px" : "(max-width:768px) 50vw, 25vw"}
         />
