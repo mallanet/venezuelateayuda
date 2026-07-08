@@ -6,8 +6,8 @@ cd "$ROOT"
 # shellcheck source=scripts/lib/env-prod.sh
 source "$ROOT/scripts/lib/env-prod.sh"
 
-ENV_FILE="${ENV_FILE:-.env.prod}"
-[[ -f "$ENV_FILE" ]] || ENV_FILE="/opt/venezuelateayuda/.env.prod"
+ENV_FILE="${ENV_FILE:-/opt/venezuelateayuda/.env.prod}"
+[[ -f "$ENV_FILE" ]] || ENV_FILE="$ROOT/.env.prod"
 COMPOSE_FILE="docker-compose.prod.yml"
 CADDY_CONTAINER="${CADDY_CONTAINER:-terremotoapp-caddy-1}"
 EDGE_NETWORK="${EDGE_NETWORK:-terremotoapp_mapa_prod_net}"
@@ -20,6 +20,8 @@ fi
 
 POSTGRES_PASSWORD="$(env_prod_read "$ENV_FILE" POSTGRES_PASSWORD)"
 [[ -n "$POSTGRES_PASSWORD" ]] || { echo "POSTGRES_PASSWORD empty"; exit 1; }
+
+export ENV_FILE
 
 echo "==> Ensuring edge network"
 docker network create "$EDGE_NETWORK" 2>/dev/null || true

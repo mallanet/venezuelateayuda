@@ -26,6 +26,24 @@ echo "==> psql with password from env"
 PGPASSWORD="$POSTGRES_PASSWORD" docker exec -e PGPASSWORD venezuelateayuda-db-1 \
   psql -h 127.0.0.1 -U vta -d venezuelateayuda -c 'SELECT 2 AS ok;' || true
 
+echo "==> App DATABASE_URL (from container)"
+docker exec venezuelateayuda-app-1 node -e "
+const u = process.env.DATABASE_URL;
+if (!u) { console.log('missing'); process.exit(0); }
+const parsed = new URL(u);
+console.log('user=' + parsed.username);
+console.log('host=' + parsed.hostname);
+console.log('passwordLen=' + (parsed.password?.length ?? 0));
+" 2>&1 || true
+
+echo "==> Prisma probe (migrate image)"
+docker compose -f "$ROOT/docker-compose.prod.yml" --env-file "$ENV_FILE" run --rm migrate \
+  node -e "
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+prisma.helpListing.count().then((n) => { console.log('count=' + n); }).catch((e) => { console.error(e.message); process.exit(1); }).finally(() => prisma.\$disconnect());
+" 2>&1 || true
+
 echo "==> App health (in-container)"
 docker exec venezuelateayuda-app-1 wget -qO- http://127.0.0.1:3000/api/health 2>&1 || true
 echo

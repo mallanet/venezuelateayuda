@@ -7,8 +7,8 @@ cd "$ROOT"
 # shellcheck source=scripts/lib/env-prod.sh
 source "$ROOT/scripts/lib/env-prod.sh"
 
-ENV_FILE="${ENV_FILE:-$ROOT/.env.prod}"
-[[ -f "$ENV_FILE" ]] || ENV_FILE="/opt/venezuelateayuda/.env.prod"
+ENV_FILE="${ENV_FILE:-/opt/venezuelateayuda/.env.prod}"
+[[ -f "$ENV_FILE" ]] || ENV_FILE="$ROOT/.env.prod"
 [[ -f "$ENV_FILE" ]] || { echo "Missing .env.prod"; exit 1; }
 
 POSTGRES_PASSWORD="$(env_prod_read "$ENV_FILE" POSTGRES_PASSWORD)"
@@ -28,6 +28,8 @@ echo "==> Sync Postgres password"
 escaped="$(printf '%s' "$POSTGRES_PASSWORD" | sed "s/'/''/g")"
 docker exec "$DB_CONTAINER" psql -U vta -d venezuelateayuda \
   -c "ALTER USER vta WITH PASSWORD '${escaped}';"
+
+export ENV_FILE
 
 echo "==> Migrate + recreate app with fresh env"
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" run --rm migrate
