@@ -42,5 +42,5 @@ jobs:
 
       - name: Verify service
         run: |
-          systemctl is-active malladog-bot
-          systemctl is-enabled malladog-bot
+          docker ps --filter name=malladog-bot --format '{{.Names}} {{.Status}}' | grep -q 'malladog-bot Up'
+          docker inspect malladog-bot --format '{{.HostConfig.RestartPolicy.Name}}' | grep -q unless-stopped
