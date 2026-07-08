@@ -1,0 +1,19 @@
+name: Ops — Fix DB
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/vps-fix-db.sh
+      - .github/workflows/fix-db.yml
+
+jobs:
+  fix:
+    runs-on: [self-hosted, vta]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: |
+          chmod +x scripts/vps-fix-db.sh
+          bash scripts/vps-fix-db.sh

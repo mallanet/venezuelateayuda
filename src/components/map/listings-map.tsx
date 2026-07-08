@@ -28,7 +28,7 @@ function markerIcon(listing: PublicListing) {
     : listing.type === "OFREZCO"
       ? ZONE_COLORS.OFREZCO.stroke
       : ZONE_COLORS.NECESITO.stroke;
-  const safeUrl = listing.authorAvatarUrl.replace(/"/g, "&quot;");
+  const safeUrl = `/_next/image?url=${encodeURIComponent(listing.authorAvatarUrl)}&w=64&q=75`;
   return L.divIcon({
     className: "",
     html: `<div style="width:44px;height:44px;border-radius:50%;border:3px solid ${borderColor};overflow:hidden;box-shadow:0 2px 8px rgba(14,107,203,.35);background:#fff"><img src="${safeUrl}" alt="" style="width:100%;height:100%;object-fit:cover" /></div>`,

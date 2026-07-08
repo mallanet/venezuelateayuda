@@ -7,6 +7,7 @@ export const ApiErrorCode = {
   CONFLICT: "CONFLICT",
   VALIDATION: "VALIDATION",
   UNSUPPORTED: "UNSUPPORTED",
+  INTERNAL: "INTERNAL",
 } as const;
 
 export type ApiErrorCode = (typeof ApiErrorCode)[keyof typeof ApiErrorCode];

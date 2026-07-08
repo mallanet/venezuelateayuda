@@ -7,46 +7,52 @@ import { listingSchema, parseSearchParams, listingsQuerySchema } from "@/lib/val
 import { buildApprovedListingsWhere, mapListingRowToPublic } from "@/lib/listings-query";
 
 export async function GET(req: Request): Promise<NextResponse> {
-  const url = new URL(req.url);
-  const parsed = parseSearchParams(listingsQuerySchema, url.searchParams);
-  if (!parsed.success) {
-    return apiErrorResponse(
-      ApiErrorCode.VALIDATION,
-      parsed.error.issues[0]?.message ?? "Filtros inválidos",
-      400
-    );
-  }
+  try {
+    const url = new URL(req.url);
+    const parsed = parseSearchParams(listingsQuerySchema, url.searchParams);
+    if (!parsed.success) {
+      return apiErrorResponse(
+        ApiErrorCode.VALIDATION,
+        parsed.error.issues[0]?.message ?? "Filtros inválidos",
+        400
+      );
+    }
 
-  const listings = await prisma.helpListing.findMany({
-    where: buildApprovedListingsWhere(parsed.data),
-    orderBy: { createdAt: "desc" },
-    take: 500,
-    select: {
-      id: true,
-      type: true,
-      title: true,
-      description: true,
-      category: true,
-      state: true,
-      municipality: true,
-      lat: true,
-      lng: true,
-      quantity: true,
-      quantityUnit: true,
-      modality: true,
-      createdAt: true,
-      user: {
-        select: {
-          id: true,
-          profile: { select: { displayName: true, avatarUrl: true, radiusKm: true } },
+    const listings = await prisma.helpListing.findMany({
+      where: buildApprovedListingsWhere(parsed.data),
+      orderBy: { createdAt: "desc" },
+      take: 500,
+      select: {
+        id: true,
+        type: true,
+        title: true,
+        description: true,
+        category: true,
+        state: true,
+        municipality: true,
+        lat: true,
+        lng: true,
+        quantity: true,
+        quantityUnit: true,
+        modality: true,
+        createdAt: true,
+        user: {
+          select: {
+            id: true,
+            profile: { select: { displayName: true, avatarUrl: true, radiusKm: true } },
+          },
         },
       },
-    },
-  });
+    });
 
-  return NextResponse.json({
-    listings: listings.map(mapListingRowToPublic),
-  });
+    return NextResponse.json({
+      listings: listings.map(mapListingRowToPublic),
+    });
+  } catch (err) {
+    console.error("[api/listings]", err);
+    const message = err instanceof Error ? err.message : "Error interno";
+    return apiErrorResponse(ApiErrorCode.INTERNAL, message, 500);
+  }
 }
 
 export async function POST(req: Request): Promise<NextResponse> {
