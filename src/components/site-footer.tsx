@@ -220,6 +220,15 @@ export function SiteFooter() {
             >
               Riesgo sísmico
             </a>
+            <LegalSeparator />
+            <a
+              href="https://drive.google.com/drive/folders/1_UMrqDl4lAbXDYpt2sH45plVuhGCMLDo?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline-offset-2 hover:text-primary hover:underline"
+            >
+              Recursos compartidos
+            </a>
           </div>
         </div>
       </div>
