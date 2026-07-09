@@ -1,0 +1,73 @@
+name: Bootstrap Malladog runner (one-shot)
+
+# Dedicated runner for mallanet/Malladog (separate from VTA / Terremoto).
+on:
+  workflow_dispatch:
+
+jobs:
+  bootstrap:
+    runs-on: [self-hosted, vta]
+    timeout-minutes: 15
+    steps:
+      - name: Create github-runner-malladog
+        run: |
+          set -euo pipefail
+          # Runner container only has docker.sock — operate on host /docker via bind mount.
+          docker run --rm -v /docker:/docker -v /var/run/docker.sock:/var/run/docker.sock \
+            python:3.12-alpine sh -c '
+            set -euo pipefail
+            apk add --no-cache docker-cli docker-cli-compose >/dev/null
+            python - <<'"'"'PY'"'"'
+          import re
+          from pathlib import Path
+          src = Path("/docker/github-runner-vta/docker-compose.yml").read_text()
+          m = re.search(r"ACCESS_TOKEN:\s*(\S+)", src)
+          if not m:
+              raise SystemExit("ACCESS_TOKEN not found on VTA runner compose")
+          tok = m.group(1)
+          out = Path("/docker/github-runner-malladog")
+          out.mkdir(parents=True, exist_ok=True)
+          (out / "docker-compose.yml").write_text(
+              f"""services:
+            runner:
+              image: myoung34/github-runner:latest
+              restart: always
+              environment:
+                REPO_URL: https://github.com/mallanet/Malladog
+                ACCESS_TOKEN: {tok}
+                RUNNER_NAME: hostinger-malladog-1
+                RUNNER_WORKDIR: /tmp/runner/work
+                LABELS: self-hosted,hostinger,malladog
+                RUNNER_GROUP: default
+                EPHEMERAL: "false"
+              volumes:
+                - /var/run/docker.sock:/var/run/docker.sock
+                - runner_work_malladog:/home/runner/_work
+
+          volumes:
+            runner_work_malladog:
+          """
+          )
+          print("wrote compose")
+          PY
+            cd /docker/github-runner-malladog
+            docker compose up -d --force-recreate
+            docker ps --filter name=github-runner-malladog --format "{{.Names}} {{.Status}}"
+          '
+
+      - name: Wait for Malladog runner online
+        env:
+          GH_TOKEN: ${{ secrets.MALLADOG_REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 36); do
+            names=$(gh api repos/mallanet/Malladog/actions/runners --jq '.runners[]|select(.status=="online")|.name' || true)
+            if [[ -n "$names" ]]; then
+              gh api repos/mallanet/Malladog/actions/runners --jq '.runners[]|{name,status,labels:[.labels[].name]}'
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Runner not online"
+          docker logs "$(docker ps -qf name=github-runner-malladog)" --tail 80 || true
+          exit 1
