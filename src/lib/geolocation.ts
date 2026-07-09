@@ -65,6 +65,7 @@ export function useUserLocation(options?: { requestOnMount?: boolean }) {
   }, [hasGeolocation]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount option explicitly requests browser geolocation.
     if (options?.requestOnMount) requestLocation();
   }, [options?.requestOnMount, requestLocation]);
 

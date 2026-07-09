@@ -22,6 +22,7 @@ export async function GET(
 
   try {
     const filePath = path.join(uploadsRoot(), safe);
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- resolveUploadFilename rejects traversal and unknown formats.
     const data = await readFile(filePath);
     const ext = safe.split(".").pop() ?? "jpg";
     return new NextResponse(data, {

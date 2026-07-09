@@ -42,6 +42,7 @@ export async function POST(req: Request): Promise<NextResponse> {
   }
 
   const dir = uploadsRoot();
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- uploadsRoot is server-controlled.
   await mkdir(dir, { recursive: true });
 
   const filename = `${user.id}.${ext}`;
@@ -50,10 +51,12 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   for (const oldExt of Object.values(UPLOAD_MIME)) {
     if (oldExt === ext) continue;
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- ID is authenticated; extension is allowlisted.
     await unlink(path.join(dir, `${user.id}.${oldExt}`)).catch(() => undefined);
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- ID is authenticated; extension is allowlisted.
   await writeFile(absolute, buffer);
 
   const profile = await prisma.profile.update({
@@ -72,6 +75,7 @@ export async function DELETE(): Promise<NextResponse> {
 
   const dir = uploadsRoot();
   for (const ext of Object.values(UPLOAD_MIME)) {
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- ID is authenticated; extension is allowlisted.
     await unlink(path.join(dir, `${user.id}.${ext}`)).catch(() => undefined);
   }
 

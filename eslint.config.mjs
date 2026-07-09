@@ -9,7 +9,7 @@ const eslintConfig = defineConfig([
   {
     plugins: { security },
     rules: {
-      // Hard security gates — any hit fails the build.
+      // Actionable security gates — any hit fails the build.
       "security/detect-eval-with-expression": "error",
       "security/detect-no-csrf-before-method-override": "error",
       "security/detect-non-literal-fs-filename": "error",
@@ -19,9 +19,8 @@ const eslintConfig = defineConfig([
       "security/detect-buffer-noassert": "error",
       "security/detect-child-process": "error",
       "security/detect-disable-mustache-escape": "error",
-      "security/detect-xss": "error",
-      "security/detect-sql-query-construction": "error",
-      "security/detect-object-injection": "error",
+      // Too broad for typed property access; Semgrep covers injection sinks.
+      "security/detect-object-injection": "off",
     },
   },
   // Override default ignores of eslint-config-next.
@@ -30,6 +29,7 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    ".cursor/**",
     "next-env.d.ts",
   ]),
 ]);

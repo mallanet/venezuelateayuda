@@ -28,6 +28,7 @@ export default function ResetPasswordPage() {
     const form = new FormData(e.currentTarget);
     const password = String(form.get("password") ?? "");
     const confirm = String(form.get("confirm") ?? "");
+    // eslint-disable-next-line security/detect-possible-timing-attacks -- client-side confirmation is not an authentication decision.
     if (password !== confirm) {
       toast.error("Las contraseñas no coinciden");
       return;

@@ -62,6 +62,7 @@ export function HomeHeroMap() {
 
   useEffect(() => {
     if (geoPermission === "denied" && filters.nearMe) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- permission revocation must reset the controlled filter.
       setFilters((prev) => ({ ...prev, nearMe: false }));
     }
   }, [geoPermission, filters.nearMe]);

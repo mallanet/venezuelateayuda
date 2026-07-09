@@ -1,0 +1,48 @@
+name: Ops — Repair SSH
+
+on:
+  workflow_dispatch:
+
+jobs:
+  repair:
+    runs-on: [self-hosted, vta]
+    timeout-minutes: 10
+    steps:
+      - name: Install key and harden sshd
+        env:
+          VPS_SSH_PUBLIC_KEY: ${{ secrets.VPS_SSH_PUBLIC_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$VPS_SSH_PUBLIC_KEY"
+          cat > /tmp/repair-ssh.sh <<'EOF'
+          set -eu
+          command -v sshd >/dev/null 2>&1 || {
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get install -y openssh-server
+          }
+          install -d -m 700 /root/.ssh
+          touch /root/.ssh/authorized_keys
+          chmod 600 /root/.ssh/authorized_keys
+          grep -qxF "$VPS_SSH_PUBLIC_KEY" /root/.ssh/authorized_keys ||
+            printf '%s\n' "$VPS_SSH_PUBLIC_KEY" >> /root/.ssh/authorized_keys
+          install -d -m 755 /etc/ssh/sshd_config.d
+          cat > /etc/ssh/sshd_config.d/99-mallanet-hardening.conf <<'CONFIG'
+          PubkeyAuthentication yes
+          PermitRootLogin prohibit-password
+          PasswordAuthentication no
+          KbdInteractiveAuthentication no
+          CONFIG
+          sshd -t
+          systemctl enable --now ssh
+          systemctl reload ssh
+          if command -v ufw >/dev/null 2>&1; then
+            ufw allow 22/tcp
+          fi
+          ss -lntp | grep -E '[:.]22[[:space:]]'
+          EOF
+          docker run --rm --privileged --pid=host --net=host \
+            -e VPS_SSH_PUBLIC_KEY \
+            -v /tmp/repair-ssh.sh:/tmp/repair-ssh.sh:ro \
+            alpine:3.20 \
+            nsenter --target 1 --mount --uts --ipc --net -- \
+            env VPS_SSH_PUBLIC_KEY="$VPS_SSH_PUBLIC_KEY" sh /tmp/repair-ssh.sh
