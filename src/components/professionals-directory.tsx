@@ -33,13 +33,13 @@ export function ProfessionalsDirectory() {
   });
 
   const query = useMemo(() => buildProfessionalsQuery(filters), [filters]);
-  const { data, isLoading } = useSWR<{ professionals: PublicProfessional[] }>(query, fetchJson, {
+  const { data, isLoading, error } = useSWR<{ professionals: PublicProfessional[] }>(query, fetchJson, {
     refreshInterval: 60_000,
   });
   const professionals = data?.professionals ?? [];
 
   return (
-    <div className="mx-auto grid max-w-5xl gap-8 px-4 py-10" data-testid="professionals-directory">
+    <div className="mx-auto grid w-full max-w-[1120px] gap-8 px-4 py-12" data-testid="professionals-directory">
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
         <MapFilterSidebar
           filters={filters}
@@ -49,11 +49,15 @@ export function ProfessionalsDirectory() {
           showTypeFilter={false}
           searchLabel="Busca por nombre o profesión"
           searchPlaceholder="Nombre, oficio o especialidad..."
-          className="rounded-xl border bg-card p-5 shadow-sm lg:sticky lg:top-20 lg:self-start"
+          className="rounded-xl border border-border/60 bg-card p-5 shadow-soft lg:sticky lg:top-20 lg:self-start"
         />
 
         <div className="grid gap-6">
-          {isLoading ? (
+          {error ? (
+            <div className="rounded-xl border border-destructive/25 bg-destructive/5 p-8 text-center text-sm text-destructive" role="alert">
+              No se pudo cargar el directorio. Intenta de nuevo en unos minutos.
+            </div>
+          ) : isLoading ? (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <Skeleton key={i} className="h-80 w-full rounded-xl" />

@@ -81,7 +81,7 @@ export default function RegistroPage() {
       <Card className="overflow-hidden border-border/60 shadow-elevated">
         <div className="accent-rule h-0.5 w-full" aria-hidden />
         <CardHeader className="pb-4 text-center">
-          <CardTitle className="font-display text-2xl font-semibold text-primary">
+          <CardTitle as="h1" className="font-display text-2xl font-semibold text-primary">
             Crear cuenta
           </CardTitle>
           <CardDescription className="text-muted-foreground">
@@ -92,11 +92,12 @@ export default function RegistroPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-5">
             <div className="grid gap-2">
-              <Label>¿Cómo quieres participar?</Label>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Label id="participation-label">¿Cómo quieres participar?</Label>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" role="group" aria-labelledby="participation-label">
                 <button
                   type="button"
                   data-testid="role-ayudante"
+                  aria-pressed={role === "AYUDANTE"}
                   onClick={() => {
                     setRole("AYUDANTE");
                   }}
@@ -115,6 +116,7 @@ export default function RegistroPage() {
                 <button
                   type="button"
                   data-testid="role-solicitante"
+                  aria-pressed={role === "SOLICITANTE"}
                   onClick={() => {
                     setRole("SOLICITANTE");
                     setIsAbroad(false);

@@ -26,23 +26,29 @@ export function Reveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const fallback = window.setTimeout(() => setShown(true), 1_200);
 
     if (typeof IntersectionObserver === "undefined") {
-      const id = window.setTimeout(() => setShown(true), 0);
-      return () => window.clearTimeout(id);
+      window.clearTimeout(fallback);
+      const revealFrame = window.requestAnimationFrame(() => setShown(true));
+      return () => window.cancelAnimationFrame(revealFrame);
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
           setShown(true);
+          window.clearTimeout(fallback);
           observer.disconnect();
         }
       },
       { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
     );
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      window.clearTimeout(fallback);
+      observer.disconnect();
+    };
   }, []);
 
   return (

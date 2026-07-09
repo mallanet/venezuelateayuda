@@ -52,7 +52,7 @@ export default async function PerfilPage() {
   if (!user || !profile) redirect("/login");
 
   return (
-    <div className="mx-auto grid w-full max-w-4xl gap-8 px-4 py-10">
+    <div className="bg-section-glow mx-auto grid w-full max-w-4xl gap-8 px-4 py-12">
       <div className="flex items-center gap-3 border-b border-accent/20 pb-4">
         <Logo size={32} />
         <span className="font-heading text-sm font-semibold tracking-wide text-primary/60 uppercase">
@@ -60,11 +60,11 @@ export default async function PerfilPage() {
         </span>
       </div>
 
-      <Card className="border-accent/10 shadow-sm">
+      <Card className="shadow-elevated">
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <CardTitle className="font-heading text-2xl">Mi perfil</CardTitle>
+              <CardTitle as="h1" className="font-heading text-3xl text-primary">Mi perfil</CardTitle>
               <CardDescription className="text-sm">{user.email}</CardDescription>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -107,7 +107,7 @@ export default async function PerfilPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-accent/10 shadow-sm">
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="font-heading text-xl">Mis fichas</CardTitle>

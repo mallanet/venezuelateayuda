@@ -45,10 +45,12 @@ export default function RegistroExitoPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 py-16">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Revisa tu email</CardTitle>
+    <div className="bg-section-glow flex flex-1 items-center px-4 py-16">
+      <Card className="mx-auto w-full max-w-lg shadow-elevated">
+        <div className="flag-rule h-1 w-full" aria-hidden />
+        <CardHeader className="border-b border-border/50">
+          <span className="kicker">Cuenta creada</span>
+          <CardTitle as="h1" className="text-3xl text-primary">Revisa tu email</CardTitle>
           <CardDescription>Tu cuenta fue creada correctamente.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 text-sm text-muted-foreground">
@@ -64,7 +66,7 @@ export default function RegistroExitoPage() {
             </Link>{" "}
             (eso también verifica el email).
           </p>
-          <form onSubmit={handleResend} className="grid gap-3 rounded-xl border border-border/60 p-4">
+          <form onSubmit={handleResend} className="grid gap-3 rounded-lg bg-secondary/70 p-4">
             <Label htmlFor="resend-email" className="text-foreground">
               Reenviar verificación
             </Label>
@@ -80,7 +82,7 @@ export default function RegistroExitoPage() {
               {loading ? "Enviando..." : "Reenviar email"}
             </Button>
           </form>
-          <Button asChild className="justify-self-start">
+          <Button asChild className="w-full sm:w-auto">
             <Link href="/login">Ir a iniciar sesión</Link>
           </Button>
         </CardContent>

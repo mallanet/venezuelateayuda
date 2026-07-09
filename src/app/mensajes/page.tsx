@@ -46,7 +46,7 @@ export default function MensajesPage() {
         <Card className="overflow-hidden border-border/60 shadow-elevated">
           <div className="accent-rule h-0.5 w-full" aria-hidden />
           <CardHeader className="border-b border-border/40 pb-4">
-            <CardTitle className="font-display text-2xl font-semibold text-primary">
+            <CardTitle as="h1" className="font-display text-3xl font-semibold text-primary">
               Mensajes
             </CardTitle>
           </CardHeader>

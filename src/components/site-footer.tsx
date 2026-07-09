@@ -60,29 +60,29 @@ const LEGAL_LINKS = [
 ] as const;
 
 function LegalSeparator() {
-  return <span className="text-muted-foreground/50">·</span>;
+  return <span className="text-white/35">·</span>;
 }
 
 export function SiteFooter() {
   return (
-    <footer className="bg-section-glow border-t border-[#EFF3F8] text-foreground">
+    <footer className="border-t-4 border-[var(--mallanet-blue-500)] bg-[var(--mallanet-blue-950)] text-[var(--mallanet-blue-100)]">
       <div className="mx-auto max-w-[1120px] px-6 pb-10 pt-16">
         <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr]">
           <div className="grid gap-5">
             <div className="flex items-center gap-3">
               <Logo size={44} />
               <div className="grid">
-                <span className="font-display text-[23px] font-black leading-tight text-[var(--mallanet-blue-600)]">
+                <span className="font-display text-[23px] font-black leading-tight text-white">
                   Venezuela Te Ayuda
                 </span>
-                <span className="text-sm font-semibold text-[var(--mallanet-blue-500)]">
+                <span className="text-sm font-semibold text-[var(--mallanet-blue-200)]">
                   Mapa de ayuda mutua
                 </span>
               </div>
             </div>
             <div>
-              <h2 className="font-display text-xl font-semibold text-primary">¿Quiénes hacemos esto?</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              <h2 className="font-display text-xl font-semibold text-white">¿Quiénes hacemos esto?</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[var(--mallanet-blue-100)]">
                 Somos un equipo de voluntarios construyendo esta plataforma abierta para que
                 cualquier persona afectada por el terremoto pueda pedir y ofrecer ayuda en tiempo
                 real. Gratuito, sin fines de lucro y de código abierto.
@@ -90,8 +90,8 @@ export function SiteFooter() {
             </div>
 
             <section className="grid gap-3">
-              <h3 className="font-display text-base font-semibold text-primary">Únete a la comunidad</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-display text-base font-semibold text-white">Únete a la comunidad</h3>
+              <p className="text-sm text-[var(--mallanet-blue-100)]">
                 Coordinamos ayuda y damos soporte en nuestro Discord. También puedes escribirnos
                 por correo.
               </p>
@@ -118,7 +118,7 @@ export function SiteFooter() {
                 </a>
                 <a
                   href="mailto:info@mallanet.org"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-primary underline-offset-4 decoration-accent/40 transition-colors hover:decoration-accent"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-white underline-offset-4 decoration-[var(--mallanet-blue-400)] transition-colors hover:underline"
                 >
                   <Mail size={15} aria-hidden />
                   info@mallanet.org
@@ -128,15 +128,15 @@ export function SiteFooter() {
           </div>
 
           <section className="grid gap-3">
-            <h3 className="font-display text-base font-semibold text-primary">Sitios aliados</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="font-display text-base font-semibold text-white">Sitios aliados</h3>
+            <p className="text-sm text-[var(--mallanet-blue-100)]">
               Otras plataformas ciudadanas que ayudan ante el terremoto. Compártelas para llegar a
               más personas.
             </p>
             <div className="grid gap-3">
               {ALLY_GROUPS.map((group) => (
                 <div key={group.label} className="grid gap-2">
-                  <h4 className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-[0.12em] text-muted-foreground uppercase">
+                  <h4 className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-[0.12em] text-[var(--mallanet-blue-200)] uppercase">
                     <group.icon size={13} aria-hidden />
                     {group.label}
                   </h4>
@@ -147,12 +147,12 @@ export function SiteFooter() {
                           href={link.href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="block rounded-xl border border-border/60 bg-card px-3.5 py-2.5 shadow-soft hover-lift hover-glow"
+                          className="block rounded-lg border border-white/15 bg-white/5 px-3.5 py-2.5 transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mallanet-blue-400)]"
                         >
-                          <span className="block text-sm font-semibold text-primary">
+                          <span className="block text-sm font-semibold text-white">
                             {link.title}
                           </span>
-                          <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
+                          <span className="mt-0.5 block text-xs leading-relaxed text-[var(--mallanet-blue-100)]">
                             {link.desc}
                           </span>
                         </a>
@@ -165,7 +165,7 @@ export function SiteFooter() {
           </section>
         </div>
 
-        <div className="mt-12 h-px w-full bg-[var(--mallanet-gray-200)]" aria-hidden />
+        <div className="mt-12 h-px w-full bg-white/15" aria-hidden />
 
         <nav
           className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm"
@@ -177,14 +177,14 @@ export function SiteFooter() {
               {link.href.startsWith("/") ? (
                 <Link
                   href={link.href}
-                  className="font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
+                  className="font-medium text-[var(--mallanet-blue-100)] underline-offset-4 transition-colors hover:text-white hover:underline"
                 >
                   {link.label}
                 </Link>
               ) : (
                 <a
                   href={link.href}
-                  className="font-medium text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
+                  className="font-medium text-[var(--mallanet-blue-100)] underline-offset-4 transition-colors hover:text-white hover:underline"
                 >
                   {link.label}
                 </a>
@@ -193,14 +193,14 @@ export function SiteFooter() {
           ))}
         </nav>
 
-        <div className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
+        <div className="mt-4 text-center text-xs leading-relaxed text-[var(--mallanet-blue-200)]">
           <p>
             Plataforma de reporte ciudadano sin fines de lucro. Datos de mapas ©{" "}
             <a
               href="https://www.openstreetmap.org/copyright"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-accent underline-offset-2 hover:underline"
+              className="text-white underline-offset-2 hover:underline"
             >
               OpenStreetMap
             </a>
@@ -212,7 +212,7 @@ export function SiteFooter() {
               href="https://terremotovenezuela.app/metodologia"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline-offset-2 hover:text-primary hover:underline"
+              className="underline-offset-2 hover:text-white hover:underline"
             >
               Metodología
             </a>
@@ -221,7 +221,7 @@ export function SiteFooter() {
               href="https://terremotovenezuela.app/riesgo-sismico"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline-offset-2 hover:text-primary hover:underline"
+              className="underline-offset-2 hover:text-white hover:underline"
             >
               Riesgo sísmico
             </a>

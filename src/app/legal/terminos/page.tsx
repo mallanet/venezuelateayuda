@@ -4,9 +4,12 @@ export const metadata = {
 
 export default function TerminosPage() {
   return (
-    <article className="prose prose-neutral mx-auto w-full max-w-3xl px-4 py-12 dark:prose-invert">
-      <h1>Términos de uso</h1>
-      <p>Última actualización: julio de 2026</p>
+    <article className="prose prose-slate prose-headings:text-[var(--mallanet-blue-900)] prose-a:text-[var(--mallanet-blue-700)] mx-auto w-full max-w-3xl px-5 py-16">
+      <header className="not-prose mb-10 border-b border-border pb-8">
+        <span className="kicker">Información legal</span>
+        <h1 className="mt-3 font-heading text-4xl text-primary">Términos de uso</h1>
+        <p className="mt-3 text-sm text-muted-foreground">Última actualización: julio de 2026</p>
+      </header>
 
       <h2>1. Qué es Venezuela Te Ayuda</h2>
       <p>
