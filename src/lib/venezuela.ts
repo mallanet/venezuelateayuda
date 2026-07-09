@@ -352,7 +352,7 @@ export function getState(name: string): VenezuelaState | undefined {
 
 /**
  * Coordenadas de zona: municipio si existe, si no el centro del estado.
- * Exterior → ancla Caribe con dispersión determinística (seed).
+ * Exterior → coords del país (municipality) con jitter determinístico (seed).
  */
 export function getZoneCoords(
   stateName: string,
@@ -360,7 +360,7 @@ export function getZoneCoords(
   seed?: string
 ): { lat: number; lng: number } | null {
   if (stateName === ABROAD_STATE) {
-    return abroadMapPosition(seed ?? municipalityName ?? stateName);
+    return abroadMapPosition(municipalityName ?? "", seed ?? municipalityName ?? stateName);
   }
   const state = getState(stateName);
   if (!state) return null;

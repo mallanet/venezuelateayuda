@@ -88,6 +88,7 @@ model User {
   reportsMade        Report[]            @relation("Reporter")
   reportsReceived    Report[]            @relation("ReportedUser")
   auditLogs          AuditLog[]          @relation("AdminActions")
+  activityLogs       ActivityLog[]
   verificationTokens VerificationToken[]
 
   @@index([status])
@@ -210,9 +211,43 @@ model AuditLog {
   targetType String
   targetId   String
   detail     String?
+  ip         String?
+  userAgent  String?
+  browser    String?
+  os         String?
+  device     String?
+  path       String?
+  httpMethod String?
+  country    String?
   createdAt  DateTime @default(now())
 
   admin User @relation("AdminActions", fields: [adminId], references: [id], onDelete: Cascade)
 
   @@index([targetType, targetId])
+}
+
+/** Eventos de seguridad/actividad (login, registro, mutaciones). Sin secretos. */
+model ActivityLog {
+  id         String   @id @default(cuid())
+  eventType  String
+  userId     String?
+  email      String?
+  ip         String?
+  userAgent  String?
+  browser    String?
+  os         String?
+  device     String?
+  path       String?
+  httpMethod String?
+  country    String?
+  detail     Json?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([email])
+  @@index([ip])
+  @@index([eventType])
+  @@index([userId])
 }

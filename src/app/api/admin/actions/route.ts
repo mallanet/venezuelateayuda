@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getAdminUser } from "@/lib/session-guards";
 import { purgeDemoUsers } from "@/lib/purge-demo-users";
 import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
+import { logActivity } from "@/lib/activity-log";
+import { requestMeta } from "@/lib/request-meta";
 
 const actionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("aprobar_usuario"), userId: z.string() }),
@@ -32,10 +34,32 @@ export async function POST(req: Request) {
   }
 
   const data = parsed.data;
+  const meta = requestMeta(req);
 
   async function log(action: string, targetType: string, targetId: string, detail?: string) {
     await prisma.auditLog.create({
-      data: { adminId: admin!.id, action, targetType, targetId, detail },
+      data: {
+        adminId: admin!.id,
+        action,
+        targetType,
+        targetId,
+        detail,
+        ip: meta.ip,
+        userAgent: meta.userAgent,
+        browser: meta.browser,
+        os: meta.os,
+        device: meta.device,
+        path: meta.path,
+        httpMethod: meta.httpMethod,
+        country: meta.country,
+      },
+    });
+    await logActivity(req, {
+      eventType: "admin_action",
+      userId: admin!.id,
+      email: admin!.email,
+      meta,
+      detail: { action, targetType, targetId, detail: detail ?? null },
     });
   }
 

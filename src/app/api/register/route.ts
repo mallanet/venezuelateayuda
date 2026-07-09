@@ -6,6 +6,7 @@ import { registerSchema } from "@/lib/validation";
 import { isEmailDeliveryConfigured, sendVerificationEmail } from "@/lib/email";
 import { getZoneCoords } from "@/lib/venezuela";
 import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
+import { logActivity } from "@/lib/activity-log";
 
 function newVerifyToken() {
   return {
@@ -109,6 +110,12 @@ export async function POST(req: Request): Promise<NextResponse> {
       });
       const fail = await sendVerificationOrFail(email, token);
       if (fail) return fail;
+      await logActivity(req, {
+        eventType: "register",
+        userId: existing.id,
+        email,
+        detail: { resent: true, role: data.role },
+      });
       return NextResponse.json(
         {
           ok: true,
@@ -165,6 +172,13 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   const fail = await sendVerificationOrFail(email, token, { rollbackUserId: userId });
   if (fail) return fail;
+
+  await logActivity(req, {
+    eventType: "register",
+    userId,
+    email,
+    detail: { role: data.role },
+  });
 
   return NextResponse.json({ ok: true }, { status: 201 });
 }

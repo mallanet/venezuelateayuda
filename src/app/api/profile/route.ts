@@ -6,6 +6,7 @@ import { isAbroadState } from "@/lib/abroad";
 import { getZoneCoords } from "@/lib/venezuela";
 import { isCustomAvatarUrl } from "@/lib/avatar";
 import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
+import { logActivity } from "@/lib/activity-log";
 
 export async function GET(): Promise<NextResponse> {
   const { user, error } = await getSessionUser();
@@ -56,6 +57,12 @@ export async function PUT(req: Request): Promise<NextResponse> {
       radiusKm: abroad ? 0 : data.radiusKm,
       categories: data.categories,
     },
+  });
+  await logActivity(req, {
+    eventType: "profile_update",
+    userId: user.id,
+    email: user.email,
+    detail: { state: data.state, municipality: data.municipality },
   });
   return NextResponse.json({ profile });
 }

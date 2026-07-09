@@ -6,6 +6,7 @@ import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 import { listingSchema, parseSearchParams, listingsQuerySchema } from "@/lib/validation";
 import { buildApprovedListingsWhere, mapListingRowToPublic } from "@/lib/listings-query";
 import { getZoneCoords } from "@/lib/venezuela";
+import { logActivity } from "@/lib/activity-log";
 
 export async function GET(req: Request): Promise<NextResponse> {
   try {
@@ -90,6 +91,13 @@ export async function POST(req: Request): Promise<NextResponse> {
       type: abroad ? "OFREZCO" : data.type,
       userId: user.id,
     },
+  });
+
+  await logActivity(req, {
+    eventType: "listing_create",
+    userId: user.id,
+    email: user.email,
+    detail: { listingId: listing.id, category: listing.category, type: listing.type },
   });
 
   return NextResponse.json({ listing }, { status: 201 });

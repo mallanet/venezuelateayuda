@@ -480,7 +480,7 @@ async function seedAbroadOnlineHelpers() {
     const existing = await prisma.user.findUnique({ where: { email: demo.email } });
     if (existing) continue;
 
-    const { lat, lng } = abroadMapPosition(demo.email);
+    const { lat, lng } = abroadMapPosition(demo.municipality, demo.email);
     await prisma.user.create({
       data: {
         email: demo.email,
@@ -538,7 +538,7 @@ async function seedRealVolunteers() {
     const existing = await prisma.user.findUnique({ where: { email: volunteer.email } });
     if (existing) continue;
 
-    const { lat, lng } = abroadMapPosition(volunteer.email);
+    const { lat, lng } = abroadMapPosition(volunteer.municipality, volunteer.email);
     await prisma.user.create({
       data: {
         email: volunteer.email,

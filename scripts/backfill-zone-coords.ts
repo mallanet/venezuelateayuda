@@ -1,7 +1,6 @@
 /**
- * Reasigna lat/lng de perfiles y fichas al municipio (o centro de estado).
+ * Reasigna lat/lng de perfiles y fichas al municipio / país (exterior).
  * Uso: npx tsx scripts/backfill-zone-coords.ts
- * Solo toca filas locales (no "En el exterior").
  */
 import { PrismaClient } from "@prisma/client";
 import { ABROAD_STATE } from "../src/lib/abroad";
@@ -11,7 +10,6 @@ const prisma = new PrismaClient();
 
 async function main() {
   const profiles = await prisma.profile.findMany({
-    where: { state: { not: ABROAD_STATE } },
     select: { userId: true, state: true, municipality: true, lat: true, lng: true },
   });
 
@@ -28,7 +26,6 @@ async function main() {
   }
 
   const listings = await prisma.helpListing.findMany({
-    where: { state: { not: ABROAD_STATE } },
     select: { id: true, state: true, municipality: true, lat: true, lng: true, userId: true },
   });
 
@@ -36,7 +33,18 @@ async function main() {
   for (const l of listings) {
     const coords = getZoneCoords(l.state, l.municipality, l.userId);
     if (!coords) continue;
-    // Solo corrige pins que siguen en el centro del estado (sin ajuste manual).
+
+    if (l.state === ABROAD_STATE) {
+      if (l.lat === coords.lat && l.lng === coords.lng) continue;
+      await prisma.helpListing.update({
+        where: { id: l.id },
+        data: { lat: coords.lat, lng: coords.lng },
+      });
+      listingsUpdated++;
+      continue;
+    }
+
+    // Local: solo corrige pins que siguen en el centro del estado (sin ajuste manual).
     const stateCenter = getZoneCoords(l.state);
     if (!stateCenter) continue;
     const onStateCenter =

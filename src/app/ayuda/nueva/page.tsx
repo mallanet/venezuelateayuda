@@ -58,7 +58,7 @@ export default function NuevaFichaPage() {
         setModality("ONLINE");
         setState(ABROAD_STATE);
         setMunicipality(data.profile.municipality);
-        setPosition(abroadMapPosition(session.user.id));
+        setPosition(abroadMapPosition(data.profile.municipality, session.user.id));
       })
       .catch(() => {});
   }, [session?.user?.id]);

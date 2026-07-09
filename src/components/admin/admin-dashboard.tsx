@@ -7,6 +7,7 @@ import { signOut } from "next-auth/react";
 import useSWR from "swr";
 import { toast } from "sonner";
 import {
+  Activity,
   CheckCircle2,
   ClipboardList,
   FileWarning,
@@ -95,8 +96,33 @@ type AuditEntry = {
   targetType: string;
   targetId: string;
   detail: string | null;
+  ip: string | null;
+  userAgent: string | null;
+  browser: string | null;
+  os: string | null;
+  device: string | null;
+  path: string | null;
+  httpMethod: string | null;
+  country: string | null;
   createdAt: string;
   admin: { email: string };
+};
+
+type ActivityEntry = {
+  id: string;
+  eventType: string;
+  userId: string | null;
+  email: string | null;
+  ip: string | null;
+  userAgent: string | null;
+  browser: string | null;
+  os: string | null;
+  device: string | null;
+  path: string | null;
+  httpMethod: string | null;
+  country: string | null;
+  detail: unknown;
+  createdAt: string;
 };
 
 type AdminData = {
@@ -104,6 +130,7 @@ type AdminData = {
   listings: AdminListing[];
   reports: AdminReport[];
   auditLogs: AuditEntry[];
+  activityLogs: ActivityEntry[];
   metrics: {
     totalUsers: number;
     pendingUsers: number;
@@ -153,6 +180,17 @@ const ACTION_LABEL: Record<string, string> = {
   limpiar_datos_demo: "Limpió demos",
 };
 
+const EVENT_LABEL: Record<string, string> = {
+  register: "Registro",
+  login_success: "Login OK",
+  login_failure: "Login fallido",
+  admin_login_success: "Admin login OK",
+  admin_login_failure: "Admin login fallido",
+  profile_update: "Perfil actualizado",
+  listing_create: "Ficha creada",
+  admin_action: "Acción admin",
+};
+
 function statusBadgeClass(status: string): string {
   switch (status) {
     case "PENDIENTE":
@@ -198,6 +236,8 @@ export function AdminDashboard() {
   const [listingQuery, setListingQuery] = useState("");
   const [reportStatus, setReportStatus] = useState<string>("ABIERTA");
   const [auditQuery, setAuditQuery] = useState("");
+  const [activityQuery, setActivityQuery] = useState("");
+  const [activityType, setActivityType] = useState<string>("ALL");
 
   async function runAction(payload: Record<string, string>, busyKey: string) {
     setBusyId(busyKey);
@@ -285,10 +325,32 @@ export function AdminDashboard() {
         a.action.toLowerCase().includes(q) ||
         a.admin.email.toLowerCase().includes(q) ||
         (a.detail ?? "").toLowerCase().includes(q) ||
-        a.targetId.toLowerCase().includes(q)
+        a.targetId.toLowerCase().includes(q) ||
+        (a.ip ?? "").toLowerCase().includes(q)
       );
     });
   }, [data, auditQuery]);
+
+  const filteredActivity = useMemo(() => {
+    if (!data) return [];
+    const logs = data.activityLogs ?? [];
+    const q = activityQuery.trim().toLowerCase();
+    return logs.filter((a) => {
+      if (activityType !== "ALL" && a.eventType !== activityType) return false;
+      if (!q) return true;
+      const label = (EVENT_LABEL[a.eventType] ?? a.eventType).toLowerCase();
+      return (
+        label.includes(q) ||
+        a.eventType.toLowerCase().includes(q) ||
+        (a.email ?? "").toLowerCase().includes(q) ||
+        (a.ip ?? "").toLowerCase().includes(q) ||
+        (a.userAgent ?? "").toLowerCase().includes(q) ||
+        (a.browser ?? "").toLowerCase().includes(q) ||
+        (a.os ?? "").toLowerCase().includes(q) ||
+        (a.path ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [data, activityQuery, activityType]);
 
   if (isLoading || !data) {
     return (
@@ -425,6 +487,13 @@ export function AdminDashboard() {
               className="rounded-xl px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
             >
               Auditoría ({data.auditLogs.length})
+            </TabsTrigger>
+            <TabsTrigger
+              value="actividad"
+              data-testid="tab-actividad"
+              className="rounded-xl px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              Actividad ({(data.activityLogs ?? []).length})
             </TabsTrigger>
           </TabsList>
 
@@ -939,7 +1008,102 @@ export function AdminDashboard() {
                           )}
                           <p className="mt-1 text-xs text-muted-foreground">
                             Por {entry.admin.email}
+                            {entry.ip ? ` · IP ${entry.ip}` : ""}
+                            {entry.browser || entry.os
+                              ? ` · ${[entry.browser, entry.os, entry.device].filter(Boolean).join(" / ")}`
+                              : ""}
                           </p>
+                        </div>
+                        <time className="text-xs text-muted-foreground tabular-nums">
+                          {formatDate(entry.createdAt)}
+                        </time>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="actividad" className="mt-0">
+            <Card className="border-border/60 shadow-sm">
+              <CardHeader className="gap-4 border-b border-border/40 pb-4">
+                <div className="flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <CardTitle className="font-display flex items-center gap-2 text-lg font-semibold text-primary">
+                      <Activity className="size-5" aria-hidden />
+                      Actividad de usuarios
+                    </CardTitle>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Logins, registros y mutaciones con IP, email y navegador.
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="border-accent/30 text-accent">
+                    {filteredActivity.length} visibles
+                  </Badge>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="relative sm:col-span-2">
+                    <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      value={activityQuery}
+                      onChange={(e) => setActivityQuery(e.target.value)}
+                      placeholder="Buscar email, IP, UA, ruta…"
+                      className="pl-9"
+                      data-testid="activity-search"
+                    />
+                  </div>
+                  <Select value={activityType} onValueChange={setActivityType}>
+                    <SelectTrigger aria-label="Filtrar por tipo de evento">
+                      <SelectValue placeholder="Tipo" />
+                    </SelectTrigger>
+                    <SelectContent className="z-[1300]">
+                      <SelectItem value="ALL">Todos los eventos</SelectItem>
+                      {Object.entries(EVENT_LABEL).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-5">
+                {filteredActivity.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No hay eventos con estos filtros.</p>
+                ) : (
+                  <ul className="grid gap-2" data-testid="activity-log">
+                    {filteredActivity.map((entry) => (
+                      <li
+                        key={entry.id}
+                        className="grid gap-1 rounded-xl border border-border/50 bg-card px-4 py-3 sm:grid-cols-[1fr_auto] sm:items-start"
+                      >
+                        <div className="grid gap-1">
+                          <p className="text-sm font-medium text-foreground">
+                            {EVENT_LABEL[entry.eventType] ?? entry.eventType}
+                            <span className="font-normal text-muted-foreground">
+                              {" "}
+                              · {entry.email ?? "(sin email)"}
+                            </span>
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {[
+                              entry.ip ? `IP ${entry.ip}` : null,
+                              [entry.browser, entry.os, entry.device].filter(Boolean).join(" / ") ||
+                                null,
+                              entry.country ? `país ${entry.country}` : null,
+                              entry.httpMethod && entry.path
+                                ? `${entry.httpMethod} ${entry.path}`
+                                : entry.path,
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </p>
+                          {entry.userAgent && (
+                            <p className="truncate text-[11px] text-muted-foreground/80" title={entry.userAgent}>
+                              {entry.userAgent}
+                            </p>
+                          )}
                         </div>
                         <time className="text-xs text-muted-foreground tabular-nums">
                           {formatDate(entry.createdAt)}

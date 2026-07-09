@@ -1,11 +1,32 @@
 import { NextResponse } from "next/server";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getAdminUser } from "@/lib/session-guards";
 
-/** Datos completos del panel: colas, historial y auditoría. */
-export async function GET() {
+/** Datos completos del panel: colas, historial, auditoría y actividad. */
+export async function GET(req: Request) {
   const { error } = await getAdminUser();
   if (error) return error;
+
+  const url = new URL(req.url);
+  const activityQ = url.searchParams.get("activityQ")?.trim() ?? "";
+  const activityType = url.searchParams.get("activityType")?.trim() ?? "";
+
+  const activityWhere: Prisma.ActivityLogWhereInput = {};
+  if (activityType && activityType !== "ALL") {
+    activityWhere.eventType = activityType;
+  }
+  if (activityQ) {
+    activityWhere.OR = [
+      { email: { contains: activityQ, mode: "insensitive" } },
+      { ip: { contains: activityQ, mode: "insensitive" } },
+      { userAgent: { contains: activityQ, mode: "insensitive" } },
+      { browser: { contains: activityQ, mode: "insensitive" } },
+      { os: { contains: activityQ, mode: "insensitive" } },
+      { path: { contains: activityQ, mode: "insensitive" } },
+      { eventType: { contains: activityQ, mode: "insensitive" } },
+    ];
+  }
 
   const userSelect = {
     id: true,
@@ -31,6 +52,7 @@ export async function GET() {
     listings,
     reports,
     auditLogs,
+    activityLogs,
     metrics,
   ] = await Promise.all([
     prisma.user.findMany({
@@ -94,8 +116,37 @@ export async function GET() {
         targetType: true,
         targetId: true,
         detail: true,
+        ip: true,
+        userAgent: true,
+        browser: true,
+        os: true,
+        device: true,
+        path: true,
+        httpMethod: true,
+        country: true,
         createdAt: true,
         admin: { select: { email: true } },
+      },
+    }),
+    prisma.activityLog.findMany({
+      where: activityWhere,
+      orderBy: { createdAt: "desc" },
+      take: 300,
+      select: {
+        id: true,
+        eventType: true,
+        userId: true,
+        email: true,
+        ip: true,
+        userAgent: true,
+        browser: true,
+        os: true,
+        device: true,
+        path: true,
+        httpMethod: true,
+        country: true,
+        detail: true,
+        createdAt: true,
       },
     }),
     Promise.all([
@@ -132,6 +183,7 @@ export async function GET() {
     listings,
     reports,
     auditLogs,
+    activityLogs,
     metrics: {
       totalUsers,
       pendingUsers,
