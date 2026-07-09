@@ -77,9 +77,23 @@ jobs:
           SMTP_USERNAME="$(env_prod_read "$ENV_FILE" SMTP_USERNAME)"
           SMTP_PASSWORD="$(env_prod_read "$ENV_FILE" SMTP_PASSWORD)"
           SMTP_FROM="$(env_prod_read "$ENV_FILE" SMTP_FROM)"
-          DB_IP="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' venezuelateayuda-db-1 | awk '{print $1}')"
-          test -n "$DB_IP"
-          echo "Compose Postgres IP: $DB_IP"
+          # Publicar Postgres Compose en loopback del host (hostNetwork k8s → 127.0.0.1)
+          docker rm -f vta-pg-proxy 2>/dev/null || true
+          DB_NET="$(docker inspect -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{end}}' venezuelateayuda-db-1 | awk '{print $1}')"
+          docker run -d --name vta-pg-proxy --restart unless-stopped \
+            --network "$DB_NET" -p 127.0.0.1:15432:5432 \
+            alpine/socat TCP-LISTEN:5432,fork,reuseaddr TCP:venezuelateayuda-db-1:5432
+          # Fallback: connect via container IP if socat image missing
+          if ! docker ps --format '{{.Names}}' | grep -q '^vta-pg-proxy$'; then
+            DB_IP="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' venezuelateayuda-db-1 | awk '{print $1}')"
+            docker run -d --name vta-pg-proxy --restart unless-stopped \
+              -p 127.0.0.1:15432:5432 \
+              alpine/socat TCP-LISTEN:5432,fork,reuseaddr TCP:"${DB_IP}:5432"
+          fi
+          sleep 2
+          DB_HOST="127.0.0.1"
+          DB_PORT="15432"
+          echo "k8s DB via ${DB_HOST}:${DB_PORT}"
 
           IMG_TAG="k8s-${GITHUB_SHA:-manual}"
           docker compose -f docker-compose.prod.yml --env-file "$ENV_FILE" build app
@@ -90,18 +104,19 @@ jobs:
           /tmp/hk 'k3s kubectl create ns venezuelateayuda --dry-run=client -o yaml | k3s kubectl apply -f -'
 
           # URL-encode password (@ y otros rompen el DSN)
-          DB_IP="$DB_IP" PG_PASS="$PG_PASS" AUTH_SECRET="$AUTH_SECRET" \
+          DB_HOST="$DB_HOST" DB_PORT="$DB_PORT" PG_PASS="$PG_PASS" AUTH_SECRET="$AUTH_SECRET" \
           EMAIL_FROM="$EMAIL_FROM" RESEND_API_KEY="$RESEND_API_KEY" SMTP_HOST="$SMTP_HOST" \
           SMTP_PORT="${SMTP_PORT:-465}" SMTP_USERNAME="$SMTP_USERNAME" SMTP_PASSWORD="$SMTP_PASSWORD" \
           SMTP_FROM="$SMTP_FROM" ADMIN_EMAIL="$ADMIN_EMAIL" ADMIN_PASSWORD="$ADMIN_PASSWORD" \
           python3 - <<'PY'
           import json, os, pathlib
           from urllib.parse import quote_plus
-          db_ip = os.environ["DB_IP"]
+          host = os.environ["DB_HOST"]
+          port = os.environ["DB_PORT"]
           pw = quote_plus(os.environ["PG_PASS"])
-          dsn = f"postgresql://vta:{pw}@{db_ip}:5432/venezuelateayuda?schema=public"
+          dsn = f"postgresql://vta:{pw}@{host}:{port}/venezuelateayuda?schema=public"
           assert "venezuelateayuda-db-1" not in dsn, dsn
-          print("DSN host OK:", db_ip)
+          print("DSN host OK:", f"{host}:{port}")
           data = {
             "apiVersion": "v1",
             "kind": "Secret",

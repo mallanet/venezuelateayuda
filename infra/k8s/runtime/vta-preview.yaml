@@ -50,13 +50,13 @@ spec:
           volumeMounts:
             - name: uploads
               mountPath: /data/uploads
+          # TCP only: /api/health pega a DB y no debe bloquear el rollout del preview.
           readinessProbe:
-            httpGet:
-              path: /api/health
+            tcpSocket:
               port: 3010
-            initialDelaySeconds: 15
-            periodSeconds: 10
-            failureThreshold: 18
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
           livenessProbe:
             tcpSocket:
               port: 3010
