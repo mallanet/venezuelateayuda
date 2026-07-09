@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: venezuelateayuda
+  labels:
+    app.kubernetes.io/part-of: mallanet
+    app.kubernetes.io/name: venezuelateayuda

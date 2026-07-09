@@ -208,7 +208,12 @@ export function HomeHeroMap() {
                 className="pointer-events-none absolute top-0 right-0 z-[400] h-10 w-10 rounded-bl-2xl border-l border-b border-accent/30 bg-gradient-to-bl from-accent/15 to-transparent"
                 aria-hidden
               />
-              <ListingsMap listings={visibleListings} focusId={focusId} userLocation={userLocation} />
+              <ListingsMap
+                listings={visibleListings}
+                focusId={focusId}
+                userLocation={userLocation}
+                focusState={filters.state !== FILTER_ALL ? filters.state : null}
+              />
             </div>
           </div>
         </div>

@@ -64,8 +64,8 @@ export function StateMunicipalitySelect({
           </SelectTrigger>
           <SelectContent className="z-[1300]">
             {municipalities.map((municipio) => (
-              <SelectItem key={municipio} value={municipio}>
-                {municipio}
+              <SelectItem key={municipio.name} value={municipio.name}>
+                {municipio.name}
               </SelectItem>
             ))}
           </SelectContent>

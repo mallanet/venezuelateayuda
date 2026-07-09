@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: venezuelateayuda
+  namespace: venezuelateayuda
+  annotations:
+    # Ajustar al ingress controller del cluster (nginx / traefik / caddy).
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "4m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - venezuelateayuda.org
+        - www.venezuelateayuda.org
+      secretName: vta-tls
+  rules:
+    - host: venezuelateayuda.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app
+                port:
+                  number: 80
+    - host: www.venezuelateayuda.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: app
+                port:
+                  number: 80

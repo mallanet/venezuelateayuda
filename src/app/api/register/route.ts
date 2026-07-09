@@ -4,8 +4,7 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validation";
 import { isEmailDeliveryConfigured, sendVerificationEmail } from "@/lib/email";
-import { abroadMapPosition, isAbroadState } from "@/lib/abroad";
-import { getState } from "@/lib/venezuela";
+import { getZoneCoords } from "@/lib/venezuela";
 import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 
 function newVerifyToken() {
@@ -62,18 +61,15 @@ export async function POST(req: Request): Promise<NextResponse> {
   const data = parsed.data;
   const email = data.email.toLowerCase().trim();
   const passwordHash = await bcrypt.hash(data.password, 12);
-  const abroad = isAbroadState(data.state);
-  const coords = abroad
-    ? abroadMapPosition(email)
-    : { lat: getState(data.state)?.lat ?? null, lng: getState(data.state)?.lng ?? null };
+  const coords = getZoneCoords(data.state, data.municipality, email);
   const profileData = {
     displayName: data.displayName,
     avatarUrl: null as string | null,
     phone: data.phone || null,
     state: data.state,
     municipality: data.municipality,
-    lat: coords.lat,
-    lng: coords.lng,
+    lat: coords?.lat ?? null,
+    lng: coords?.lng ?? null,
   };
 
   const existing = await prisma.user.findUnique({

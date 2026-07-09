@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vta-uploads
+  namespace: venezuelateayuda
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: venezuelateayuda
+  labels:
+    app: venezuelateayuda
+    tier: web
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: venezuelateayuda
+      tier: web
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: venezuelateayuda
+        tier: web
+    spec:
+      imagePullSecrets:
+        - name: ghcr-pull
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: venezuelateayuda
+                    tier: web
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: app
+          image: ghcr.io/mallanet/venezuelateayuda:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: vta-env
+          env:
+            - name: PORT
+              value: "3000"
+            - name: HOSTNAME
+              value: "0.0.0.0"
+            - name: UPLOADS_DIR
+              value: /data/uploads
+          volumeMounts:
+            - name: uploads
+              mountPath: /data/uploads
+          readinessProbe:
+            httpGet:
+              path: /api/listings
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 1Gi
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: vta-uploads
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+  namespace: venezuelateayuda
+spec:
+  selector:
+    app: venezuelateayuda
+    tier: web
+  ports:
+    - port: 80
+      targetPort: 3000

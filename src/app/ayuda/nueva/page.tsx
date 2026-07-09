@@ -24,7 +24,7 @@ import { StateMunicipalitySelect } from "@/components/state-municipality-select"
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import { MODALITY_LABELS, QUANTITY_UNITS, QUANTITY_UNIT_LABELS } from "@/lib/listing-meta";
 import { ABROAD_STATE, abroadMapPosition, isAbroadState } from "@/lib/abroad";
-import { VENEZUELA_CENTER, getState } from "@/lib/venezuela";
+import { VENEZUELA_CENTER, getZoneCoords } from "@/lib/venezuela";
 import { cn } from "@/lib/utils";
 
 const MapPicker = dynamic(() => import("@/components/map/map-picker"), {
@@ -65,8 +65,14 @@ export default function NuevaFichaPage() {
 
   function handleStateChange(newState: string) {
     setState(newState);
-    const matched = getState(newState);
-    if (matched) setPosition({ lat: matched.lat, lng: matched.lng });
+    const coords = getZoneCoords(newState);
+    if (coords) setPosition(coords);
+  }
+
+  function handleMunicipalityChange(newMunicipality: string) {
+    setMunicipality(newMunicipality);
+    const coords = getZoneCoords(state, newMunicipality);
+    if (coords) setPosition(coords);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -311,7 +317,7 @@ export default function NuevaFichaPage() {
                 state={state}
                 municipality={municipality}
                 onStateChange={handleStateChange}
-                onMunicipalityChange={setMunicipality}
+                onMunicipalityChange={handleMunicipalityChange}
               />
             )}
 

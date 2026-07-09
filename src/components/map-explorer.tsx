@@ -201,7 +201,12 @@ function MapExplorerInner() {
             )}
 
             <div className="absolute inset-0">
-              <ListingsMap listings={visibleListings} focusId={focusId} userLocation={userLocation} />
+              <ListingsMap
+                listings={visibleListings}
+                focusId={focusId}
+                userLocation={userLocation}
+                focusState={filters.state !== FILTER_ALL ? filters.state : null}
+              />
             </div>
 
             {/* Mobile listing list */}

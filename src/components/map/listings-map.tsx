@@ -9,7 +9,7 @@ import type { PublicListing } from "@/lib/types";
 import { CATEGORY_ICONS, CATEGORY_LABELS, LISTING_TYPE_LABELS } from "@/lib/categories";
 import { formatListingMeta } from "@/lib/listing-meta";
 import { abroadLocationLabel, isAbroadState } from "@/lib/abroad";
-import { VENEZUELA_CENTER } from "@/lib/venezuela";
+import { VENEZUELA_CENTER, getZoneCoords } from "@/lib/venezuela";
 import { ZONE_COLORS, zoneRadiusMeters } from "@/lib/geo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,10 +72,13 @@ function FitToListings({
   listings,
   focusId,
   userLocation,
+  focusState,
 }: {
   listings: PublicListing[];
   focusId?: string | null;
   userLocation?: MapUserLocation | null;
+  /** Estado/zona del filtro — centra el mapa aunque no haya fichas. */
+  focusState?: string | null;
 }) {
   const map = useMap();
   useEffect(() => {
@@ -91,8 +94,15 @@ function FitToListings({
     if (points.length > 0) {
       const bounds = L.latLngBounds(points);
       map.fitBounds(bounds.pad(0.15), { maxZoom: userLocation ? 11 : 12 });
+      return;
     }
-  }, [listings, focusId, userLocation, map]);
+    if (focusState) {
+      const zone = getZoneCoords(focusState);
+      if (zone) {
+        map.setView([zone.lat, zone.lng], 9, { animate: true });
+      }
+    }
+  }, [listings, focusId, userLocation, focusState, map]);
   return null;
 }
 
@@ -100,6 +110,8 @@ interface ListingsMapProps {
   listings: PublicListing[];
   focusId?: string | null;
   userLocation?: MapUserLocation | null;
+  /** Estado seleccionado en filtros (centra el mapa en esa zona). */
+  focusState?: string | null;
 }
 
 /** Mapa con zonas azul/rojo, marcadores y solapamiento visible por transparencia. */
@@ -113,7 +125,7 @@ export default function ListingsMap(props: ListingsMapProps) {
   return <ListingsMapContent {...props} />;
 }
 
-function ListingsMapContent({ listings, focusId, userLocation }: ListingsMapProps) {
+function ListingsMapContent({ listings, focusId, userLocation, focusState }: ListingsMapProps) {
   return (
     <div className="relative h-full w-full">
       <MapContainer
@@ -127,7 +139,12 @@ function ListingsMapContent({ listings, focusId, userLocation }: ListingsMapProp
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
-        <FitToListings listings={listings} focusId={focusId} userLocation={userLocation} />
+        <FitToListings
+          listings={listings}
+          focusId={focusId}
+          userLocation={userLocation}
+          focusState={focusState}
+        />
 
         {listings.map((listing) => (
           <Circle

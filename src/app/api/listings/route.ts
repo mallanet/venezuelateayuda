@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { abroadMapPosition, isAbroadState } from "@/lib/abroad";
+import { isAbroadState } from "@/lib/abroad";
 import { getSessionUser } from "@/lib/session-guards";
 import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 import { listingSchema, parseSearchParams, listingsQuerySchema } from "@/lib/validation";
 import { buildApprovedListingsWhere, mapListingRowToPublic } from "@/lib/listings-query";
+import { getZoneCoords } from "@/lib/venezuela";
 
 export async function GET(req: Request): Promise<NextResponse> {
   try {
@@ -76,7 +77,9 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   const data = parsed.data;
   const abroad = isAbroadState(data.state);
-  const coords = abroad ? abroadMapPosition(user.id) : { lat: data.lat, lng: data.lng };
+  const coords = abroad
+    ? (getZoneCoords(data.state, data.municipality, user.id) ?? { lat: data.lat, lng: data.lng })
+    : { lat: data.lat, lng: data.lng };
 
   const listing = await prisma.helpListing.create({
     data: {

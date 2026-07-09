@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session-guards";
 import { profileSchema } from "@/lib/validation";
-import { abroadMapPosition, isAbroadState } from "@/lib/abroad";
-import { getState } from "@/lib/venezuela";
+import { isAbroadState } from "@/lib/abroad";
+import { getZoneCoords } from "@/lib/venezuela";
 import { isCustomAvatarUrl } from "@/lib/avatar";
 import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 
@@ -35,9 +35,7 @@ export async function PUT(req: Request): Promise<NextResponse> {
 
   const data = parsed.data;
   const abroad = isAbroadState(data.state);
-  const coords = abroad
-    ? abroadMapPosition(user.id)
-    : { lat: getState(data.state)?.lat ?? null, lng: getState(data.state)?.lng ?? null };
+  const coords = getZoneCoords(data.state, data.municipality, user.id);
 
   const nextAvatar = data.avatarUrl?.trim() ?? "";
   const profile = await prisma.profile.update({
@@ -53,8 +51,8 @@ export async function PUT(req: Request): Promise<NextResponse> {
       bio: data.bio || null,
       state: data.state,
       municipality: data.municipality,
-      lat: coords.lat,
-      lng: coords.lng,
+      lat: coords?.lat ?? null,
+      lng: coords?.lng ?? null,
       radiusKm: abroad ? 0 : data.radiusKm,
       categories: data.categories,
     },
