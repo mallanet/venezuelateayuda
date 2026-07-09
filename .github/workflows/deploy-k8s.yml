@@ -2,6 +2,8 @@ name: Deploy k8s apps
 
 # Requiere bootstrap-k3s. Preview en NodePort 30080; público sigue en Compose.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       apps:
@@ -39,7 +41,7 @@ jobs:
           /tmp/hk 'k3s kubectl -n ingress-nginx get svc'
 
       - name: Ensure production env file
-        if: ${{ inputs.apps == 'all' || inputs.apps == 'vta' }}
+        if: ${{ inputs.apps == '' || inputs.apps == 'all' || inputs.apps == 'vta' }}
         env:
           POSTGRES_PASSWORD: ${{ secrets.VTA_POSTGRES_PASSWORD }}
           AUTH_SECRET: ${{ secrets.VTA_AUTH_SECRET }}
@@ -60,7 +62,7 @@ jobs:
           bash scripts/vps-write-env.sh
 
       - name: Build/import VTA image + apply
-        if: ${{ inputs.apps == 'all' || inputs.apps == 'vta' }}
+        if: ${{ inputs.apps == '' || inputs.apps == 'all' || inputs.apps == 'vta' }}
         run: |
           set -euo pipefail
           # shellcheck disable=SC1091
@@ -156,7 +158,7 @@ jobs:
           /tmp/hk 'k3s kubectl -n venezuelateayuda rollout status deploy/app --timeout=240s || (k3s kubectl -n venezuelateayuda get pods -o wide; k3s kubectl -n venezuelateayuda logs -l tier=web --tail=80; k3s kubectl -n venezuelateayuda describe pod -l tier=web | tail -80; exit 1)'
 
       - name: Build/import Venezuela Hoy + apply
-        if: ${{ inputs.apps == 'all' || inputs.apps == 'hoy' }}
+        if: ${{ inputs.apps == '' || inputs.apps == 'all' || inputs.apps == 'hoy' }}
         env:
           GH_TOKEN: ${{ secrets.MALLADOG_REPO_TOKEN }}
         run: |
@@ -175,7 +177,7 @@ jobs:
           /tmp/hk 'k3s kubectl -n venezuelahoy rollout status deploy/web --timeout=180s'
 
       - name: Import Terremoto images into k3s
-        if: ${{ inputs.apps == 'all' || inputs.apps == 'terremoto' }}
+        if: ${{ inputs.apps == '' || inputs.apps == 'all' || inputs.apps == 'terremoto' }}
         run: |
           set -euo pipefail
           /tmp/hk 'k3s kubectl create ns mapa --dry-run=client -o yaml | k3s kubectl apply -f -'
