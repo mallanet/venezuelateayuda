@@ -13,7 +13,8 @@ jobs:
       - name: Backfill profile/listing coords
         run: |
           set -euo pipefail
-          ENV_FILE=/opt/venezuelateayuda/.env.prod
+          export ENV_FILE=/opt/venezuelateayuda/.env.prod
+          test -f "$ENV_FILE"
           docker compose -f docker-compose.prod.yml --env-file "$ENV_FILE" run --rm \
             -v "$PWD/scripts:/app/scripts:ro" \
             -v "$PWD/src/lib:/app/src/lib:ro" \
