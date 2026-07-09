@@ -1,7 +1,6 @@
 name: Deploy k8s apps
 
-# Requiere bootstrap-k3s. Despliega VTA + Hoy (+ Terremoto images) en k3s host.
-# Público sigue en Compose/HAProxy. Preview: NodePort 30080 con Host header.
+# Requiere bootstrap-k3s. Preview en NodePort 30080; público sigue en Compose.
 on:
   workflow_dispatch:
     inputs:
@@ -84,44 +83,45 @@ jobs:
 
           docker compose -f docker-compose.prod.yml --env-file "$ENV_FILE" build app
           docker tag venezuelateayuda-app:latest venezuelateayuda:k8s
-          docker save venezuelateayuda:k8s | /tmp/hk 'k3s ctr images import -'
+          docker save venezuelateayuda:k8s | docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/vta-k8s.tar'
+          /tmp/hk 'k3s ctr images import /var/tmp/vta-k8s.tar && rm -f /var/tmp/vta-k8s.tar'
 
           /tmp/hk 'k3s kubectl create ns venezuelateayuda --dry-run=client -o yaml | k3s kubectl apply -f -'
 
-          # Secret via kubectl from runner (docker exec into a kubectl container with kubeconfig from host)
-          docker run --rm --privileged --pid=host --net=host \
-            -e DATABASE_URL="$DATABASE_URL" \
-            -e PG_PASS="$PG_PASS" \
-            -e AUTH_SECRET="$AUTH_SECRET" \
-            -e ADMIN_EMAIL="$ADMIN_EMAIL" \
-            -e ADMIN_PASSWORD="$ADMIN_PASSWORD" \
-            -e EMAIL_FROM="$EMAIL_FROM" \
-            -e RESEND_API_KEY="$RESEND_API_KEY" \
-            -e SMTP_HOST="$SMTP_HOST" \
-            -e SMTP_PORT="${SMTP_PORT:-465}" \
-            -e SMTP_USERNAME="$SMTP_USERNAME" \
-            -e SMTP_PASSWORD="$SMTP_PASSWORD" \
-            -e SMTP_FROM="$SMTP_FROM" \
-            alpine:3.20 nsenter --target 1 --mount --uts --ipc --net -- sh -c '
-              k3s kubectl -n venezuelateayuda create secret generic vta-env \
-                --from-literal=DATABASE_URL="$DATABASE_URL" \
-                --from-literal=DATABASE_URL_UNPOOLED="$DATABASE_URL" \
-                --from-literal=POSTGRES_PASSWORD="$PG_PASS" \
-                --from-literal=AUTH_SECRET="$AUTH_SECRET" \
-                --from-literal=AUTH_URL=https://venezuelateayuda.org \
-                --from-literal=NEXT_PUBLIC_APP_URL=https://venezuelateayuda.org \
-                --from-literal=EMAIL_FROM="$EMAIL_FROM" \
-                --from-literal=RESEND_API_KEY="$RESEND_API_KEY" \
-                --from-literal=SMTP_HOST="$SMTP_HOST" \
-                --from-literal=SMTP_PORT="$SMTP_PORT" \
-                --from-literal=SMTP_USERNAME="$SMTP_USERNAME" \
-                --from-literal=SMTP_PASSWORD="$SMTP_PASSWORD" \
-                --from-literal=SMTP_FROM="$SMTP_FROM" \
-                --from-literal=ADMIN_EMAIL="$ADMIN_EMAIL" \
-                --from-literal=ADMIN_PASSWORD="$ADMIN_PASSWORD" \
-                --from-literal=UPLOADS_DIR=/data/uploads \
-                --dry-run=client -o yaml | k3s kubectl apply -f -
-            '
+          DATABASE_URL="$DATABASE_URL" PG_PASS="$PG_PASS" AUTH_SECRET="$AUTH_SECRET" \
+          EMAIL_FROM="$EMAIL_FROM" RESEND_API_KEY="$RESEND_API_KEY" SMTP_HOST="$SMTP_HOST" \
+          SMTP_PORT="${SMTP_PORT:-465}" SMTP_USERNAME="$SMTP_USERNAME" SMTP_PASSWORD="$SMTP_PASSWORD" \
+          SMTP_FROM="$SMTP_FROM" ADMIN_EMAIL="$ADMIN_EMAIL" ADMIN_PASSWORD="$ADMIN_PASSWORD" \
+          python3 - <<'PY'
+          import json, os, pathlib
+          data = {
+            "apiVersion": "v1",
+            "kind": "Secret",
+            "metadata": {"name": "vta-env", "namespace": "venezuelateayuda"},
+            "type": "Opaque",
+            "stringData": {
+              "DATABASE_URL": os.environ["DATABASE_URL"],
+              "DATABASE_URL_UNPOOLED": os.environ["DATABASE_URL"],
+              "POSTGRES_PASSWORD": os.environ["PG_PASS"],
+              "AUTH_SECRET": os.environ["AUTH_SECRET"],
+              "AUTH_URL": "https://venezuelateayuda.org",
+              "NEXT_PUBLIC_APP_URL": "https://venezuelateayuda.org",
+              "EMAIL_FROM": os.environ.get("EMAIL_FROM", ""),
+              "RESEND_API_KEY": os.environ.get("RESEND_API_KEY", ""),
+              "SMTP_HOST": os.environ.get("SMTP_HOST", ""),
+              "SMTP_PORT": os.environ.get("SMTP_PORT", "465"),
+              "SMTP_USERNAME": os.environ.get("SMTP_USERNAME", ""),
+              "SMTP_PASSWORD": os.environ.get("SMTP_PASSWORD", ""),
+              "SMTP_FROM": os.environ.get("SMTP_FROM", ""),
+              "ADMIN_EMAIL": os.environ.get("ADMIN_EMAIL", ""),
+              "ADMIN_PASSWORD": os.environ.get("ADMIN_PASSWORD", ""),
+              "UPLOADS_DIR": "/data/uploads",
+            },
+          }
+          pathlib.Path("/tmp/vta-secret.json").write_text(json.dumps(data))
+          PY
+          docker run --rm -v /var/tmp:/out -v /tmp/vta-secret.json:/in.json:ro alpine:3.20 cp /in.json /out/vta-secret.json
+          /tmp/hk 'k3s kubectl apply -f /var/tmp/vta-secret.json && rm -f /var/tmp/vta-secret.json'
 
           cat > /tmp/vta.yaml <<'YAML'
           apiVersion: v1
@@ -162,14 +162,13 @@ jobs:
                     image: docker.io/library/venezuelateayuda:k8s
                     imagePullPolicy: Never
                     ports:
-                      - containerPort: 3000
-                        hostPort: 3000
+                      - containerPort: 3010
                     envFrom:
                       - secretRef:
                           name: vta-env
                     env:
                       - name: PORT
-                        value: "3000"
+                        value: "3010"
                       - name: HOSTNAME
                         value: "0.0.0.0"
                       - name: UPLOADS_DIR
@@ -180,7 +179,7 @@ jobs:
                     readinessProbe:
                       httpGet:
                         path: /api/health
-                        port: 3000
+                        port: 3010
                       initialDelaySeconds: 10
                       periodSeconds: 10
                 volumes:
@@ -199,7 +198,7 @@ jobs:
               tier: web
             ports:
               - port: 80
-                targetPort: 3000
+                targetPort: 3010
           ---
           apiVersion: networking.k8s.io/v1
           kind: Ingress
@@ -222,16 +221,11 @@ jobs:
                           port:
                             number: 80
           YAML
-          # hostPort 3000 conflicts with compose app — use 3010 for k8s preview
-          sed -i 's/hostPort: 3000/hostPort: 3010/' /tmp/vta.yaml
-          sed -i 's/containerPort: 3000/containerPort: 3010/' /tmp/vta.yaml
-          sed -i 's/value: "3000"/value: "3010"/' /tmp/vta.yaml
-          sed -i 's/port: 3000/port: 3010/' /tmp/vta.yaml
-          sed -i 's/targetPort: 3000/targetPort: 3010/' /tmp/vta.yaml
-
-          B64=$(base64 -w0 /tmp/vta.yaml)
-          /tmp/hk "echo $B64 | base64 -d > /tmp/vta.yaml && k3s kubectl apply -f /tmp/vta.yaml"
-          /tmp/hk 'k3s kubectl -n venezuelateayuda rollout status deploy/app --timeout=240s || (k3s kubectl -n venezuelateayuda get pods -o wide; k3s kubectl -n venezuelateayuda describe pod -l tier=web | tail -50; exit 1)'
+          # Strip leading spaces from indented heredoc
+          sed -i 's/^          //' /tmp/vta.yaml
+          docker run --rm -v /var/tmp:/out -v /tmp/vta.yaml:/in.yaml:ro alpine:3.20 cp /in.yaml /out/vta.yaml
+          /tmp/hk 'k3s kubectl apply -f /var/tmp/vta.yaml'
+          /tmp/hk 'k3s kubectl -n venezuelateayuda rollout status deploy/app --timeout=240s || (k3s kubectl -n venezuelateayuda get pods -o wide; k3s kubectl -n venezuelateayuda describe pod -l tier=web | tail -60; exit 1)'
 
       - name: Build/import Venezuela Hoy + apply
         if: ${{ inputs.apps == 'all' || inputs.apps == 'hoy' }}
@@ -242,7 +236,8 @@ jobs:
           rm -rf /tmp/venezuelahoy
           git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/mallanet/venezuelahoy.git" /tmp/venezuelahoy
           docker build -t venezuelahoy:k8s /tmp/venezuelahoy
-          docker save venezuelahoy:k8s | /tmp/hk 'k3s ctr images import -'
+          docker save venezuelahoy:k8s | docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/hoy-k8s.tar'
+          /tmp/hk 'k3s ctr images import /var/tmp/hoy-k8s.tar && rm -f /var/tmp/hoy-k8s.tar'
 
           cat > /tmp/hoy.yaml <<'YAML'
           apiVersion: v1
@@ -310,8 +305,9 @@ jobs:
                           port:
                             number: 80
           YAML
-          B64=$(base64 -w0 /tmp/hoy.yaml)
-          /tmp/hk "echo $B64 | base64 -d > /tmp/hoy.yaml && k3s kubectl apply -f /tmp/hoy.yaml"
+          sed -i 's/^          //' /tmp/hoy.yaml
+          docker run --rm -v /var/tmp:/out -v /tmp/hoy.yaml:/in.yaml:ro alpine:3.20 cp /in.yaml /out/hoy.yaml
+          /tmp/hk 'k3s kubectl apply -f /var/tmp/hoy.yaml'
           /tmp/hk 'k3s kubectl -n venezuelahoy rollout status deploy/web --timeout=180s'
 
       - name: Import Terremoto images into k3s
@@ -322,7 +318,8 @@ jobs:
           for img in terremotoapp-frontend terremotoapp-backend terremotoapp-admin terremotoapp-worker; do
             if docker image inspect "$img:latest" >/dev/null 2>&1; then
               docker tag "$img:latest" "${img}:k8s"
-              docker save "${img}:k8s" | /tmp/hk 'k3s ctr images import -'
+              docker save "${img}:k8s" | docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c "cat > /out/${img}.tar"
+              /tmp/hk "k3s ctr images import /var/tmp/${img}.tar && rm -f /var/tmp/${img}.tar"
               echo "imported $img"
             else
               echo "missing $img — skip"
@@ -333,15 +330,13 @@ jobs:
       - name: Smoke NodePort previews
         run: |
           set -euo pipefail
-          echo "== pods =="
           /tmp/hk 'k3s kubectl get pods -A'
-          echo "== ingress =="
           /tmp/hk 'k3s kubectl get ingress -A'
           echo "== smoke hoy =="
           curl -sI -H 'Host: hoy.k8s.mallanet.org' http://127.0.0.1:30080/ | head -8 || true
           echo "== smoke vta k8s =="
           curl -sI -H 'Host: k8s.venezuelateayuda.org' http://127.0.0.1:30080/ | head -8 || true
           curl -sI http://127.0.0.1:3010/api/health | head -8 || true
-          echo "Public sites still on Compose HAProxy :80/:443"
+          echo "Public sites still on Compose HAProxy"
           curl -sI https://venezuelateayuda.org/api/health | head -5
           curl -sI https://terremotovenezuela.app | head -5
