@@ -138,7 +138,7 @@ export default function NuevaFichaPage() {
         </div>
       </div>
 
-      <Card className="border-accent/10 shadow-sm">
+      <Card className="shadow-elevated">
         <CardContent className="pt-6">
           {session.user.status !== "APROBADO" && (
             <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm text-foreground">
@@ -157,11 +157,12 @@ export default function NuevaFichaPage() {
 
             {!isAbroadProfile && (
             <div className="grid gap-2">
-              <Label className="font-heading text-sm font-semibold">Tipo de ficha</Label>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <Label id="listing-type-label" className="font-heading text-sm font-semibold">Tipo de ficha</Label>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" role="group" aria-labelledby="listing-type-label">
                 <button
                   type="button"
                   data-testid="type-ofrezco"
+                  aria-pressed={type === "OFREZCO"}
                   onClick={() => setType("OFREZCO")}
                   className={cn(
                     "rounded-xl border-2 p-4 text-left transition-all",
@@ -178,6 +179,7 @@ export default function NuevaFichaPage() {
                 <button
                   type="button"
                   data-testid="type-necesito"
+                  aria-pressed={type === "NECESITO"}
                   onClick={() => setType("NECESITO")}
                   className={cn(
                     "rounded-xl border-2 p-4 text-left transition-all",
@@ -258,16 +260,17 @@ export default function NuevaFichaPage() {
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label>Modalidad</Label>
+                <Label id="modality-label">Modalidad</Label>
                 {isAbroadProfile ? (
                   <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
                     {MODALITY_LABELS.ONLINE} (ayuda desde el exterior)
                   </p>
                 ) : (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2" role="group" aria-labelledby="modality-label">
                   <button
                     type="button"
                     data-testid="modality-presencial"
+                    aria-pressed={modality === "PRESENCIAL"}
                     onClick={() => setModality("PRESENCIAL")}
                     className={cn(
                       "rounded-lg border p-3 text-left text-sm transition-colors",
@@ -281,6 +284,7 @@ export default function NuevaFichaPage() {
                   <button
                     type="button"
                     data-testid="modality-online"
+                    aria-pressed={modality === "ONLINE"}
                     onClick={() => setModality("ONLINE")}
                     className={cn(
                       "rounded-lg border p-3 text-left text-sm transition-colors",

@@ -170,6 +170,7 @@ function MapExplorerInner() {
                 }}
                 className="flex items-center gap-2 rounded-xl border border-border/60 bg-card/95 px-4 py-2 text-sm font-medium text-primary shadow-soft backdrop-blur"
                 aria-expanded={filtersOpen}
+                aria-controls="mobile-map-filters"
               >
                 <SlidersHorizontal className="size-4" aria-hidden />
                 Filtros
@@ -185,7 +186,7 @@ function MapExplorerInner() {
 
             {/* Mobile filters panel */}
             {filtersOpen && (
-              <div className="absolute top-14 left-3 right-3 z-[1000] max-h-[70dvh] overflow-y-auto rounded-2xl border border-border/60 bg-card/95 p-5 shadow-elevated backdrop-blur lg:hidden">
+              <div id="mobile-map-filters" className="absolute top-14 right-2 left-2 z-[1000] max-h-[min(70dvh,30rem)] overflow-y-auto rounded-xl border border-border/60 bg-card/95 p-4 shadow-elevated backdrop-blur lg:hidden">
                 <MapFilterSidebar
                   filters={filters}
                   onChange={updateFilters}
@@ -219,10 +220,12 @@ function MapExplorerInner() {
                 }}
                 className="mx-auto flex w-full items-center justify-center gap-2 rounded-t-2xl border-t border-border/40 bg-card/95 px-4 py-3 text-sm font-medium shadow-[0_-4px_16px_rgba(27,58,92,0.10)] backdrop-blur"
                 aria-expanded={listOpen}
+                aria-controls="mobile-listing-list"
               >
                 {listOpen ? "Ocultar lista" : `Ver lista (${visibleListings.length})`}
               </button>
               <div
+                id="mobile-listing-list"
                 className={cn(
                   "overflow-y-auto bg-card/95 backdrop-blur transition-[max-height] duration-300",
                   listOpen ? "max-h-[45dvh]" : "max-h-0"
@@ -285,47 +288,51 @@ function ListingList({
         const CategoryIcon = CATEGORY_ICONS[listing.category];
         return (
           <li key={listing.id}>
-            <button
-              type="button"
-              onClick={() => onFocus(listing.id)}
+            <article
               className={cn(
-                "grid w-full gap-1.5 rounded-xl border border-border/60 bg-card p-4 text-left shadow-soft hover-lift hover-glow",
+                "grid rounded-xl border border-border/60 bg-card p-4 shadow-soft hover-lift hover-glow focus-within:ring-2 focus-within:ring-accent focus-within:ring-offset-1",
                 focusId === listing.id && "border-accent ring-1 ring-accent"
               )}
             >
-              <div className="flex items-center gap-2">
-                <Badge
-                  variant={listing.type === "OFREZCO" ? "default" : "destructive"}
-                  className={
-                    listing.type === "OFREZCO"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-destructive/10 text-destructive"
-                  }
-                >
-                  {LISTING_TYPE_LABELS[listing.type]}
-                </Badge>
-                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                  <CategoryIcon className="size-3.5" />
-                  {CATEGORY_LABELS[listing.category]}
+              <button
+                type="button"
+                onClick={() => onFocus(listing.id)}
+                className="grid w-full gap-1.5 text-left outline-none"
+                aria-pressed={focusId === listing.id}
+              >
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={listing.type === "OFREZCO" ? "default" : "destructive"}
+                    className={
+                      listing.type === "OFREZCO"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-destructive/10 text-destructive"
+                    }
+                  >
+                    {LISTING_TYPE_LABELS[listing.type]}
+                  </Badge>
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <CategoryIcon className="size-3.5" />
+                    {CATEGORY_LABELS[listing.category]}
+                  </span>
+                </div>
+                <span className="font-display text-sm font-medium text-foreground">
+                  {listing.title}
                 </span>
-              </div>
-              <span className="font-display text-sm font-medium text-foreground">
-                {listing.title}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {listing.municipality}, {listing.state} · por {listing.authorName}
-              </span>
-              <Badge variant="outline" className="w-fit text-[10px]">
-                {formatListingMeta(listing.quantity, listing.quantityUnit, listing.modality)}
-              </Badge>
+                <span className="text-xs text-muted-foreground">
+                  {listing.municipality}, {listing.state} · por {listing.authorName}
+                </span>
+                <Badge variant="outline" className="w-fit text-[10px]">
+                  {formatListingMeta(listing.quantity, listing.quantityUnit, listing.modality)}
+                </Badge>
+              </button>
               <Link
                 href={`/ayuda/${listing.id}`}
-                className="text-xs font-medium text-primary underline underline-offset-2 decoration-accent/40 transition-colors hover:text-accent hover:decoration-accent"
-                onClick={(e) => e.stopPropagation()}
+                className="mt-2 w-fit text-xs font-medium text-primary underline underline-offset-2 decoration-accent/40 transition-colors hover:text-accent hover:decoration-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
                 Ver ficha completa →
               </Link>
-            </button>
+            </article>
           </li>
         );
       })}

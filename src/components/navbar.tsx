@@ -47,6 +47,7 @@ function NavLink({
     <Link
       href={href}
       onClick={onClick}
+      aria-current={active ? "page" : undefined}
       className={cn(
         "border-b-2 border-transparent px-0 py-1 text-base font-semibold text-primary transition-[border-color,color] duration-[var(--motion-duration-base)] ease-[var(--motion-ease-out)] hover:border-[var(--mallanet-blue-200)] hover:text-[var(--mallanet-blue-800)] hover:no-underline focus-visible:shadow-[0_0_0_3px_rgba(24,116,199,0.35)]",
         active && "border-[var(--mallanet-blue-400)]",
@@ -191,7 +192,7 @@ export function Navbar() {
               <Menu className="size-4.5" strokeWidth={2} aria-hidden />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="z-[1200] w-[calc(100vw-3rem)] md:w-72">
+          <SheetContent side="right" className="z-[1200]">
             <SheetHeader>
               <SheetTitle>Menú</SheetTitle>
               {user ? (
@@ -206,6 +207,7 @@ export function Navbar() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setOpen(false)}
+                    aria-current={active ? "page" : undefined}
                     className={cn(
                       "rounded-lg px-3 py-2 text-sm font-medium transition-[color,background-color] duration-[var(--motion-duration-fast)] ease-[var(--motion-ease-out)] hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
                       active ? "bg-muted text-primary" : "text-muted-foreground"

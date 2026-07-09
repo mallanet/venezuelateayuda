@@ -8,6 +8,7 @@ import useSWR from "swr";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ReportDialog } from "@/components/report-dialog";
 import { formatVeTime } from "@/lib/dates";
 import { fetchJson } from "@/lib/fetch-json";
@@ -91,12 +92,12 @@ export default function ChatPage() {
         ) : (
           <>
             <div className="grid gap-0.5">
-              <span
-                className="font-display font-semibold text-foreground"
+              <h1
+                className="font-display text-xl font-semibold text-primary"
                 data-testid="chat-other-name"
               >
                 {data.conversation.otherName}
-              </span>
+              </h1>
               <Link
                 href={`/ayuda/${data.conversation.listing.id}`}
                 className="text-xs text-muted-foreground underline-offset-2 hover:text-accent hover:underline"
@@ -148,23 +149,27 @@ export default function ChatPage() {
         <div ref={bottomRef} />
       </div>
 
-      <form onSubmit={handleSend} className="flex gap-2 border-t border-border/40 pt-4">
-        <Input
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Escribe un mensaje..."
-          maxLength={2000}
-          data-testid="chat-input"
-          className="rounded-xl border-border/60"
-        />
-        <Button
-          type="submit"
-          disabled={sending || !body.trim()}
-          data-testid="chat-send"
-          className="rounded-xl shadow-soft"
-        >
-          Enviar
-        </Button>
+      <form onSubmit={handleSend} className="grid gap-2 border-t border-border/40 pt-4">
+        <Label htmlFor="chat-input">Mensaje</Label>
+        <div className="flex gap-2">
+          <Input
+            id="chat-input"
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Escribe un mensaje..."
+            maxLength={2000}
+            data-testid="chat-input"
+            className="rounded-xl border-border/60"
+          />
+          <Button
+            type="submit"
+            disabled={sending || !body.trim()}
+            data-testid="chat-send"
+            className="rounded-xl shadow-soft"
+          >
+            Enviar
+          </Button>
+        </div>
       </form>
       <p className="pt-3 text-xs text-muted-foreground">
         Por tu seguridad, mantén la conversación dentro de la plataforma y no compartas datos
