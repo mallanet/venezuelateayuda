@@ -98,7 +98,7 @@ function LoginForm() {
             Iniciar sesión
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Accede a tu cuenta de Venezuela Te Ayuda.
+            Verifica tu email para entrar. La cuenta queda en revisión hasta que el equipo la apruebe.
           </CardDescription>
         </CardHeader>
         <CardContent>

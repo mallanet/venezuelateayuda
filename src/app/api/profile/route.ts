@@ -4,7 +4,7 @@ import { getSessionUser } from "@/lib/session-guards";
 import { profileSchema } from "@/lib/validation";
 import { abroadMapPosition, isAbroadState } from "@/lib/abroad";
 import { getState } from "@/lib/venezuela";
-import { getAvatarUrl } from "@/lib/avatar";
+import { isCustomAvatarUrl } from "@/lib/avatar";
 import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 
 export async function GET(): Promise<NextResponse> {
@@ -39,13 +39,16 @@ export async function PUT(req: Request): Promise<NextResponse> {
     ? abroadMapPosition(user.id)
     : { lat: getState(data.state)?.lat ?? null, lng: getState(data.state)?.lng ?? null };
 
+  const nextAvatar = data.avatarUrl?.trim() ?? "";
   const profile = await prisma.profile.update({
     where: { userId: user.id },
     data: {
       displayName: data.displayName,
-      avatarUrl: data.avatarUrl?.trim()
-        ? data.avatarUrl.trim()
-        : getAvatarUrl(data.displayName),
+      ...(nextAvatar
+        ? isCustomAvatarUrl(nextAvatar)
+          ? { avatarUrl: nextAvatar }
+          : {}
+        : {}),
       phone: data.phone || null,
       bio: data.bio || null,
       state: data.state,

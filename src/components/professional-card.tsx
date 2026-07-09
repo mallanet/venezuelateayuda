@@ -26,13 +26,13 @@ export function ProfessionalCard({ professional, selected }: ProfessionalCardPro
       )}
       data-testid={`professional-card-${professional.id}`}
     >
-      <div className="relative aspect-[3/4] w-full bg-muted">
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-muted">
         <Image
           src={professional.avatarUrl}
           alt={`Foto de ${professional.displayName}`}
           fill
           unoptimized
-          className="object-cover"
+          className="object-cover object-center"
           sizes="(max-width:768px) 50vw, 25vw"
         />
       </div>

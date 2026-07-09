@@ -38,8 +38,10 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
+RUN mkdir -p /data/uploads && chown -R nextjs:nodejs /data
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+ENV UPLOADS_DIR=/data/uploads
 CMD ["npx", "next", "start", "-p", "3000", "-H", "0.0.0.0"]

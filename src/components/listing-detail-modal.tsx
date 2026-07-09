@@ -50,7 +50,7 @@ export function ListingDetailModal({ listing, open, onOpenChange }: ListingDetai
                 src={listing.authorAvatarUrl}
                 alt={`Foto de ${listing.authorDisplayName}`}
                 fill
-                className="object-cover"
+                className="object-cover object-center"
                 sizes="128px"
                 unoptimized
               />

@@ -194,7 +194,7 @@ test.describe("Flujo completo: publicar, moderar, contactar", () => {
 
     const publicListing = data.listings.find((l: { id: string }) => l.id === approved.id);
     expect(publicListing.authorName).toBe("Marta");
-    expect(publicListing.authorAvatarUrl).toContain("pravatar.cc");
+    expect(publicListing.authorAvatarUrl).toContain("/api/avatar");
     expect(publicListing.quantity).toBe(1);
     expect(publicListing.quantityUnit).toBe("UNIDAD");
     expect(publicListing.modality).toBe("PRESENCIAL");

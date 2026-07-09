@@ -35,7 +35,7 @@ function markerIcon(listing: PublicListing) {
   const safeUrl = escapeHtmlAttr(listing.authorAvatarUrl);
   return L.divIcon({
     className: "",
-    html: `<div style="width:44px;height:44px;border-radius:50%;border:3px solid ${borderColor};overflow:hidden;box-shadow:0 2px 8px rgba(14,107,203,.35);background:#fff"><img src="${safeUrl}" alt="" style="width:100%;height:100%;object-fit:cover" /></div>`,
+    html: `<div style="width:44px;height:44px;border-radius:50%;border:3px solid ${borderColor};overflow:hidden;box-shadow:0 2px 8px rgba(14,107,203,.35);background:#fff"><img src="${safeUrl}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center" /></div>`,
     iconSize: [44, 44],
     iconAnchor: [22, 22],
     popupAnchor: [0, -24],

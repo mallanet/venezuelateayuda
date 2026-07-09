@@ -35,8 +35,8 @@ export function ListingCard({ listing, selected, onSelect, compact, distanceKm }
     >
       <div
         className={cn(
-          "relative bg-muted",
-          compact ? "mx-auto h-16 w-16 overflow-hidden rounded-full" : "aspect-[4/3] w-full"
+          "relative overflow-hidden bg-muted",
+          compact ? "mx-auto size-16 rounded-full" : "aspect-[4/3] w-full"
         )}
       >
         <Image
@@ -44,7 +44,7 @@ export function ListingCard({ listing, selected, onSelect, compact, distanceKm }
           alt={`Foto de ${listing.authorName}`}
           fill
           unoptimized
-          className={cn("object-cover transition-transform duration-[var(--motion-duration-slow)] ease-[var(--motion-ease-out)] group-hover:scale-[1.04]", compact ? "rounded-full" : "")}
+          className="object-cover object-center transition-transform duration-[var(--motion-duration-slow)] ease-[var(--motion-ease-out)] group-hover:scale-[1.04]"
           sizes={compact ? "64px" : "(max-width:768px) 50vw, 25vw"}
         />
         {!compact && (

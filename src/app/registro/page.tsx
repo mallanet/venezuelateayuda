@@ -85,8 +85,8 @@ export default function RegistroPage() {
             Crear cuenta
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Únete a la red de ayuda mutua. Tu cuenta será revisada por nuestro equipo antes de
-            activarse.
+            1) Crea tu cuenta · 2) Verifica el email · 3) Entra · 4) El equipo aprueba y ya puedes
+            publicar o contactar.
           </CardDescription>
         </CardHeader>
         <CardContent>

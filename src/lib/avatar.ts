@@ -1,16 +1,36 @@
-/** Índice estable 1–70 para pravatar a partir de un identificador. */
-function stablePortraitIndex(seed: string): number {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  }
-  return (hash % 70) + 1;
+/** ¿Es una foto real del usuario (no placeholder externo)? */
+export function isCustomAvatarUrl(avatarUrl?: string | null): boolean {
+  const url = avatarUrl?.trim();
+  if (!url) return false;
+  if (url.includes("pravatar.cc") || url.includes("ui-avatars.com")) return false;
+  return (
+    url.startsWith("/api/uploads/") ||
+    url.startsWith("/uploads/") ||
+    url.startsWith("data:image/") ||
+    url.startsWith("https://") ||
+    url.startsWith("http://")
+  );
 }
 
-/** URL de avatar: foto del perfil o retrato realista (pravatar) en lugar de iniciales. */
-export function getAvatarUrl(displayName: string, avatarUrl?: string | null, seed?: string): string {
-  const custom = avatarUrl?.trim();
-  if (custom && !custom.includes("ui-avatars.com")) return custom;
-  const key = (seed ?? displayName.trim()) || "usuario";
-  return `https://i.pravatar.cc/400?img=${stablePortraitIndex(key)}`;
+/** Iniciales para placeholder (máx. 2 letras). */
+export function avatarInitials(displayName: string): string {
+  const parts = displayName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "U";
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return `${parts[0]![0] ?? ""}${parts[1]![0] ?? ""}`.toUpperCase();
+}
+
+/**
+ * URL de avatar: foto subida del perfil, o placeholder local con iniciales.
+ * Nunca usa caras falsas de terceros (pravatar / ui-avatars).
+ */
+export function getAvatarUrl(
+  displayName: string,
+  avatarUrl?: string | null,
+  seed?: string
+): string {
+  if (isCustomAvatarUrl(avatarUrl)) return avatarUrl!.trim();
+  const name = encodeURIComponent(displayName.trim() || "Usuario");
+  const key = encodeURIComponent((seed ?? displayName.trim()) || "usuario");
+  return `/api/avatar?name=${name}&seed=${key}`;
 }

@@ -6,7 +6,6 @@ import { registerSchema } from "@/lib/validation";
 import { isEmailDeliveryConfigured, sendVerificationEmail } from "@/lib/email";
 import { abroadMapPosition, isAbroadState } from "@/lib/abroad";
 import { getState } from "@/lib/venezuela";
-import { getAvatarUrl } from "@/lib/avatar";
 import { apiErrorResponse, ApiErrorCode } from "@/lib/api-error";
 
 function newVerifyToken() {
@@ -69,7 +68,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     : { lat: getState(data.state)?.lat ?? null, lng: getState(data.state)?.lng ?? null };
   const profileData = {
     displayName: data.displayName,
-    avatarUrl: getAvatarUrl(data.displayName, undefined, email),
+    avatarUrl: null as string | null,
     phone: data.phone || null,
     state: data.state,
     municipality: data.municipality,

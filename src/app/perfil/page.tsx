@@ -92,8 +92,10 @@ export default async function PerfilPage() {
           )}
           <ProfileForm
             role={user.role}
+            userId={session.user.id}
             initial={{
               displayName: profile.displayName,
+              avatarUrl: profile.avatarUrl,
               phone: profile.phone ?? "",
               bio: profile.bio ?? "",
               state: profile.state,

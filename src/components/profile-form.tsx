@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { Category } from "@prisma/client";
 import { toast } from "sonner";
 import { LoaderCircle } from "lucide-react";
+import { AvatarUpload } from "@/components/avatar-upload";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ import { ABROAD_STATE, isAbroadState } from "@/lib/abroad";
 
 interface ProfileFormValues {
   displayName: string;
+  avatarUrl: string | null;
   phone: string;
   bio: string;
   state: string;
@@ -28,12 +30,15 @@ interface ProfileFormValues {
 export function ProfileForm({
   initial,
   role,
+  userId,
 }: {
   initial: ProfileFormValues;
   role: string;
+  userId: string;
 }) {
   const router = useRouter();
   const [values, setValues] = useState(initial);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(initial.avatarUrl);
   const [isAbroad, setIsAbroad] = useState(isAbroadState(initial.state));
   const [country, setCountry] = useState(isAbroadState(initial.state) ? initial.municipality : "");
   const [loading, setLoading] = useState(false);
@@ -78,6 +83,16 @@ export function ProfileForm({
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-5">
+      <AvatarUpload
+        displayName={values.displayName}
+        avatarUrl={avatarUrl}
+        userId={userId}
+        onChange={(url) => {
+          setAvatarUrl(url);
+          router.refresh();
+        }}
+      />
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
           <Label htmlFor="displayName">Nombre</Label>

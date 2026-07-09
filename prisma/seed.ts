@@ -14,9 +14,9 @@ const prisma = new PrismaClient();
 const DEMO_PASSWORD = "demo-vta-2026";
 const DEMO_MARKER_EMAIL = "demo-seed@venezuelateayuda.org";
 
-function avatarUrl(displayName: string): string {
-  const name = encodeURIComponent(displayName.trim() || "Usuario");
-  return `https://ui-avatars.com/api/?name=${name}&background=0d9488&color=fff&size=256&bold=true`;
+/** Sin fotos hardcodeadas: el runtime usa /api/avatar con iniciales. */
+function avatarUrl(_displayName: string): null {
+  return null;
 }
 
 interface DemoListing {
