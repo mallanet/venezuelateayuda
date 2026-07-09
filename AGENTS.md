@@ -1,3 +1,60 @@
+# AGENTS.md — map only
+
+## LAW vs MAP
+
+- **Law:** `.cursor/rules/*.mdc` (synced from Documentos/rules). Do not restate SAFETY/QUALITY here.
+- **This file:** map of *this* repo only (framework notes, motion system, hard stops).
+
+Before non-readonly work under a nested tree that has its own `AGENTS.md`, read that file.
+
+## Overview
+
+Venezuela Te Ayuda — mutual-aid map platform. Next.js App Router + TypeScript,
+Postgres/Prisma, Auth.js (NextAuth v5), Leaflet, roles, moderation, chat,
+admin. Playwright e2e present.
+
+## Where to look
+
+| Task | Location | Notes |
+|------|----------|-------|
+| App routes / UI | `src/` | App Router |
+| Auth | `src/lib/auth.ts`, NextAuth types | roles / JWT |
+| Prisma schema | `prisma/schema.prisma` | |
+| E2E | `e2e/` | Playwright |
+| Motion tokens | `globals.css` + section below | no framer-motion |
+| K8s / deploy | `infra/`, `DEPLOY.md`, `deploy/` | secrets not in git |
+| Debt | `DEBT.md` | |
+
+## Done / verify
+
+See `TOOLCHAIN.md`.
+
+## Hard stops (Never)
+
+- Never log, commit, or paste user emails, phones, or chat bodies into reports.
+- Do not weaken email verification, role checks, or ADMIN gates.
+- Users and help cards start moderated (`PENDIENTE`); do not auto-approve in
+  production code paths or prod seeds.
+- Never commit secrets or real `.env` / k8s secret payloads.
+
+## Ask first
+
+- Prisma migrations, `db:clean`, seed against non-local data
+- Deploy / k8s apply / production env changes
+- Changes to consent, legal pages, or moderation state machine
+
+## Deep links
+
+- `README.md`
+- `DEBT.md`
+- `DEPLOY.md`
+
+## Manual notes
+
+<!-- Human-owned landmines. agents-map preserves this section on refresh. -->
+
+---
+
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 
