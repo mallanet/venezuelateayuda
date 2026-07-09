@@ -31,8 +31,11 @@ export function GoFundMeEmbed({ className }: { className?: string }) {
     iframe.height = "200";
     iframe.setAttribute("frameborder", "0");
     iframe.setAttribute("scrolling", "no");
+    iframe.setAttribute("loading", "lazy");
     iframe.style.border = "none";
-    iframe.style.maxWidth = "100%";
+    iframe.style.display = "block";
+    iframe.style.width = "100%";
+    iframe.style.minHeight = "200px";
     iframe.src = `${parsed.toString()}#:~:tcm-regime=GDPR&tcm-prompt=Hidden`;
     host.appendChild(iframe);
 
@@ -55,15 +58,19 @@ export function GoFundMeEmbed({ className }: { className?: string }) {
 
   return (
     <div className={className}>
-      <div ref={hostRef} className="gfm-embed" data-url={GOFUNDME_WIDGET_URL} />
       <a
         href={GOFUNDME_CAMPAIGN_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-2 inline-block text-sm font-semibold text-primary underline-offset-4 hover:underline"
+        className="inline-flex items-center gap-2 rounded-xl bg-[#02A95C] px-4 py-2.5 text-sm font-semibold text-white shadow-soft hover-lift hover:shadow-accent-glow"
       >
         Donar en GoFundMe
       </a>
+      <div
+        ref={hostRef}
+        className="gfm-embed mt-3 min-h-[200px] w-full overflow-hidden rounded-xl"
+        data-url={GOFUNDME_WIDGET_URL}
+      />
     </div>
   );
 }
