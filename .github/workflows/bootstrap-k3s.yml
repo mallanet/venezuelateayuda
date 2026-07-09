@@ -1,0 +1,120 @@
+name: Bootstrap k3s (VPS)
+
+# Runner = contenedor con docker.sock. Instala k3s en el HOST vía nsenter
+# sin tocar :80/:443 (HAProxy Compose sigue vivo). Ingress en 30080/30443.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: bootstrap-k3s
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    runs-on: [self-hosted, vta]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Host nsenter helper
+        id: host
+        run: |
+          set -euo pipefail
+          cat > /tmp/host-run.sh <<'EOS'
+          #!/bin/sh
+          docker run --rm --privileged --pid=host --net=host \
+            -v /:/host \
+            alpine:3.20 \
+            nsenter --target 1 --mount --uts --ipc --net -- sh -c "$*"
+          EOS
+          chmod +x /tmp/host-run.sh
+          /tmp/host-run.sh 'uname -a; command -v docker; command -v k3s || true'
+
+      - name: Install k3s on host
+        run: |
+          set -euo pipefail
+          /tmp/host-run.sh '
+            set -e
+            if command -v k3s >/dev/null 2>&1 && systemctl is-active --quiet k3s; then
+              echo "k3s already active"
+              k3s --version
+              exit 0
+            fi
+            curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --disable=traefik --disable=servicelb --write-kubeconfig-mode=644" sh -
+            sleep 8
+            systemctl is-active k3s
+            k3s kubectl get nodes -o wide
+          '
+
+      - name: Wait node Ready
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 60); do
+            if /tmp/host-run.sh 'k3s kubectl get nodes --no-headers' | grep -q ' Ready '; then
+              /tmp/host-run.sh 'k3s kubectl get nodes -o wide'
+              exit 0
+            fi
+            sleep 2
+          done
+          /tmp/host-run.sh 'k3s kubectl get nodes -o wide || true; journalctl -u k3s -n 80 --no-pager || true'
+          exit 1
+
+      - name: Install ingress-nginx (NodePort 30080/30443)
+        run: |
+          set -euo pipefail
+          /tmp/host-run.sh '
+            set -e
+            if ! k3s kubectl get ns ingress-nginx >/dev/null 2>&1; then
+              k3s kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.11.3/deploy/static/provider/baremetal/deploy.yaml
+            fi
+            # Esperar SVC
+            for i in $(seq 1 60); do
+              k3s kubectl -n ingress-nginx get svc ingress-nginx-controller >/dev/null 2>&1 && break
+              sleep 2
+            done
+            k3s kubectl -n ingress-nginx patch svc ingress-nginx-controller --type=json -p='"'"'[
+              {"op":"replace","path":"/spec/ports/0/nodePort","value":30080},
+              {"op":"replace","path":"/spec/ports/1/nodePort","value":30443}
+            ]'"'"' || true
+            k3s kubectl -n ingress-nginx rollout status deploy/ingress-nginx-controller --timeout=240s
+            k3s kubectl -n ingress-nginx get svc
+          '
+
+      - name: Install cert-manager + ClusterIssuer
+        run: |
+          set -euo pipefail
+          /tmp/host-run.sh '
+            set -e
+            if ! k3s kubectl get ns cert-manager >/dev/null 2>&1; then
+              k3s kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.2/cert-manager.yaml
+            fi
+            k3s kubectl -n cert-manager rollout status deploy/cert-manager --timeout=240s
+            k3s kubectl -n cert-manager rollout status deploy/cert-manager-webhook --timeout=240s
+            k3s kubectl -n cert-manager rollout status deploy/cert-manager-cainjector --timeout=240s
+            cat <<EOF | k3s kubectl apply -f -
+          apiVersion: cert-manager.io/v1
+          kind: ClusterIssuer
+          metadata:
+            name: letsencrypt-prod
+          spec:
+            acme:
+              email: info@mallanet.org
+              server: https://acme-v02.api.letsencrypt.org/directory
+              privateKeySecretRef:
+                name: letsencrypt-prod-account-key
+              solvers:
+                - http01:
+                    ingress:
+                      class: nginx
+          EOF
+            k3s kubectl get clusterissuer
+          '
+
+      - name: Summary
+        run: |
+          /tmp/host-run.sh '
+            k3s kubectl get nodes -o wide
+            k3s kubectl get pods -A
+            echo "HTTP NodePort 30080 / HTTPS NodePort 30443"
+            echo "HAProxy Compose still owns host :80/:443"
+          '
