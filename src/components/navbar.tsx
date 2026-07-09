@@ -165,9 +165,11 @@ export function Navbar() {
             variant="outline"
             size="sm"
             asChild
-            className="border-[#25D366]/45 text-[#128C7E] hover:bg-[#25D366]/10 hover:text-[#128C7E]"
+            className="border-[#02A95C]/45 text-[#018A4B] hover:bg-[#02A95C]/10 hover:text-[#018A4B]"
           >
-            <DonationLink className="inline-flex items-center gap-1.5">Donar</DonationLink>
+            <DonationLink className="inline-flex items-center gap-1.5">
+              Donar en GoFundMe
+            </DonationLink>
           </Button>
           {user ? (
             <UserMenu />
@@ -217,13 +219,13 @@ export function Navbar() {
                 <Button
                   variant="outline"
                   asChild
-                  className="border-[#25D366]/45 text-[#128C7E] hover:bg-[#25D366]/10 hover:text-[#128C7E]"
+                  className="border-[#02A95C]/45 text-[#018A4B] hover:bg-[#02A95C]/10 hover:text-[#018A4B]"
                 >
                   <DonationLink
                     className="inline-flex items-center justify-center gap-2"
                     onClick={() => setOpen(false)}
                   >
-                    Donar por WhatsApp
+                    Donar en GoFundMe
                   </DonationLink>
                 </Button>
                 {user ? (

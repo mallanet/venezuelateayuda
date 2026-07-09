@@ -33,6 +33,5 @@ export const SITE_OPEN_GRAPH_IMAGE = {
   type: "image/png",
 } as const;
 
-/** Donaciones vía WhatsApp (coordinación terremoto). */
-export const DONATION_WHATSAPP_URL =
-  "https://api.whatsapp.com/send/?phone=15559386039&text&type=phone_number&app_absent=0";
+export const DONATION_URL =
+  "https://www.gofundme.com/f/support-mallanet-secure-tech-for-all";
