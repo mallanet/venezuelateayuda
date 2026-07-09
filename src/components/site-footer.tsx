@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Fragment } from "react";
-import { Mail, Map, Package, Search } from "lucide-react";
+import { FolderOpen, Mail, Map, Package, Search } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { DonationLink } from "@/components/donation-link";
 
@@ -112,6 +112,15 @@ export function SiteFooter() {
                   Únete a Discord
                 </a>
                 <a
+                  href="https://drive.google.com/drive/folders/1_UMrqDl4lAbXDYpt2sH45plVuhGCMLDo?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] px-4 py-2.5 text-sm font-semibold text-white shadow-soft hover-lift hover:shadow-accent-glow"
+                >
+                  <FolderOpen size={18} aria-hidden />
+                  Recursos compartidos
+                </a>
+                <a
                   href="mailto:info@mallanet.org"
                   className="inline-flex items-center gap-2 text-sm font-semibold text-primary underline-offset-4 decoration-accent/40 transition-colors hover:decoration-accent"
                 >
@@ -219,15 +228,6 @@ export function SiteFooter() {
               className="underline-offset-2 hover:text-primary hover:underline"
             >
               Riesgo sísmico
-            </a>
-            <LegalSeparator />
-            <a
-              href="https://drive.google.com/drive/folders/1_UMrqDl4lAbXDYpt2sH45plVuhGCMLDo?usp=sharing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline-offset-2 hover:text-primary hover:underline"
-            >
-              Recursos compartidos
             </a>
           </div>
         </div>
