@@ -22,7 +22,5 @@ venezuelateayuda.org, www.venezuelateayuda.org {
 	@notStatic not path /_next/static/*
 	header @notStatic Cache-Control "no-cache, must-revalidate"
 
-	reverse_proxy host.docker.internal:30080 {
-		header_up Host k8s.venezuelateayuda.org
-	}
+	reverse_proxy app:3000
 }
