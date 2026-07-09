@@ -1,8 +1,7 @@
 name: Deploy k8s apps
 
-# Requiere bootstrap-k3s previo. Despliega VTA + Hoy en k3s.
-# Terremoto: aplica manifiestos si el repo está en /tmp/runner/work/Terremotoapp.
-# Tráfico público sigue en Compose hasta cutover HAProxy → NodePort 30080/30443.
+# Requiere bootstrap-k3s. Despliega VTA + Hoy (+ Terremoto images) en k3s host.
+# Público sigue en Compose/HAProxy. Preview: NodePort 30080 con Host header.
 on:
   workflow_dispatch:
     inputs:
@@ -28,19 +27,19 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Host helper
+      - name: Host kubectl helper
         run: |
           set -euo pipefail
-          cat > /tmp/host-run.sh <<'EOS'
+          cat > /tmp/hk <<'EOS'
           #!/bin/sh
-          docker run --rm --privileged --pid=host --net=host \
-            alpine:3.20 \
+          docker run --rm --privileged --pid=host --net=host alpine:3.20 \
             nsenter --target 1 --mount --uts --ipc --net -- sh -c "$*"
           EOS
-          chmod +x /tmp/host-run.sh
-          /tmp/host-run.sh 'command -v k3s && k3s kubectl get nodes'
+          chmod +x /tmp/hk
+          /tmp/hk 'k3s kubectl get nodes -o wide'
+          /tmp/hk 'k3s kubectl -n ingress-nginx get svc'
 
-      - name: Write VTA env secret from production file
+      - name: Ensure production env file
         if: ${{ inputs.apps == 'all' || inputs.apps == 'vta' }}
         env:
           POSTGRES_PASSWORD: ${{ secrets.VTA_POSTGRES_PASSWORD }}
@@ -56,36 +55,12 @@ jobs:
           SMTP_FROM: ${{ secrets.VTA_SMTP_FROM }}
         run: |
           set -euo pipefail
-          chmod +x scripts/vps-write-env.sh
           export ADMIN_EMAIL="${ADMIN_EMAIL:-admin@mallanet.org}"
           export EMAIL_FROM="${EMAIL_FROM:-no-reply@mallanet.org}"
+          chmod +x scripts/vps-write-env.sh
           bash scripts/vps-write-env.sh
-          # Expose compose Postgres on loopback for k8s pods (hostNetwork app)
-          docker exec venezuelateayuda-db-1 true
-          # Ensure host can reach compose DB via published port if missing
-          if ! docker port venezuelateayuda-db-1 5432 >/dev/null 2>&1; then
-            echo "Publishing VTA postgres on 127.0.0.1:15432 via socat sidecar"
-            docker rm -f vta-pg-proxy 2>/dev/null || true
-            docker run -d --name vta-pg-proxy --restart unless-stopped \
-              --network container:venezuelateayuda-db-1 \
-              alpine/socat TCP-LISTEN:15432,fork,reuseaddr TCP:127.0.0.1:5432 || true
-          fi
 
-      - name: Build + import VTA image into k3s
-        if: ${{ inputs.apps == 'all' || inputs.apps == 'vta' }}
-        run: |
-          set -euo pipefail
-          docker compose -f docker-compose.prod.yml --env-file /opt/venezuelateayuda/.env.prod build app
-          docker tag venezuelateayuda-app:latest venezuelateayuda:k8s
-          docker save venezuelateayuda:k8s -o /tmp/vta-app.tar
-          /tmp/host-run.sh 'k3s ctr images import /tmp/vta-app.tar'
-          # Also build migrate image
-          docker compose -f docker-compose.prod.yml --env-file /opt/venezuelateayuda/.env.prod build migrate
-          docker tag venezuelateayuda-migrate:latest venezuelateayuda-migrate:k8s
-          docker save venezuelateayuda-migrate:k8s -o /tmp/vta-migrate.tar
-          /tmp/host-run.sh 'k3s ctr images import /tmp/vta-migrate.tar'
-
-      - name: Apply VTA manifests (hostNetwork → compose DB)
+      - name: Build/import VTA image + apply
         if: ${{ inputs.apps == 'all' || inputs.apps == 'vta' }}
         run: |
           set -euo pipefail
@@ -103,32 +78,52 @@ jobs:
           SMTP_USERNAME="$(env_prod_read "$ENV_FILE" SMTP_USERNAME)"
           SMTP_PASSWORD="$(env_prod_read "$ENV_FILE" SMTP_PASSWORD)"
           SMTP_FROM="$(env_prod_read "$ENV_FILE" SMTP_FROM)"
-          # Compose DB hostname from host network namespace
-          DB_HOST="$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' venezuelateayuda-db-1 | head -1)"
-          DATABASE_URL="postgresql://vta:${PG_PASS}@${DB_HOST}:5432/venezuelateayuda?schema=public"
+          DB_IP="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}} {{end}}' venezuelateayuda-db-1 | awk '{print $1}')"
+          test -n "$DB_IP"
+          DATABASE_URL="postgresql://vta:${PG_PASS}@${DB_IP}:5432/venezuelateayuda?schema=public"
 
-          /tmp/host-run.sh "k3s kubectl create ns venezuelateayuda --dry-run=client -o yaml | k3s kubectl apply -f -"
-          /tmp/host-run.sh "k3s kubectl -n venezuelateayuda create secret generic vta-env \
-            --from-literal=DATABASE_URL='${DATABASE_URL}' \
-            --from-literal=DATABASE_URL_UNPOOLED='${DATABASE_URL}' \
-            --from-literal=POSTGRES_PASSWORD='${PG_PASS}' \
-            --from-literal=AUTH_SECRET='${AUTH_SECRET}' \
-            --from-literal=AUTH_URL='https://venezuelateayuda.org' \
-            --from-literal=NEXT_PUBLIC_APP_URL='https://venezuelateayuda.org' \
-            --from-literal=EMAIL_FROM='${EMAIL_FROM}' \
-            --from-literal=RESEND_API_KEY='${RESEND_API_KEY}' \
-            --from-literal=SMTP_HOST='${SMTP_HOST}' \
-            --from-literal=SMTP_PORT='${SMTP_PORT:-465}' \
-            --from-literal=SMTP_USERNAME='${SMTP_USERNAME}' \
-            --from-literal=SMTP_PASSWORD='${SMTP_PASSWORD}' \
-            --from-literal=SMTP_FROM='${SMTP_FROM}' \
-            --from-literal=ADMIN_EMAIL='${ADMIN_EMAIL}' \
-            --from-literal=ADMIN_PASSWORD='${ADMIN_PASSWORD}' \
-            --from-literal=UPLOADS_DIR='/data/uploads' \
-            --dry-run=client -o yaml | k3s kubectl apply -f -"
+          docker compose -f docker-compose.prod.yml --env-file "$ENV_FILE" build app
+          docker tag venezuelateayuda-app:latest venezuelateayuda:k8s
+          docker save venezuelateayuda:k8s | /tmp/hk 'k3s ctr images import -'
 
-          # Runtime overlay: use local images + hostNetwork to reach compose DB IP
-          cat > /tmp/vta-runtime.yaml <<EOF
+          /tmp/hk 'k3s kubectl create ns venezuelateayuda --dry-run=client -o yaml | k3s kubectl apply -f -'
+
+          # Secret via kubectl from runner (docker exec into a kubectl container with kubeconfig from host)
+          docker run --rm --privileged --pid=host --net=host \
+            -e DATABASE_URL="$DATABASE_URL" \
+            -e PG_PASS="$PG_PASS" \
+            -e AUTH_SECRET="$AUTH_SECRET" \
+            -e ADMIN_EMAIL="$ADMIN_EMAIL" \
+            -e ADMIN_PASSWORD="$ADMIN_PASSWORD" \
+            -e EMAIL_FROM="$EMAIL_FROM" \
+            -e RESEND_API_KEY="$RESEND_API_KEY" \
+            -e SMTP_HOST="$SMTP_HOST" \
+            -e SMTP_PORT="${SMTP_PORT:-465}" \
+            -e SMTP_USERNAME="$SMTP_USERNAME" \
+            -e SMTP_PASSWORD="$SMTP_PASSWORD" \
+            -e SMTP_FROM="$SMTP_FROM" \
+            alpine:3.20 nsenter --target 1 --mount --uts --ipc --net -- sh -c '
+              k3s kubectl -n venezuelateayuda create secret generic vta-env \
+                --from-literal=DATABASE_URL="$DATABASE_URL" \
+                --from-literal=DATABASE_URL_UNPOOLED="$DATABASE_URL" \
+                --from-literal=POSTGRES_PASSWORD="$PG_PASS" \
+                --from-literal=AUTH_SECRET="$AUTH_SECRET" \
+                --from-literal=AUTH_URL=https://venezuelateayuda.org \
+                --from-literal=NEXT_PUBLIC_APP_URL=https://venezuelateayuda.org \
+                --from-literal=EMAIL_FROM="$EMAIL_FROM" \
+                --from-literal=RESEND_API_KEY="$RESEND_API_KEY" \
+                --from-literal=SMTP_HOST="$SMTP_HOST" \
+                --from-literal=SMTP_PORT="$SMTP_PORT" \
+                --from-literal=SMTP_USERNAME="$SMTP_USERNAME" \
+                --from-literal=SMTP_PASSWORD="$SMTP_PASSWORD" \
+                --from-literal=SMTP_FROM="$SMTP_FROM" \
+                --from-literal=ADMIN_EMAIL="$ADMIN_EMAIL" \
+                --from-literal=ADMIN_PASSWORD="$ADMIN_PASSWORD" \
+                --from-literal=UPLOADS_DIR=/data/uploads \
+                --dry-run=client -o yaml | k3s kubectl apply -f -
+            '
+
+          cat > /tmp/vta.yaml <<'YAML'
           apiVersion: v1
           kind: PersistentVolumeClaim
           metadata:
@@ -145,6 +140,9 @@ jobs:
           metadata:
             name: app
             namespace: venezuelateayuda
+            labels:
+              app: venezuelateayuda
+              tier: web
           spec:
             replicas: 1
             selector:
@@ -165,6 +163,7 @@ jobs:
                     imagePullPolicy: Never
                     ports:
                       - containerPort: 3000
+                        hostPort: 3000
                     envFrom:
                       - secretRef:
                           name: vta-env
@@ -182,7 +181,7 @@ jobs:
                       httpGet:
                         path: /api/health
                         port: 3000
-                      initialDelaySeconds: 8
+                      initialDelaySeconds: 10
                       periodSeconds: 10
                 volumes:
                   - name: uploads
@@ -222,16 +221,19 @@ jobs:
                           name: app
                           port:
                             number: 80
-          EOF
-          # Copy yaml into host and apply
-          docker cp /tmp/vta-runtime.yaml "$(docker create --name tmpcp alpine:3.20):/vta-runtime.yaml" 2>/dev/null || true
-          /tmp/host-run.sh 'cat > /tmp/vta-runtime.yaml' < /tmp/vta-runtime.yaml
-          # Write via base64 to avoid quoting hell
-          B64=$(base64 -w0 /tmp/vta-runtime.yaml)
-          /tmp/host-run.sh "echo ${B64} | base64 -d > /tmp/vta-runtime.yaml && k3s kubectl apply -f /tmp/vta-runtime.yaml"
-          /tmp/host-run.sh 'k3s kubectl -n venezuelateayuda rollout status deploy/app --timeout=180s || k3s kubectl -n venezuelateayuda describe pod -l tier=web | tail -40'
+          YAML
+          # hostPort 3000 conflicts with compose app — use 3010 for k8s preview
+          sed -i 's/hostPort: 3000/hostPort: 3010/' /tmp/vta.yaml
+          sed -i 's/containerPort: 3000/containerPort: 3010/' /tmp/vta.yaml
+          sed -i 's/value: "3000"/value: "3010"/' /tmp/vta.yaml
+          sed -i 's/port: 3000/port: 3010/' /tmp/vta.yaml
+          sed -i 's/targetPort: 3000/targetPort: 3010/' /tmp/vta.yaml
 
-      - name: Clone + build Venezuela Hoy
+          B64=$(base64 -w0 /tmp/vta.yaml)
+          /tmp/hk "echo $B64 | base64 -d > /tmp/vta.yaml && k3s kubectl apply -f /tmp/vta.yaml"
+          /tmp/hk 'k3s kubectl -n venezuelateayuda rollout status deploy/app --timeout=240s || (k3s kubectl -n venezuelateayuda get pods -o wide; k3s kubectl -n venezuelateayuda describe pod -l tier=web | tail -50; exit 1)'
+
+      - name: Build/import Venezuela Hoy + apply
         if: ${{ inputs.apps == 'all' || inputs.apps == 'hoy' }}
         env:
           GH_TOKEN: ${{ secrets.MALLADOG_REPO_TOKEN }}
@@ -240,9 +242,9 @@ jobs:
           rm -rf /tmp/venezuelahoy
           git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/mallanet/venezuelahoy.git" /tmp/venezuelahoy
           docker build -t venezuelahoy:k8s /tmp/venezuelahoy
-          docker save venezuelahoy:k8s -o /tmp/hoy.tar
-          /tmp/host-run.sh 'k3s ctr images import /tmp/hoy.tar'
-          cat > /tmp/hoy-runtime.yaml <<'EOF'
+          docker save venezuelahoy:k8s | /tmp/hk 'k3s ctr images import -'
+
+          cat > /tmp/hoy.yaml <<'YAML'
           apiVersion: v1
           kind: Namespace
           metadata:
@@ -307,45 +309,39 @@ jobs:
                           name: web
                           port:
                             number: 80
-          EOF
-          B64=$(base64 -w0 /tmp/hoy-runtime.yaml)
-          /tmp/host-run.sh "echo ${B64} | base64 -d > /tmp/hoy-runtime.yaml && k3s kubectl apply -f /tmp/hoy-runtime.yaml"
-          /tmp/host-run.sh 'k3s kubectl -n venezuelahoy rollout status deploy/web --timeout=120s'
+          YAML
+          B64=$(base64 -w0 /tmp/hoy.yaml)
+          /tmp/hk "echo $B64 | base64 -d > /tmp/hoy.yaml && k3s kubectl apply -f /tmp/hoy.yaml"
+          /tmp/hk 'k3s kubectl -n venezuelahoy rollout status deploy/web --timeout=180s'
 
-      - name: Apply Terremoto k8s overlays (images from local compose)
+      - name: Import Terremoto images into k3s
         if: ${{ inputs.apps == 'all' || inputs.apps == 'terremoto' }}
         run: |
           set -euo pipefail
-          TDIR=""
-          for d in /tmp/runner/work/Terremotoapp/Terremotoapp /opt/mapa; do
-            if [[ -f "$d/docker-compose.prod.yml" ]]; then TDIR="$d"; break; fi
-          done
-          if [[ -z "$TDIR" ]]; then
-            echo "Terremoto checkout not found on runner — skip image build, apply namespace only"
-            /tmp/host-run.sh 'k3s kubectl apply -f -' <<'EOF'
-          apiVersion: v1
-          kind: Namespace
-          metadata:
-            name: mapa
-          EOF
-            exit 0
-          fi
-          echo "Using Terremoto at $TDIR"
-          # Tag existing images if present
+          /tmp/hk 'k3s kubectl create ns mapa --dry-run=client -o yaml | k3s kubectl apply -f -'
           for img in terremotoapp-frontend terremotoapp-backend terremotoapp-admin terremotoapp-worker; do
             if docker image inspect "$img:latest" >/dev/null 2>&1; then
               docker tag "$img:latest" "${img}:k8s"
-              docker save "${img}:k8s" -o "/tmp/${img}.tar"
-              /tmp/host-run.sh "k3s ctr images import /tmp/${img}.tar"
+              docker save "${img}:k8s" | /tmp/hk 'k3s ctr images import -'
+              echo "imported $img"
+            else
+              echo "missing $img — skip"
             fi
           done
-          /tmp/host-run.sh 'k3s kubectl create ns mapa --dry-run=client -o yaml | k3s kubectl apply -f -'
-          echo "Terremoto images imported (full Deployment cutover needs app-env secret + DB wiring)."
+          /tmp/hk 'k3s ctr images ls | grep -E "venezuelateayuda|venezuelahoy|terremotoapp" || true'
 
-      - name: Point HAProxy preview backends (optional hosts)
+      - name: Smoke NodePort previews
         run: |
           set -euo pipefail
-          # Smoke via NodePort without cutting public DNS
-          curl -sI -H 'Host: hoy.k8s.mallanet.org' http://127.0.0.1:30080/ | head -5 || true
-          curl -sI -H 'Host: k8s.venezuelateayuda.org' http://127.0.0.1:30080/ | head -5 || true
-          /tmp/host-run.sh 'k3s kubectl get pods -A; k3s kubectl get ingress -A; k3s kubectl -n ingress-nginx get svc'
+          echo "== pods =="
+          /tmp/hk 'k3s kubectl get pods -A'
+          echo "== ingress =="
+          /tmp/hk 'k3s kubectl get ingress -A'
+          echo "== smoke hoy =="
+          curl -sI -H 'Host: hoy.k8s.mallanet.org' http://127.0.0.1:30080/ | head -8 || true
+          echo "== smoke vta k8s =="
+          curl -sI -H 'Host: k8s.venezuelateayuda.org' http://127.0.0.1:30080/ | head -8 || true
+          curl -sI http://127.0.0.1:3010/api/health | head -8 || true
+          echo "Public sites still on Compose HAProxy :80/:443"
+          curl -sI https://venezuelateayuda.org/api/health | head -5
+          curl -sI https://terremotovenezuela.app | head -5
