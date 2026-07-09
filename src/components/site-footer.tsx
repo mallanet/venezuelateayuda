@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import { FolderOpen, Mail, Map, Package, Search } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { DonationLink } from "@/components/donation-link";
+import { GoFundMeEmbed } from "@/components/gofundme-embed";
 
 const ALLY_GROUPS = [
   {
@@ -128,6 +129,7 @@ export function SiteFooter() {
                   info@mallanet.org
                 </a>
               </div>
+              <GoFundMeEmbed className="mt-2 max-w-md" />
             </section>
           </div>
 
