@@ -22,8 +22,10 @@ RUN addgroup -S nodejs && adduser -S prisma -G nodejs
 COPY --from=deps /app/node_modules ./node_modules
 COPY prisma ./prisma
 COPY src/lib/abroad.ts ./src/lib/abroad.ts
+COPY src/lib/venezuela.ts ./src/lib/venezuela.ts
+COPY scripts/backfill-zone-coords.ts ./scripts/backfill-zone-coords.ts
 COPY package.json tsconfig.json ./
-# seed.ts lives under prisma/; keep stage usable for migrate + seed profile
+# seed.ts lives under prisma/; keep stage usable for migrate + seed + backfill
 RUN chown -R prisma:nodejs /app
 USER prisma
 CMD ["npx", "prisma", "migrate", "deploy"]
