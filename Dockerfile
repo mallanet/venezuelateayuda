@@ -44,4 +44,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV UPLOADS_DIR=/data/uploads
-CMD ["npx", "next", "start", "-p", "3000", "-H", "0.0.0.0"]
+# Respeta PORT (Compose=3000, k8s preview puede usar otro).
+CMD ["sh", "-c", "exec npx next start -p \"${PORT:-3000}\" -H \"${HOSTNAME:-0.0.0.0}\""]
