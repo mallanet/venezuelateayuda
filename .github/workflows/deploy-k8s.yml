@@ -120,7 +120,8 @@ jobs:
           }
           pathlib.Path("/tmp/vta-secret.json").write_text(json.dumps(data))
           PY
-          docker run --rm -v /var/tmp:/out -v /tmp/vta-secret.json:/in.json:ro alpine:3.20 cp /in.json /out/vta-secret.json
+          # Runner /tmp ≠ host /tmp: volcar al host vía stdin
+          docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/vta-secret.json' < /tmp/vta-secret.json
           /tmp/hk 'k3s kubectl apply -f /var/tmp/vta-secret.json && rm -f /var/tmp/vta-secret.json'
 
           cat > /tmp/vta.yaml <<'YAML'
@@ -223,7 +224,7 @@ jobs:
           YAML
           # Strip leading spaces from indented heredoc
           sed -i 's/^          //' /tmp/vta.yaml
-          docker run --rm -v /var/tmp:/out -v /tmp/vta.yaml:/in.yaml:ro alpine:3.20 cp /in.yaml /out/vta.yaml
+          docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/vta.yaml' < /tmp/vta.yaml
           /tmp/hk 'k3s kubectl apply -f /var/tmp/vta.yaml'
           /tmp/hk 'k3s kubectl -n venezuelateayuda rollout status deploy/app --timeout=240s || (k3s kubectl -n venezuelateayuda get pods -o wide; k3s kubectl -n venezuelateayuda describe pod -l tier=web | tail -60; exit 1)'
 
@@ -306,7 +307,7 @@ jobs:
                             number: 80
           YAML
           sed -i 's/^          //' /tmp/hoy.yaml
-          docker run --rm -v /var/tmp:/out -v /tmp/hoy.yaml:/in.yaml:ro alpine:3.20 cp /in.yaml /out/hoy.yaml
+          docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/hoy.yaml' < /tmp/hoy.yaml
           /tmp/hk 'k3s kubectl apply -f /var/tmp/hoy.yaml'
           /tmp/hk 'k3s kubectl -n venezuelahoy rollout status deploy/web --timeout=180s'
 
