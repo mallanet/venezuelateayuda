@@ -81,9 +81,10 @@ jobs:
           test -n "$DB_IP"
           DATABASE_URL="postgresql://vta:${PG_PASS}@${DB_IP}:5432/venezuelateayuda?schema=public"
 
+          IMG_TAG="k8s-${GITHUB_SHA:-manual}"
           docker compose -f docker-compose.prod.yml --env-file "$ENV_FILE" build app
-          docker tag venezuelateayuda-app:latest venezuelateayuda:k8s
-          docker save venezuelateayuda:k8s | docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/vta-k8s.tar'
+          docker tag venezuelateayuda-app:latest "venezuelateayuda:${IMG_TAG}"
+          docker save "venezuelateayuda:${IMG_TAG}" | docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/vta-k8s.tar'
           /tmp/hk 'k3s ctr images import /var/tmp/vta-k8s.tar && rm -f /var/tmp/vta-k8s.tar'
 
           /tmp/hk 'k3s kubectl create ns venezuelateayuda --dry-run=client -o yaml | k3s kubectl apply -f -'
@@ -123,9 +124,11 @@ jobs:
           docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/vta-secret.json' < /tmp/vta-secret.json
           /tmp/hk 'k3s kubectl apply -f /var/tmp/vta-secret.json && rm -f /var/tmp/vta-secret.json'
 
-          docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/vta.yaml' < infra/k8s/runtime/vta-preview.yaml
+          sed "s|venezuelateayuda:k8s|venezuelateayuda:${IMG_TAG}|g" infra/k8s/runtime/vta-preview.yaml > /tmp/vta.yaml
+          docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/vta.yaml' < /tmp/vta.yaml
           /tmp/hk 'k3s kubectl apply -f /var/tmp/vta.yaml'
-          /tmp/hk 'k3s kubectl -n venezuelateayuda rollout status deploy/app --timeout=240s || (k3s kubectl -n venezuelateayuda get pods -o wide; k3s kubectl -n venezuelateayuda describe pod -l tier=web | tail -60; exit 1)'
+          /tmp/hk 'k3s kubectl -n venezuelateayuda delete pod -l tier=web --force --grace-period=0 || true'
+          /tmp/hk 'k3s kubectl -n venezuelateayuda rollout status deploy/app --timeout=240s || (k3s kubectl -n venezuelateayuda get pods -o wide; k3s kubectl -n venezuelateayuda logs -l tier=web --tail=80; k3s kubectl -n venezuelateayuda describe pod -l tier=web | tail -80; exit 1)'
 
       - name: Build/import Venezuela Hoy + apply
         if: ${{ inputs.apps == 'all' || inputs.apps == 'hoy' }}
@@ -135,12 +138,15 @@ jobs:
           set -euo pipefail
           rm -rf /tmp/venezuelahoy
           git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/mallanet/venezuelahoy.git" /tmp/venezuelahoy
-          docker build -t venezuelahoy:k8s /tmp/venezuelahoy
-          docker save venezuelahoy:k8s | docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/hoy-k8s.tar'
+          HOY_TAG="k8s-${GITHUB_SHA:-manual}"
+          docker build -t "venezuelahoy:${HOY_TAG}" /tmp/venezuelahoy
+          docker save "venezuelahoy:${HOY_TAG}" | docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/hoy-k8s.tar'
           /tmp/hk 'k3s ctr images import /var/tmp/hoy-k8s.tar && rm -f /var/tmp/hoy-k8s.tar'
 
-          docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/hoy.yaml' < /tmp/venezuelahoy/infra/k8s/runtime/hoy-preview.yaml
+          sed "s|venezuelahoy:k8s|venezuelahoy:${HOY_TAG}|g" /tmp/venezuelahoy/infra/k8s/runtime/hoy-preview.yaml > /tmp/hoy.yaml
+          docker run --rm -i -v /var/tmp:/out alpine:3.20 sh -c 'cat > /out/hoy.yaml' < /tmp/hoy.yaml
           /tmp/hk 'k3s kubectl apply -f /var/tmp/hoy.yaml'
+          /tmp/hk 'k3s kubectl -n venezuelahoy delete pod -l tier=web --force --grace-period=0 || true'
           /tmp/hk 'k3s kubectl -n venezuelahoy rollout status deploy/web --timeout=180s'
 
       - name: Import Terremoto images into k3s
