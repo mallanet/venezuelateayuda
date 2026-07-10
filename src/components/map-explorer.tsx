@@ -130,8 +130,8 @@ function MapExplorerInner() {
     <div className="bg-section-glow flex flex-1 flex-col" data-testid="map-explorer">
       <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6">
         <div className="grid flex-1 gap-6 lg:grid-cols-[320px_1fr]">
-          {/* Desktop sidebar — filters + listing list */}
-          <aside className="hidden overflow-y-auto rounded-2xl border border-border/60 bg-card shadow-soft lg:flex lg:flex-col">
+          {/* Desktop sidebar — filters only */}
+          <aside className="hidden self-start rounded-2xl border border-border/60 bg-card shadow-soft lg:block">
             <MapFilterSidebar
               filters={filters}
               onChange={updateFilters}
@@ -142,23 +142,17 @@ function MapExplorerInner() {
               hasGeolocation={hasGeolocation}
               geoPermission={geoPermission}
               isLocating={isLocating}
-              className="border-b border-border/40 p-5"
-            />
-            <ListingList
-              listings={visibleListings}
-              isLoading={isLoading}
-              focusId={focusId}
-              onFocus={setFocusId}
-              testId="listing-list-desktop"
+              className="p-5"
             />
           </aside>
 
-          {/* Map card */}
-          <div className="relative flex h-[420px] flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-elevated sm:h-[480px] lg:h-[560px]">
-            <span
-              className="pointer-events-none absolute top-0 right-0 z-[400] h-10 w-10 rounded-bl-2xl border-l border-b border-accent/30 bg-gradient-to-bl from-accent/15 to-transparent"
-              aria-hidden
-            />
+          <div className="grid min-w-0 gap-5">
+            {/* Map card */}
+            <div className="relative flex h-[420px] flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-elevated sm:h-[480px] lg:h-[560px]">
+              <span
+                className="pointer-events-none absolute top-0 right-0 z-[400] h-10 w-10 rounded-bl-2xl border-l border-b border-accent/30 bg-gradient-to-bl from-accent/15 to-transparent"
+                aria-hidden
+              />
 
             {/* Mobile filter toggle */}
             <div className="absolute top-3 left-3 z-[1000] lg:hidden">
@@ -240,6 +234,29 @@ function MapExplorerInner() {
                 />
               </div>
             </div>
+            </div>
+
+            <section
+              className="hidden rounded-2xl border border-border/60 bg-card p-5 shadow-soft lg:block"
+              aria-labelledby="map-results-title"
+            >
+              <div className="flex items-baseline justify-between gap-4 border-b border-border/40 pb-4">
+                <h2 id="map-results-title" className="font-display text-lg font-semibold text-primary">
+                  Fichas de ayuda
+                </h2>
+                <span className="text-sm text-muted-foreground">
+                  {isLoading ? "Cargando…" : `${visibleListings.length} resultados`}
+                </span>
+              </div>
+              <ListingList
+                listings={visibleListings}
+                isLoading={isLoading}
+                focusId={focusId}
+                onFocus={setFocusId}
+                testId="listing-list-desktop"
+                grid
+              />
+            </section>
           </div>
         </div>
       </div>
@@ -253,12 +270,14 @@ function ListingList({
   focusId,
   onFocus,
   testId,
+  grid = false,
 }: {
   listings: PublicListing[];
   isLoading: boolean;
   focusId: string | null;
   onFocus: (id: string) => void;
   testId: string;
+  grid?: boolean;
 }) {
   if (isLoading) {
     return (
@@ -283,7 +302,10 @@ function ListingList({
   }
 
   return (
-    <ul className="grid gap-2 p-3" data-testid={testId}>
+    <ul
+      className={cn("grid gap-3", grid ? "pt-5 xl:grid-cols-2" : "p-3")}
+      data-testid={testId}
+    >
       {listings.map((listing) => {
         const CategoryIcon = CATEGORY_ICONS[listing.category];
         return (
